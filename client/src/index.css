@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-ink-900 text-white font-sans;
+  }
+  h1, h2, h3, h4, h5 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ink-900 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-brand-500 hover:bg-brand-600 text-white focus:ring-brand-400 shadow-glow;
+  }
+  .btn-accent {
+    @apply btn bg-accent-500 hover:bg-accent-600 text-ink-900 focus:ring-accent-500;
+  }
+  .btn-ghost {
+    @apply btn bg-white/5 hover:bg-white/10 text-white border border-white/10;
+  }
+  .card {
+    @apply rounded-2xl bg-ink-800/60 border border-white/5 backdrop-blur-sm overflow-hidden;
+  }
+  .field {
+    @apply w-full rounded-xl bg-ink-800 border border-white/10 px-4 py-2.5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-500;
+  }
+  .label {
+    @apply block text-sm font-medium text-white/70 mb-1;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white/80;
+  }
+  .section-title {
+    @apply text-3xl sm:text-4xl font-extrabold;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-300 via-brand-400 to-accent-500 bg-clip-text text-transparent;
+  }
+  .grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 30% 20%, rgba(52,88,255,0.15), transparent 40%),
+                      radial-gradient(circle at 70% 80%, rgba(245,158,11,0.12), transparent 45%);
+    pointer-events: none;
+  }
+}

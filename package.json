@@ -1,0 +1,35 @@
+{
+  "name": "batallon11",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sitio institucional del Batallón 11 General José María Paz - Exploradores Argentinos de Don Bosco",
+  "packageManager": "pnpm@9.12.3",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "install:all": "pnpm install",
+    "dev": "concurrently -n server,client -c blue,magenta \"pnpm --filter batallon11-server dev\" \"pnpm --filter batallon11-client dev\"",
+    "dev:server": "pnpm --filter batallon11-server dev",
+    "dev:client": "pnpm --filter batallon11-client dev",
+    "build": "pnpm --filter batallon11-client build",
+    "start": "pnpm --filter batallon11-server start",
+    "prisma:migrate": "pnpm --filter batallon11-server prisma:migrate",
+    "prisma:deploy": "pnpm --filter batallon11-server prisma:deploy",
+    "prisma:generate": "pnpm --filter batallon11-server prisma:generate",
+    "prisma:seed": "pnpm --filter batallon11-server prisma:seed",
+    "prisma:studio": "pnpm --filter batallon11-server prisma:studio"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
+      "bcrypt"
+    ]
+  }
+}

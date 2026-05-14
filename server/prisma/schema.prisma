@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+model Stage {
+  id          Int     @id @default(autoincrement())
+  name        String
+  slug        String  @unique
+  logo        String?
+  coverImage  String?
+  description String?
+  color       String?
+  order       Int     @default(0)
+  active      Boolean @default(true)
+
+  posts   StagePost[]
+  gallery StageGalleryImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stages")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  image     String?
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("posts")
+  @@index([createdAt])
+}
+
+model StagePost {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  image     String?
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stageId Int
+  stage   Stage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+
+  @@map("stage_posts")
+  @@index([stageId, createdAt])
+}
+
+model GalleryImage {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("gallery_images")
+  @@index([order])
+}
+
+model StageGalleryImage {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  stageId Int
+  stage   Stage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+
+  @@map("stage_gallery_images")
+  @@index([stageId, order])
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  image       String?
+  location    String?
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("events")
+  @@index([date])
+}
+
+model HeroSection {
+  id           Int      @id @default(autoincrement())
+  heroImage    String?
+  heroTitle    String
+  heroSubtitle String?
+  ctaText      String?
+  ctaLink      String?
+  updatedAt    DateTime @updatedAt
+
+  @@map("hero_section")
+}
+
+model VideoSection {
+  id        Int      @id @default(autoincrement())
+  videoUrl  String
+  title     String?
+  subtitle  String?
+  updatedAt DateTime @updatedAt
+
+  @@map("video_section")
+}
