@@ -23,12 +23,12 @@ export const STAGE_GLOW_COLORS = {
 // Factor de escala por etapa, para que TODOS los logos se vean del mismo tamaño
 // visual (algunos archivos tienen mucho padding interno o son rectangulares).
 export const STAGE_LOGO_SCALE = {
-  soles: 0.95,
-  'horneros-pichones': 0.9,
-  'caminantes-chispistas': 1.05,
-  'pioneros-fuegos': 1,
-  rastreadores: 1,
-  baqueanos: 1,
+  soles: 1.05,
+  'horneros-pichones': 1.1,
+  'caminantes-chispistas': 1.2,
+  'pioneros-fuegos': 1.28,
+  rastreadores: 1.1,
+  baqueanos: 1.2,
 };
 
 export const BRAND_LOGO = '/LogoBatallon11.png';

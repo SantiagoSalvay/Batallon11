@@ -42,7 +42,7 @@ export default function StagesGrid({ stages = [] }) {
               >
                 <Link
                   to={`/etapas/${stage.slug}`}
-                  className="group block text-center transition-transform duration-300 hover:-translate-y-2"
+                  className="group block text-center transition-all duration-300"
                 >
                   <div className="relative mx-auto h-36 w-36 sm:h-40 sm:w-40 flex items-center justify-center">
                     <div
@@ -57,7 +57,7 @@ export default function StagesGrid({ stages = [] }) {
                         <img
                           src={logo}
                           alt={stage.name}
-                          className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
+                          className="h-full w-full object-contain transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-2"
                           style={{
                             filter: `drop-shadow(0 14px 24px rgba(0,0,0,0.55)) drop-shadow(0 0 22px ${color}aa)`,
                           }}
