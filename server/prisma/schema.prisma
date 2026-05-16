@@ -20,27 +20,20 @@ model User {
   @@map("users")
 }
 
-enum Role {
-  ADMIN
-  EDITOR
-}
-
 model Stage {
-  id          Int     @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   name        String
-  slug        String  @unique
+  slug        String              @unique
   logo        String?
   coverImage  String?
   description String?
   color       String?
-  order       Int     @default(0)
-  active      Boolean @default(true)
-
-  posts   StagePost[]
-  gallery StageGalleryImage[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  order       Int                 @default(0)
+  active      Boolean             @default(true)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  gallery     StageGalleryImage[]
+  posts       StagePost[]
 
   @@map("stages")
 }
@@ -54,8 +47,8 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("posts")
   @@index([createdAt])
+  @@map("posts")
 }
 
 model StagePost {
@@ -66,12 +59,11 @@ model StagePost {
   published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  stageId   Int
+  stage     Stage    @relation(fields: [stageId], references: [id], onDelete: Cascade)
 
-  stageId Int
-  stage   Stage @relation(fields: [stageId], references: [id], onDelete: Cascade)
-
-  @@map("stage_posts")
   @@index([stageId, createdAt])
+  @@map("stage_posts")
 }
 
 model GalleryImage {
@@ -81,8 +73,8 @@ model GalleryImage {
   order     Int      @default(0)
   createdAt DateTime @default(now())
 
-  @@map("gallery_images")
   @@index([order])
+  @@map("gallery_images")
 }
 
 model StageGalleryImage {
@@ -91,12 +83,11 @@ model StageGalleryImage {
   caption   String?
   order     Int      @default(0)
   createdAt DateTime @default(now())
+  stageId   Int
+  stage     Stage    @relation(fields: [stageId], references: [id], onDelete: Cascade)
 
-  stageId Int
-  stage   Stage @relation(fields: [stageId], references: [id], onDelete: Cascade)
-
-  @@map("stage_gallery_images")
   @@index([stageId, order])
+  @@map("stage_gallery_images")
 }
 
 model Event {
@@ -109,8 +100,8 @@ model Event {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@map("events")
   @@index([date])
+  @@map("events")
 }
 
 model HeroSection {
@@ -133,4 +124,9 @@ model VideoSection {
   updatedAt DateTime @updatedAt
 
   @@map("video_section")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
 }
