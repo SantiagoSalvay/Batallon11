@@ -60,21 +60,22 @@ export default function StagePage() {
 
   return (
     <>
-      <section className="relative isolate overflow-hidden">
+      <section className="relative isolate overflow-hidden bg-ink-900">
         <div className="absolute inset-0 -z-10">
-          {stage.coverImage ? (
+          {stage.coverImage && (
             <img
               src={asset(stage.coverImage)}
               alt=""
               className="h-full w-full object-cover opacity-60"
             />
-          ) : (
-            <div
-              className="h-full w-full"
-              style={{ background: `linear-gradient(135deg, ${color}80, #0b1020)` }}
-            />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/80 to-transparent" />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse 80% 70% at top left, ${color}66, transparent 65%)`,
+            }}
+          />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-ink-900" />
         </div>
 
         <div className="container-app pt-24 pb-12 sm:pt-28 sm:pb-16">
