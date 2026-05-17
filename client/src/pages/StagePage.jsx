@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api, asset } from '../services/api.js';
 import PostsList from '../components/PostsList.jsx';
@@ -14,9 +14,14 @@ function resolveLogo(path) {
 
 export default function StagePage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [stage, setStage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [slug]);
 
   useEffect(() => {
     setLoading(true);
@@ -26,6 +31,11 @@ export default function StagePage() {
       .catch((err) => setError(err.response?.data?.message || err.message))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  const goHome = (e) => {
+    e.preventDefault();
+    navigate('/', { state: { scrollTo: 'top' } });
+  };
 
   if (loading) {
     return (
@@ -50,7 +60,7 @@ export default function StagePage() {
 
   return (
     <>
-      <section className="relative isolate min-h-[80vh] flex items-end overflow-hidden">
+      <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0 -z-10">
           {stage.coverImage ? (
             <img
@@ -67,43 +77,39 @@ export default function StagePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/80 to-transparent" />
         </div>
 
-        <div className="container-app py-20">
+        <div className="container-app pt-24 pb-12 sm:pt-28 sm:pb-16">
+          <Link
+            to="/"
+            onClick={goHome}
+            className="text-sm text-white/60 hover:text-white"
+          >
+            ← Volver al principio
+          </Link>
+
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="max-w-3xl"
+            className="max-w-3xl mt-10 flex items-center gap-5"
           >
-            <Link to="/#etapas" className="text-sm text-white/60 hover:text-white">
-              ← Volver a etapas
-            </Link>
-
-            <div className="mt-6 flex items-center gap-5">
-              {logo && (
-                <img
-                  src={logo}
-                  alt={stage.name}
-                  className="h-28 w-28 sm:h-32 sm:w-32 object-contain"
-                  style={{
-                    filter: `drop-shadow(0 12px 30px rgba(0,0,0,0.5)) drop-shadow(0 0 20px ${color}80)`,
-                  }}
-                />
-              )}
-              <div>
-                <span
-                  className="inline-block h-1.5 w-12 rounded mb-3"
-                  style={{ backgroundColor: color }}
-                />
-                <h1 className="text-4xl sm:text-5xl font-extrabold">
-                  <span className="text-gradient">{stage.name}</span>
-                </h1>
-              </div>
-            </div>
-
-            {stage.description && (
-              <p className="mt-6 text-lg text-white/80 max-w-2xl whitespace-pre-line">
-                {stage.description}
-              </p>
+            {logo && (
+              <img
+                src={logo}
+                alt={stage.name}
+                className="h-28 w-28 sm:h-32 sm:w-32 object-contain"
+                style={{
+                  filter: `drop-shadow(0 12px 30px rgba(0,0,0,0.5)) drop-shadow(0 0 20px ${color}80)`,
+                }}
+              />
             )}
+            <div>
+              <span
+                className="inline-block h-1.5 w-12 rounded mb-3"
+                style={{ backgroundColor: color }}
+              />
+              <h1 className="text-4xl sm:text-5xl font-extrabold">
+                <span className="text-gradient">{stage.name}</span>
+              </h1>
+            </div>
           </motion.div>
         </div>
       </section>
