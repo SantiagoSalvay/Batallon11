@@ -1,13 +1,31 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { BRAND_LOGO, EMBLEMA } from '../lib/stageAssets.js';
 import { requestAdminAccess } from '../lib/adminAccess.js';
 
 // Tailwind md breakpoint
 const MOBILE_BREAKPOINT = 768;
 
+const INFO_LINKS = [
+  { target: 'top', label: 'Inicio' },
+  { target: 'etapas', label: 'Etapas' },
+  { target: 'galeria', label: 'Galería' },
+  { target: 'eventos', label: 'Eventos' },
+  { target: 'contacto', label: 'Contacto' },
+];
+
+function scrollToTarget(target) {
+  if (target === 'top') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  const el = document.getElementById(target);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 export default function Footer() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const onKey = (e) => {
@@ -24,6 +42,14 @@ export default function Footer() {
     if (window.innerWidth < MOBILE_BREAKPOINT) {
       requestAdminAccess(navigate);
     }
+  };
+
+  const handleNavClick = (target) => {
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: target } });
+      return;
+    }
+    scrollToTarget(target);
   };
 
   return (
@@ -54,14 +80,19 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-semibold mb-3">Etapas</h4>
-          <ul className="space-y-1 text-sm text-white/70">
-            <li>Horneros y Pichones</li>
-            <li>Caminantes y Chispistas</li>
-            <li>Pioneros y Fuegos</li>
-            <li>Rastreadores</li>
-            <li>Baqueanos</li>
-            <li>Soles</li>
+          <h4 className="font-semibold mb-3">Información</h4>
+          <ul className="space-y-1 text-sm">
+            {INFO_LINKS.map((l) => (
+              <li key={l.target}>
+                <button
+                  type="button"
+                  onClick={() => handleNavClick(l.target)}
+                  className="text-white/70 hover:text-white transition"
+                >
+                  {l.label}
+                </button>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -86,16 +117,21 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 w-full max-w-sm">
-          <div>
-            <h4 className="font-semibold mb-3 text-sm">Etapas</h4>
-            <ul className="space-y-1 text-xs text-white/70">
-              <li>Horneros y Pichones</li>
-              <li>Caminantes y Chispistas</li>
-              <li>Pioneros y Fuegos</li>
-              <li>Rastreadores</li>
-              <li>Baqueanos</li>
-              <li>Soles</li>
+        <div className="grid grid-cols-2 gap-6 w-full max-w-sm text-left">
+          <div className="pl-6">
+            <h4 className="font-semibold mb-3 text-sm">Información</h4>
+            <ul className="space-y-1 text-xs">
+              {INFO_LINKS.map((l) => (
+                <li key={l.target}>
+                  <button
+                    type="button"
+                    onClick={() => handleNavClick(l.target)}
+                    className="text-white/70 hover:text-white transition"
+                  >
+                    {l.label}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 
