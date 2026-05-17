@@ -11,7 +11,6 @@ const prisma = require('./config/prisma');
 
 const authRoutes = require('./routes/auth');
 const heroRoutes = require('./routes/hero');
-const videoRoutes = require('./routes/video');
 const stageRoutes = require('./routes/stages');
 const postRoutes = require('./routes/posts');
 const stagePostRoutes = require('./routes/stagePosts');
@@ -67,7 +66,6 @@ app.get('/api/health', async (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/hero', heroRoutes);
-app.use('/api/video', videoRoutes);
 app.use('/api/stages', stageRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/stage-posts', stagePostRoutes);

@@ -67,7 +67,7 @@ export default function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="field"
-          placeholder="admin@batallon11.com"
+          placeholder="tu@email.com"
         />
 
         <label className="label mt-4">Contraseña</label>

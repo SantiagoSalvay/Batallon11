@@ -5,7 +5,6 @@ import { BRAND_LOGO } from '../lib/stageAssets.js';
 const nav = [
   { to: '/admin', label: 'Resumen', end: true },
   { to: '/admin/hero', label: 'Hero' },
-  { to: '/admin/video', label: 'Video institucional' },
   { to: '/admin/etapas', label: 'Etapas' },
   { to: '/admin/publicaciones', label: 'Publicaciones' },
   { to: '/admin/publicaciones-etapa', label: 'Publicaciones por etapa' },

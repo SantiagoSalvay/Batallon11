@@ -162,7 +162,6 @@ Cada etapa tiene su hero propio, logo, galería y publicaciones exclusivas.
 ### Público
 
 - `GET  /api/hero`
-- `GET  /api/video`
 - `GET  /api/stages`
 - `GET  /api/stages/:slug`
 - `GET  /api/posts`
@@ -179,7 +178,6 @@ Cada etapa tiene su hero propio, logo, galería y publicaciones exclusivas.
 ### Admin (requiere JWT)
 
 - `PUT    /api/hero`
-- `PUT    /api/video`
 - `POST   /api/stages`, `PUT /api/stages/:id`, `DELETE /api/stages/:id`
 - CRUD análogo para `posts`, `stage-posts`, `gallery`, `stage-gallery`, `events`
 

@@ -50,7 +50,6 @@ export default function Dashboard() {
           <h3 className="font-bold">Acciones rápidas</h3>
           <ul className="mt-3 space-y-2 text-sm">
             <li><Link className="text-brand-300 hover:underline" to="/admin/hero">Editar hero</Link></li>
-            <li><Link className="text-brand-300 hover:underline" to="/admin/video">Cambiar video institucional</Link></li>
             <li><Link className="text-brand-300 hover:underline" to="/admin/publicaciones">Crear publicación</Link></li>
             <li><Link className="text-brand-300 hover:underline" to="/admin/eventos">Programar evento</Link></li>
           </ul>

@@ -9,7 +9,7 @@ export default function AboutSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="max-w-2xl mx-auto text-center"
+          className="max-w-2xl"
         >
           <span className="badge mb-3">Conocenos</span>
           <h2 className="section-title">Quiénes somos</h2>

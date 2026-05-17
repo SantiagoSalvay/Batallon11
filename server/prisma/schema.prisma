@@ -116,16 +116,6 @@ model HeroSection {
   @@map("hero_section")
 }
 
-model VideoSection {
-  id        Int      @id @default(autoincrement())
-  videoUrl  String
-  title     String?
-  subtitle  String?
-  updatedAt DateTime @updatedAt
-
-  @@map("video_section")
-}
-
 enum Role {
   ADMIN
   EDITOR

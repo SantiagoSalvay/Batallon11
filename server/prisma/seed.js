@@ -58,9 +58,19 @@ const STAGES = [
 
 const LEGACY_SLUGS_TO_REMOVE = ['rastreadores-baquianos'];
 
+function requireEnv(name) {
+  const value = process.env[name];
+  if (!value || !value.trim()) {
+    throw new Error(
+      `Falta la variable de entorno ${name}. Definila en server/.env antes de correr el seed.`,
+    );
+  }
+  return value;
+}
+
 async function main() {
-  const email = process.env.ADMIN_EMAIL || 'admin@batallon11.com';
-  const password = process.env.ADMIN_PASSWORD || 'Admin123!';
+  const email = requireEnv('ADMIN_EMAIL');
+  const password = requireEnv('ADMIN_PASSWORD');
 
   const passwordHash = await bcrypt.hash(password, 10);
 
@@ -114,19 +124,6 @@ async function main() {
   });
   // eslint-disable-next-line no-console
   console.log('Hero inicial listo');
-
-  await prisma.videoSection.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      title: 'Nuestro batallón',
-      subtitle: 'Conocé nuestra historia y misión',
-    },
-  });
-  // eslint-disable-next-line no-console
-  console.log('Video institucional inicial listo');
 }
 
 main()

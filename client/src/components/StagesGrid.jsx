@@ -17,7 +17,7 @@ export default function StagesGrid({ stages = [] }) {
   return (
     <section id="etapas" className="py-20 sm:py-28 bg-ink-900">
       <div className="container-app">
-        <div className="max-w-2xl mx-auto mb-14 text-center">
+        <div className="max-w-2xl mb-14">
           <span className="badge mb-3">Sistema de etapas</span>
           <h2 className="section-title">Etapas del batallón</h2>
           <p className="mt-3 text-white/70">
