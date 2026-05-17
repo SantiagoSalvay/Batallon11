@@ -18,51 +18,61 @@ export default function Footer() {
   }, [navigate]);
 
   return (
-    <footer id="contacto" className="border-t border-white/10 bg-ink-900">
-      <div className="container-app py-12 grid gap-8 md:grid-cols-3">
-        <div>
-          <div className="flex items-center gap-3">
-            <img src={BRAND_LOGO} alt="Batallón 11" className="h-12 w-12 object-contain" />
+    <footer className="border-t border-white/10 bg-ink-900">
+      <div className="container-app py-12 grid gap-10 md:gap-12 md:grid-cols-[1fr_auto] items-start text-center md:text-left">
+        <div className="space-y-8">
+          <div>
+            <div className="font-display font-bold text-lg">Batallón 11</div>
+            <div className="text-xs text-white/60">Gral. José María Paz</div>
+            <p className="mt-3 text-white/60 text-sm max-w-md mx-auto md:mx-0">
+              Exploradores Argentinos de Don Bosco. Formando jóvenes con
+              valores, aventura y servicio.
+            </p>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-2 max-w-md mx-auto md:mx-0">
             <div>
-              <div className="font-display font-bold">Batallón 11</div>
-              <div className="text-xs text-white/60">Gral. José María Paz</div>
+              <h4 className="font-semibold mb-3">Etapas</h4>
+              <ul className="space-y-1 text-sm text-white/70">
+                <li>Horneros y Pichones</li>
+                <li>Caminantes y Chispistas</li>
+                <li>Pioneros y Fuegos</li>
+                <li>Rastreadores</li>
+                <li>Baqueanos</li>
+                <li>Soles</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">Contacto</h4>
+              <ul className="space-y-1 text-sm text-white/70 break-words">
+                <li>contacto@batallon11.com</li>
+                <li>Instagram · @batallon11</li>
+                <li>Facebook · Batallón 11</li>
+              </ul>
             </div>
           </div>
-          <p className="mt-4 text-white/60 text-sm max-w-xs">
-            Exploradores Argentinos de Don Bosco. Formando jóvenes con valores, aventura y servicio.
-          </p>
+        </div>
+
+        <div className="flex md:flex-col items-center justify-center gap-6 md:gap-5 md:pt-2">
+          <img
+            src={BRAND_LOGO}
+            alt="Batallón 11"
+            className="h-20 w-20 sm:h-24 sm:w-24 object-contain"
+          />
           <img
             src={EMBLEMA}
             alt="Emblema EADB"
-            className="mt-6 h-16 w-16 object-contain opacity-80"
+            className="h-20 w-20 sm:h-24 sm:w-24 object-contain opacity-90"
           />
         </div>
-
-        <div>
-          <h4 className="font-semibold mb-3">Etapas</h4>
-          <ul className="space-y-1 text-sm text-white/70">
-            <li>Horneros y Pichones</li>
-            <li>Caminantes y Chispistas</li>
-            <li>Pioneros y Fuegos</li>
-            <li>Rastreadores</li>
-            <li>Baqueanos</li>
-            <li>Soles</li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="font-semibold mb-3">Contacto</h4>
-          <ul className="space-y-1 text-sm text-white/70">
-            <li>contacto@batallon11.com</li>
-            <li>Instagram · @batallon11</li>
-            <li>Facebook · Batallón 11</li>
-          </ul>
-        </div>
       </div>
+
       <div className="border-t border-white/10">
-        <div className="container-app py-4 text-xs text-white/50 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="container-app py-4 text-xs text-white/50 text-center">
           <span>
-            © {new Date().getFullYear()} Batallón 11 — Exploradores Argentinos de Don Bosco
+            © {new Date().getFullYear()} Batallón 11 — Exploradores Argentinos
+            de Don Bosco
             <button
               type="button"
               aria-label="."
@@ -73,7 +83,6 @@ export default function Footer() {
               .
             </button>
           </span>
-          <span>Hecho con React + Express + Prisma + PostgreSQL.</span>
         </div>
       </div>
     </footer>

@@ -31,7 +31,7 @@ export default function Hero({ hero }) {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-xs sm:text-sm font-semibold tracking-[0.35em] uppercase text-white/40 mb-6"
+          className="text-[10px] sm:text-sm font-semibold tracking-[0.25em] sm:tracking-[0.35em] uppercase text-white/40 mb-6 px-2"
         >
           Exploradores Argentinos de Don Bosco
         </motion.p>

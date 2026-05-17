@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../services/api.js';
 import Hero from '../components/Hero.jsx';
+import AboutSection from '../components/AboutSection.jsx';
 import StagesGrid from '../components/StagesGrid.jsx';
 import PostsList from '../components/PostsList.jsx';
 import Gallery from '../components/Gallery.jsx';
 import EventsSection from '../components/EventsSection.jsx';
+import ContactSection from '../components/ContactSection.jsx';
 
 export default function Home() {
   const location = useLocation();
@@ -55,10 +57,12 @@ export default function Home() {
   return (
     <>
       <Hero hero={hero} />
+      <AboutSection />
       <StagesGrid stages={stages} />
       <PostsList posts={posts} title="Últimas novedades" />
       <Gallery images={gallery} />
       <EventsSection events={events} />
+      <ContactSection />
     </>
   );
 }

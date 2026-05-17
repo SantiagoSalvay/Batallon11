@@ -25,7 +25,7 @@ export default function StagesGrid({ stages = [] }) {
           </p>
         </div>
 
-        <div className="mx-auto grid justify-items-center gap-x-4 gap-y-12 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 max-w-6xl">
+        <div className="mx-auto grid justify-items-center gap-x-4 gap-y-10 sm:gap-y-12 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 max-w-6xl">
           {stages.map((stage, idx) => {
             const logo = resolveLogo(logoForStage(stage));
             const color = glowColorForStage(stage);
@@ -44,7 +44,7 @@ export default function StagesGrid({ stages = [] }) {
                   to={`/etapas/${stage.slug}`}
                   className="group block text-center transition-all duration-300"
                 >
-                  <div className="relative mx-auto h-36 w-36 sm:h-40 sm:w-40 flex items-center justify-center">
+                  <div className="relative mx-auto h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 flex items-center justify-center">
                     <div
                       className="absolute inset-0 rounded-full blur-2xl opacity-30 group-hover:opacity-80 transition-opacity duration-500"
                       style={{ backgroundColor: color }}
