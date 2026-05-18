@@ -26,7 +26,7 @@ export default function Hero({ hero }) {
         <div className="absolute inset-0 bg-ink-900/35" />
       </div>
 
-      <div className="container-app py-24 sm:py-32 text-center flex flex-col items-center">
+      <div className="container-app pt-2 pb-24 sm:py-32 text-center flex flex-col items-center justify-center w-full">
         <motion.p
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
