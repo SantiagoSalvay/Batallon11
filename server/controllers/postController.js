@@ -25,6 +25,10 @@ async function getPost(req, res, next) {
       where: { id: Number(req.params.id) },
     });
     if (!post) return res.status(404).json({ message: 'Post no encontrado' });
+    if (!post.published) {
+      const can = req.user && ['ADMIN', 'EDITOR'].includes(req.user.role);
+      if (!can) return res.status(404).json({ message: 'Post no encontrado' });
+    }
     res.json(post);
   } catch (err) {
     next(err);

@@ -22,8 +22,14 @@ async function listStagePostsByStageId(req, res, next) {
   try {
     const stageId = Number(req.query.stageId);
     if (!stageId) return res.status(400).json({ message: 'stageId requerido' });
+
+    const canManage =
+      req.user &&
+      (['ADMIN', 'EDITOR'].includes(req.user.role) ||
+        (req.user.role === 'COORDINATOR' && req.user.stageId === stageId));
+
     const posts = await prisma.stagePost.findMany({
-      where: { stageId },
+      where: canManage ? { stageId } : { stageId, published: true },
       orderBy: { createdAt: 'desc' },
     });
     res.json(posts);

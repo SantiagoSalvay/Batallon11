@@ -6,8 +6,12 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 
 const prisma = require('./config/prisma');
+const { correlationId } = require('./middleware/correlationId');
+const { requireCsrf } = require('./middleware/csrf');
+const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/auth');
 const heroRoutes = require('./routes/hero');
@@ -18,15 +22,39 @@ const galleryRoutes = require('./routes/gallery');
 const stageGalleryRoutes = require('./routes/stageGallery');
 const eventRoutes = require('./routes/events');
 
-const errorHandler = require('./middleware/errorHandler');
-
 const app = express();
+app.disable('x-powered-by');
+
+if (process.env.TRUST_PROXY === 'true') {
+  app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS || 1));
+}
+
 const PORT = process.env.PORT || 4000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+
+app.use(correlationId);
+
+morgan.token('correlation-id', (req) => req.correlationId || '-');
+if (process.env.NODE_ENV !== 'test') {
+  app.use(
+    morgan(
+      ':correlation-id :method :url :status :res[content-length] - :response-time ms'
+    )
+  );
+}
 
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false,
+    hsts:
+      process.env.NODE_ENV === 'production'
+        ? { maxAge: 15552000, includeSubDomains: true, preload: true }
+        : false,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    permittedCrossDomainPolicies: false,
+    frameguard: { action: 'deny' },
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
   })
 );
 
@@ -37,30 +65,47 @@ app.use(
   })
 );
 
+app.use(cookieParser(process.env.COOKIE_SIGNING_SECRET || undefined));
 app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-if (process.env.NODE_ENV !== 'test') {
-  app.use(morgan('dev'));
-}
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
 const uploadDir = path.resolve(__dirname, process.env.UPLOAD_DIR || 'uploads');
-app.use('/uploads', express.static(uploadDir));
+app.use(
+  '/uploads',
+  express.static(uploadDir, {
+    maxAge: '7d',
+    etag: true,
+    setHeaders(res) {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+    },
+  })
+);
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 300,
+  max: Number(process.env.API_RATE_LIMIT_MAX || 150),
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use('/api/', apiLimiter);
+app.use('/api', apiLimiter);
+
+app.use('/api', (req, res, next) => {
+  if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    return next();
+  }
+  const pathOnly = req.originalUrl.split('?')[0];
+  if (/\/api\/auth\/(login|refresh|prepare)$/.test(pathOnly)) {
+    return next();
+  }
+  return requireCsrf(req, res, next);
+});
 
 app.get('/api/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
     res.json({ status: 'ok', db: 'connected' });
-  } catch (err) {
-    res.status(500).json({ status: 'error', db: 'disconnected', error: err.message });
+  } catch {
+    res.status(500).json({ status: 'error', db: 'disconnected' });
   }
 });
 

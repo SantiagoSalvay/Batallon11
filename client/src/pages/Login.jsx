@@ -14,6 +14,8 @@ export default function Login() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [totpCode, setTotpCode] = useState('');
+  const [needTotp, setNeedTotp] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,11 +28,23 @@ export default function Login() {
     setError(null);
     setLoading(true);
     try {
-      await login(email, password);
+      const code = needTotp ? totpCode.trim() : undefined;
+      await login(
+        email,
+        password,
+        code || undefined,
+        undefined
+      );
       consumeAdminToken();
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'No se pudo iniciar sesión');
+      const data = err.response?.data;
+      if (data?.code === 'TOTP_REQUIRED') {
+        setNeedTotp(true);
+        setError(data?.message || 'Ingresá el código de tu app de autenticación.');
+      } else {
+        setError(data?.message || 'No se pudo iniciar sesión');
+      }
     } finally {
       setLoading(false);
     }
@@ -80,6 +94,24 @@ export default function Login() {
           className="field"
           placeholder="••••••••"
         />
+
+        {needTotp && (
+          <>
+            <label className="label mt-4">Código TOTP (6 dígitos)</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]{6}"
+              maxLength={6}
+              required={needTotp}
+              value={totpCode}
+              onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              className="field"
+              placeholder="000000"
+            />
+          </>
+        )}
 
         <button className="btn-primary w-full mt-6" disabled={loading}>
           {loading ? 'Ingresando…' : 'Iniciar sesión'}

@@ -7,6 +7,11 @@
     <link rel="apple-touch-icon" href="/LogoBatallon11.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0b1020" />
+    <!-- CSP base: endurecé en producción (p. ej. sin unsafe-eval) delante del CDN/proxy -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:* wss://localhost:* https://challenges.cloudflare.com; upgrade-insecure-requests;"
+    />
     <meta
       name="description"
       content="Sitio institucional del Batallón 11 General José María Paz — Exploradores Argentinos de Don Bosco."

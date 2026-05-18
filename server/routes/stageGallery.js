@@ -7,28 +7,34 @@ const {
 } = require('../controllers/stageGalleryController');
 const { authRequired, requireRole, requireStageScope } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
+const { processUploadedImages } = require('../middleware/processImage');
+const { uploadLimiter } = require('../middleware/uploadLimiter');
 
 router.get('/', listImagesByStageId);
 router.post(
   '/',
+  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   upload.single('image'),
+  processUploadedImages,
   requireStageScope,
-  createImage,
+  createImage
 );
 router.put(
   '/:id',
+  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   upload.single('image'),
-  updateImage,
+  processUploadedImages,
+  updateImage
 );
 router.delete(
   '/:id',
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
-  deleteImage,
+  deleteImage
 );
 
 module.exports = router;

@@ -6,29 +6,36 @@ const {
   deleteStagePost,
 } = require('../controllers/stagePostController');
 const { authRequired, requireRole, requireStageScope } = require('../middleware/auth');
+const { attachUserOptional } = require('../middleware/attachUserOptional');
 const { upload } = require('../middleware/upload');
+const { processUploadedImages } = require('../middleware/processImage');
+const { uploadLimiter } = require('../middleware/uploadLimiter');
 
-router.get('/', listStagePostsByStageId);
+router.get('/', attachUserOptional, listStagePostsByStageId);
 router.post(
   '/',
+  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   upload.single('image'),
+  processUploadedImages,
   requireStageScope,
-  createStagePost,
+  createStagePost
 );
 router.put(
   '/:id',
+  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   upload.single('image'),
-  updateStagePost,
+  processUploadedImages,
+  updateStagePost
 );
 router.delete(
   '/:id',
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
-  deleteStagePost,
+  deleteStagePost
 );
 
 module.exports = router;

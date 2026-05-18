@@ -21,8 +21,8 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const nav = user?.role === 'COORDINATOR' ? COORDINATOR_NAV : ADMIN_NAV;
 
-  const onLogout = () => {
-    logout();
+  const onLogout = async () => {
+    await logout();
     navigate('/');
   };
 

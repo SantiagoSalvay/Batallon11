@@ -8,11 +8,29 @@ const {
 } = require('../controllers/eventController');
 const { authRequired, requireRole } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
+const { processUploadedImages } = require('../middleware/processImage');
+const { uploadLimiter } = require('../middleware/uploadLimiter');
 
 router.get('/', listEvents);
 router.get('/:id', getEvent);
-router.post('/', authRequired, requireRole('ADMIN', 'EDITOR'), upload.single('image'), createEvent);
-router.put('/:id', authRequired, requireRole('ADMIN', 'EDITOR'), upload.single('image'), updateEvent);
+router.post(
+  '/',
+  uploadLimiter,
+  authRequired,
+  requireRole('ADMIN', 'EDITOR'),
+  upload.single('image'),
+  processUploadedImages,
+  createEvent
+);
+router.put(
+  '/:id',
+  uploadLimiter,
+  authRequired,
+  requireRole('ADMIN', 'EDITOR'),
+  upload.single('image'),
+  processUploadedImages,
+  updateEvent
+);
 router.delete('/:id', authRequired, requireRole('ADMIN', 'EDITOR'), deleteEvent);
 
 module.exports = router;

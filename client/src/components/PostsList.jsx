@@ -1,5 +1,10 @@
 import { motion } from 'framer-motion';
+import DOMPurify from 'dompurify';
 import { asset } from '../services/api.js';
+
+function safeText(value) {
+  return DOMPurify.sanitize(String(value ?? ''), { ALLOWED_TAGS: [] });
+}
 
 function formatDate(d) {
   try {
@@ -46,9 +51,9 @@ export default function PostsList({ title, posts = [], emptyText = 'Próximament
                 )}
                 <div className="p-5">
                   <div className="text-xs text-white/50">{formatDate(p.createdAt)}</div>
-                  <h3 className="mt-1 text-lg font-bold">{p.title}</h3>
+                  <h3 className="mt-1 text-lg font-bold">{safeText(p.title)}</h3>
                   <p className="mt-2 text-sm text-white/70 line-clamp-3 whitespace-pre-line">
-                    {p.content}
+                    {safeText(p.content)}
                   </p>
                 </div>
               </motion.article>

@@ -7,13 +7,32 @@ const {
   deletePost,
 } = require('../controllers/postController');
 const { authRequired, requireRole } = require('../middleware/auth');
+const { attachUserOptional } = require('../middleware/attachUserOptional');
 const { upload } = require('../middleware/upload');
+const { processUploadedImages } = require('../middleware/processImage');
+const { uploadLimiter } = require('../middleware/uploadLimiter');
 
 router.get('/', listPosts);
-router.get('/:id', getPost);
+router.get('/:id', attachUserOptional, getPost);
 
-router.post('/', authRequired, requireRole('ADMIN', 'EDITOR'), upload.single('image'), createPost);
-router.put('/:id', authRequired, requireRole('ADMIN', 'EDITOR'), upload.single('image'), updatePost);
+router.post(
+  '/',
+  uploadLimiter,
+  authRequired,
+  requireRole('ADMIN', 'EDITOR'),
+  upload.single('image'),
+  processUploadedImages,
+  createPost
+);
+router.put(
+  '/:id',
+  uploadLimiter,
+  authRequired,
+  requireRole('ADMIN', 'EDITOR'),
+  upload.single('image'),
+  processUploadedImages,
+  updatePost
+);
 router.delete('/:id', authRequired, requireRole('ADMIN', 'EDITOR'), deletePost);
 
 module.exports = router;

@@ -9,6 +9,7 @@ Thumbs.db
 .env.local
 .env.*.local
 server/.coordinator-credentials.txt
+.coordinator-credentials.txt
 *.log
 npm-debug.log*
 

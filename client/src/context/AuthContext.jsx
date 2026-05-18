@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { api, getToken, setToken } from '../services/api.js';
+import { api } from '../services/api.js';
 
 const AuthContext = createContext(null);
 
@@ -8,17 +8,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const loadMe = useCallback(async () => {
-    if (!getToken()) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
     try {
+      await api.get('/auth/prepare').catch(() => {});
       const { data } = await api.get('/auth/me');
       setUser(data.user);
     } catch {
       setUser(null);
-      setToken(null);
     } finally {
       setLoading(false);
     }
@@ -28,15 +23,23 @@ export function AuthProvider({ children }) {
     loadMe();
   }, [loadMe]);
 
-  const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    setToken(data.token);
+  const login = async (email, password, totpCode, turnstileToken) => {
+    const { data } = await api.post('/auth/login', {
+      email,
+      password,
+      totpCode,
+      turnstileToken,
+    });
     setUser(data.user);
     return data.user;
   };
 
-  const logout = () => {
-    setToken(null);
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      /* ignorar */
+    }
     setUser(null);
   };
 
