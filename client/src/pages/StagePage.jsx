@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { api, asset } from '../services/api.js';
 import PostsList from '../components/PostsList.jsx';
 import Gallery from '../components/Gallery.jsx';
+import StageContactSection from '../components/StageContactSection.jsx';
 import { logoForStage } from '../lib/stageAssets.js';
 
 function resolveLogo(path) {
@@ -122,6 +123,8 @@ export default function StagePage() {
       />
 
       <Gallery title={`Galería de ${stage.name}`} images={stage.gallery || []} />
+
+      <StageContactSection stage={stage} />
     </>
   );
 }
