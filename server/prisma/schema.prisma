@@ -14,9 +14,12 @@ model User {
   password  String
   name      String?
   role      Role     @default(ADMIN)
+  stageId   Int?
+  stage     Stage?   @relation(fields: [stageId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([stageId])
   @@map("users")
 }
 
@@ -34,6 +37,7 @@ model Stage {
   updatedAt   DateTime            @updatedAt
   gallery     StageGalleryImage[]
   posts       StagePost[]
+  users       User[]
 
   @@map("stages")
 }
@@ -119,4 +123,5 @@ model HeroSection {
 enum Role {
   ADMIN
   EDITOR
+  COORDINATOR
 }

@@ -12,7 +12,7 @@ const {
 const {
   listImagesBySlug,
 } = require('../controllers/stageGalleryController');
-const { authRequired } = require('../middleware/auth');
+const { authRequired, requireRole } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
 
 const stageImageFields = upload.fields([
@@ -25,8 +25,8 @@ router.get('/:slug', getStageBySlug);
 router.get('/:slug/posts', listStagePostsBySlug);
 router.get('/:slug/gallery', listImagesBySlug);
 
-router.post('/', authRequired, stageImageFields, createStage);
-router.put('/:id', authRequired, stageImageFields, updateStage);
-router.delete('/:id', authRequired, deleteStage);
+router.post('/', authRequired, requireRole('ADMIN', 'EDITOR'), stageImageFields, createStage);
+router.put('/:id', authRequired, requireRole('ADMIN', 'EDITOR'), stageImageFields, updateStage);
+router.delete('/:id', authRequired, requireRole('ADMIN'), deleteStage);
 
 module.exports = router;

@@ -28,6 +28,7 @@ async function login(req, res, next) {
         email: user.email,
         name: user.name,
         role: user.role,
+        stageId: user.stageId ?? null,
       },
     });
   } catch (err) {

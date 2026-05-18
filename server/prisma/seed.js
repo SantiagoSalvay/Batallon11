@@ -1,9 +1,32 @@
 require('dotenv').config();
 
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
+
+const COORDINATORS = [
+  { email: 'horneros@batallon11.com', slug: 'horneros-pichones', name: 'Coord. Horneros y Pichones' },
+  { email: 'caminantes@batallon11.com', slug: 'caminantes-chispistas', name: 'Coord. Caminantes y Chispistas' },
+  { email: 'pioneros@batallon11.com', slug: 'pioneros-fuegos', name: 'Coord. Pioneros y Fuegos' },
+  { email: 'rastreadores@batallon11.com', slug: 'rastreadores', name: 'Coord. Rastreadores' },
+  { email: 'baqueanos@batallon11.com', slug: 'baqueanos', name: 'Coord. Baqueanos' },
+  { email: 'soles@batallon11.com', slug: 'soles', name: 'Coord. Soles' },
+];
+
+function generatePassword(length = 18) {
+  const alphabet =
+    'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*?';
+  let out = '';
+  const bytes = crypto.randomBytes(length);
+  for (let i = 0; i < length; i++) {
+    out += alphabet[bytes[i] % alphabet.length];
+  }
+  return out;
+}
 
 const STAGES = [
   {
@@ -110,6 +133,68 @@ async function main() {
   }
   // eslint-disable-next-line no-console
   console.log(`Etapas creadas/actualizadas: ${STAGES.length}`);
+
+  const resetCoordinators = process.argv.includes('--reset-coordinators');
+  const stagesBySlug = new Map(
+    (await prisma.stage.findMany()).map((s) => [s.slug, s]),
+  );
+  const newCredentials = [];
+
+  for (const coord of COORDINATORS) {
+    const stage = stagesBySlug.get(coord.slug);
+    if (!stage) {
+      console.warn(`Etapa no encontrada para ${coord.email} (slug ${coord.slug})`);
+      continue;
+    }
+
+    const existing = await prisma.user.findUnique({ where: { email: coord.email } });
+
+    if (existing && !resetCoordinators) {
+      await prisma.user.update({
+        where: { email: coord.email },
+        data: { role: 'COORDINATOR', stageId: stage.id, name: coord.name },
+      });
+      console.log(`Coordinador ya existe (sin cambios de password): ${coord.email}`);
+      continue;
+    }
+
+    const plainPassword = generatePassword(18);
+    const passwordHash = await bcrypt.hash(plainPassword, 10);
+
+    await prisma.user.upsert({
+      where: { email: coord.email },
+      update: {
+        password: passwordHash,
+        role: 'COORDINATOR',
+        stageId: stage.id,
+        name: coord.name,
+      },
+      create: {
+        email: coord.email,
+        password: passwordHash,
+        name: coord.name,
+        role: 'COORDINATOR',
+        stageId: stage.id,
+      },
+    });
+
+    newCredentials.push({ email: coord.email, password: plainPassword, stage: stage.name });
+  }
+
+  if (newCredentials.length) {
+    const credFile = path.resolve(__dirname, '..', '.coordinator-credentials.txt');
+    const header = `# Credenciales de coordinadores generadas ${new Date().toISOString()}\n# GUARDÁ ESTE ARCHIVO EN UN LUGAR SEGURO. NO se vuelven a mostrar.\n\n`;
+    const body = newCredentials
+      .map((c) => `Etapa: ${c.stage}\nEmail: ${c.email}\nPassword: ${c.password}\n`)
+      .join('\n');
+    fs.appendFileSync(credFile, header + body);
+    console.log('\n================= CREDENCIALES DE COORDINADORES =================');
+    newCredentials.forEach((c) =>
+      console.log(`  ${c.stage.padEnd(30)} ${c.email.padEnd(34)} ${c.password}`),
+    );
+    console.log(`\nGuardadas también en: ${credFile}`);
+    console.log('==================================================================\n');
+  }
 
   await prisma.heroSection.upsert({
     where: { id: 1 },

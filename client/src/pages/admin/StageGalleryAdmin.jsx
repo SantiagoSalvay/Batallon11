@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function StageGalleryAdmin() {
+  const { user } = useAuth();
+  const isCoordinator = user?.role === 'COORDINATOR';
   const [stages, setStages] = useState([]);
   const [stageId, setStageId] = useState('');
   const [images, setImages] = useState([]);
@@ -13,7 +16,11 @@ export default function StageGalleryAdmin() {
   useEffect(() => {
     api.get('/stages').then((r) => {
       setStages(r.data);
-      if (r.data.length && !stageId) setStageId(String(r.data[0].id));
+      if (isCoordinator && user?.stageId) {
+        setStageId(String(user.stageId));
+      } else if (r.data.length && !stageId) {
+        setStageId(String(r.data[0].id));
+      }
     });
   }, []); // eslint-disable-line
 
@@ -59,11 +66,17 @@ export default function StageGalleryAdmin() {
 
       <div className="mt-6">
         <label className="label">Etapa</label>
-        <select className="field max-w-sm" value={stageId} onChange={(e) => setStageId(e.target.value)}>
-          {stages.map((s) => (
-            <option key={s.id} value={s.id}>{s.name}</option>
-          ))}
-        </select>
+        {isCoordinator ? (
+          <div className="field max-w-sm bg-white/5 cursor-not-allowed">
+            {stages.find((s) => String(s.id) === stageId)?.name || '—'}
+          </div>
+        ) : (
+          <select className="field max-w-sm" value={stageId} onChange={(e) => setStageId(e.target.value)}>
+            {stages.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {status && (

@@ -58,11 +58,16 @@ async function updateImage(req, res, next) {
     const current = await prisma.stageGalleryImage.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
 
+    if (req.user?.role === 'COORDINATOR' && current.stageId !== req.user.stageId) {
+      return res.status(403).json({ message: 'No autorizado para esta etapa' });
+    }
+
     const { caption, order, stageId } = req.body;
     const data = {
       ...(caption !== undefined && { caption }),
       ...(order !== undefined && { order: Number(order) }),
-      ...(stageId !== undefined && { stageId: Number(stageId) }),
+      ...(stageId !== undefined &&
+        req.user?.role !== 'COORDINATOR' && { stageId: Number(stageId) }),
     };
     if (req.file) {
       data.imageUrl = fileToPublicUrl(req.file);
@@ -80,6 +85,9 @@ async function deleteImage(req, res, next) {
     const id = Number(req.params.id);
     const current = await prisma.stageGalleryImage.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
+    if (req.user?.role === 'COORDINATOR' && current.stageId !== req.user.stageId) {
+      return res.status(403).json({ message: 'No autorizado para esta etapa' });
+    }
     await prisma.stageGalleryImage.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     res.json({ ok: true });

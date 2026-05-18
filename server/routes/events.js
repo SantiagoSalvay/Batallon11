@@ -6,13 +6,13 @@ const {
   updateEvent,
   deleteEvent,
 } = require('../controllers/eventController');
-const { authRequired } = require('../middleware/auth');
+const { authRequired, requireRole } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
 
 router.get('/', listEvents);
 router.get('/:id', getEvent);
-router.post('/', authRequired, upload.single('image'), createEvent);
-router.put('/:id', authRequired, upload.single('image'), updateEvent);
-router.delete('/:id', authRequired, deleteEvent);
+router.post('/', authRequired, requireRole('ADMIN', 'EDITOR'), upload.single('image'), createEvent);
+router.put('/:id', authRequired, requireRole('ADMIN', 'EDITOR'), upload.single('image'), updateEvent);
+router.delete('/:id', authRequired, requireRole('ADMIN', 'EDITOR'), deleteEvent);
 
 module.exports = router;

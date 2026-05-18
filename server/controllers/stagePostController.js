@@ -60,11 +60,16 @@ async function updateStagePost(req, res, next) {
     const current = await prisma.stagePost.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Post no encontrado' });
 
+    if (req.user?.role === 'COORDINATOR' && current.stageId !== req.user.stageId) {
+      return res.status(403).json({ message: 'No autorizado para esta etapa' });
+    }
+
     const { title, content, published, stageId } = req.body;
     const data = {
       ...(title !== undefined && { title }),
       ...(content !== undefined && { content }),
-      ...(stageId !== undefined && { stageId: Number(stageId) }),
+      ...(stageId !== undefined &&
+        req.user?.role !== 'COORDINATOR' && { stageId: Number(stageId) }),
       ...(published !== undefined && {
         published: published === 'true' || published === true,
       }),
@@ -85,6 +90,9 @@ async function deleteStagePost(req, res, next) {
     const id = Number(req.params.id);
     const current = await prisma.stagePost.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Post no encontrado' });
+    if (req.user?.role === 'COORDINATOR' && current.stageId !== req.user.stageId) {
+      return res.status(403).json({ message: 'No autorizado para esta etapa' });
+    }
     await prisma.stagePost.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.image, uploadDir);
     res.json({ ok: true });

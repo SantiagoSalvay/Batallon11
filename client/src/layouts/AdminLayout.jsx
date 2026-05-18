@@ -2,7 +2,7 @@ import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
 
-const nav = [
+const ADMIN_NAV = [
   { to: '/admin', label: 'Resumen', end: true },
   { to: '/admin/publicaciones', label: 'Publicaciones' },
   { to: '/admin/publicaciones-etapa', label: 'Publicaciones por etapa' },
@@ -11,9 +11,15 @@ const nav = [
   { to: '/admin/eventos', label: 'Eventos' },
 ];
 
+const COORDINATOR_NAV = [
+  { to: '/admin/publicaciones-etapa', label: 'Publicaciones de mi etapa', end: true },
+  { to: '/admin/galeria-etapa', label: 'Galería de mi etapa' },
+];
+
 export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const nav = user?.role === 'COORDINATOR' ? COORDINATOR_NAV : ADMIN_NAV;
 
   const onLogout = () => {
     logout();
