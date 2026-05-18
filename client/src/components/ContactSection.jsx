@@ -25,13 +25,13 @@ export default function ContactSection() {
   return (
     <section
       id="contacto"
-      className="relative isolate min-h-[55vh] sm:min-h-screen flex items-center py-12 sm:py-32 overflow-hidden"
+      className="relative isolate min-h-[55vh] sm:min-h-[75vh] flex items-center py-12 sm:py-24 overflow-hidden"
     >
       <div className="absolute inset-0 -z-10">
         <img
           src="/Seccion_Contacto.jpg"
           alt=""
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-top sm:object-[center_85%]"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-ink-900/85 via-ink-900/80 to-ink-900/90" />
       </div>
@@ -63,7 +63,7 @@ export default function ContactSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.08, duration: 0.4 }}
-              className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-2 sm:px-8 sm:py-4 text-sm sm:text-lg font-semibold text-emerald-200 hover:bg-emerald-500/25 hover:text-white transition shadow-lg shadow-emerald-500/10 whitespace-nowrap"
+              className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-2 sm:px-8 sm:py-4 text-sm sm:text-lg font-semibold text-white hover:bg-emerald-500/25 transition shadow-lg shadow-emerald-500/10 whitespace-nowrap"
             >
               <svg
                 viewBox="0 0 24 24"
