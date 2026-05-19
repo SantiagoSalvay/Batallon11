@@ -2,14 +2,21 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const sharp = require('sharp');
-const FileType = require('file-type');
 const { uploadDir } = require('./upload');
+
+let fileTypeFromBufferFn;
+async function detectMimeFromBuffer(buffer) {
+  if (!fileTypeFromBufferFn) {
+    fileTypeFromBufferFn = import('file-type').then((m) => m.fileTypeFromBuffer);
+  }
+  return (await fileTypeFromBufferFn)(buffer);
+}
 
 /** Entradas permitidas antes de re-encode a WebP (sin SVG). */
 const ALLOWED_BEFORE_WEBP = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
 async function bufferToWebpDisk(buffer) {
-  const type = await FileType.fromBuffer(buffer);
+  const type = await detectMimeFromBuffer(buffer);
   if (!type || !ALLOWED_BEFORE_WEBP.has(type.mime)) {
     const err = new Error('Tipo de imagen no permitido o archivo no reconocido');
     err.status = 400;
