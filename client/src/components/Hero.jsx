@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { asset } from '../services/api.js';
 
 const DEFAULT_BG = '/Fondo_Primera_seccion.jpg';
 
@@ -8,21 +7,21 @@ function scrollToId(id) {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-export default function Hero({ hero }) {
-  const bg = hero?.heroImage ? asset(hero.heroImage) : DEFAULT_BG;
-
+export default function Hero() {
   return (
     <section
       id="top"
       className="relative isolate min-h-screen flex items-center justify-center overflow-hidden"
     >
+      
       <div className="absolute inset-0 -z-10">
         <img
-          src={bg}
+          src={DEFAULT_BG}
           alt=""
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-ink-900/60 via-ink-900/55 to-ink-900/85" />
+        
         <div className="absolute inset-0 bg-ink-900/35" />
       </div>
 
@@ -70,7 +69,7 @@ export default function Hero({ hero }) {
             }}
             className="btn-primary"
           >
-            {hero?.ctaText || 'Conocenos'}
+            Conocenos
           </a>
           <a
             href="#etapas"

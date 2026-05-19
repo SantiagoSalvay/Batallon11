@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { PrismaClient } = require('@prisma/client');
+const { getStageBySlug } = require('../lib/stages');
 
 const prisma = new PrismaClient();
 
@@ -27,59 +28,6 @@ function generatePassword(length = 18) {
   }
   return out;
 }
-
-const STAGES = [
-  {
-    name: 'Horneros y Pichones',
-    slug: 'horneros-pichones',
-    description:
-      'Los más chicos descubren el mundo de los Exploradores a través del juego, la naturaleza y los valores.',
-    color: '#F59E0B',
-    order: 1,
-  },
-  {
-    name: 'Caminantes y Chispistas',
-    slug: 'caminantes-chispistas',
-    description:
-      'Etapa de aventura y descubrimiento, donde se fortalecen la amistad, el servicio y el contacto con la creación.',
-    color: '#10B981',
-    order: 2,
-  },
-  {
-    name: 'Pioneros y Fuegos',
-    slug: 'pioneros-fuegos',
-    description:
-      'Etapa de compromiso y liderazgo: proyectos propios, campamentos exigentes y vida en patrulla.',
-    color: '#EF4444',
-    order: 3,
-  },
-  {
-    name: 'Rastreadores',
-    slug: 'rastreadores',
-    description:
-      'Jóvenes que asumen el rol de guías, animadores y protagonistas dentro del batallón.',
-    color: '#6366F1',
-    order: 4,
-  },
-  {
-    name: 'Baqueanos',
-    slug: 'baqueanos',
-    description:
-      'Etapa de mayor compromiso: lideran, acompañan a las etapas menores y representan al batallón.',
-    color: '#8B5CF6',
-    order: 5,
-  },
-  {
-    name: 'Soles',
-    slug: 'soles',
-    description:
-      'Los Soles dan sus primeros pasos en el mundo de los Exploradores, descubriendo amigos, juegos y los valores de Don Bosco.',
-    color: '#FBBF24',
-    order: 6,
-  },
-];
-
-const LEGACY_SLUGS_TO_REMOVE = ['rastreadores-baquianos'];
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -110,40 +58,13 @@ async function main() {
   // eslint-disable-next-line no-console
   console.log(`Admin listo: ${admin.email}`);
 
-  for (const legacy of LEGACY_SLUGS_TO_REMOVE) {
-    const existing = await prisma.stage.findUnique({ where: { slug: legacy } });
-    if (existing) {
-      await prisma.stage.delete({ where: { slug: legacy } });
-      // eslint-disable-next-line no-console
-      console.log(`Etapa legacy eliminada: ${legacy}`);
-    }
-  }
-
-  for (const stage of STAGES) {
-    await prisma.stage.upsert({
-      where: { slug: stage.slug },
-      update: {
-        name: stage.name,
-        description: stage.description,
-        color: stage.color,
-        order: stage.order,
-      },
-      create: stage,
-    });
-  }
-  // eslint-disable-next-line no-console
-  console.log(`Etapas creadas/actualizadas: ${STAGES.length}`);
-
   const resetCoordinators = process.argv.includes('--reset-coordinators');
-  const stagesBySlug = new Map(
-    (await prisma.stage.findMany()).map((s) => [s.slug, s]),
-  );
   const newCredentials = [];
 
   for (const coord of COORDINATORS) {
-    const stage = stagesBySlug.get(coord.slug);
+    const stage = getStageBySlug(coord.slug);
     if (!stage) {
-      console.warn(`Etapa no encontrada para ${coord.email} (slug ${coord.slug})`);
+      console.warn(`Etapa no definida en código para ${coord.email} (slug ${coord.slug})`);
       continue;
     }
 
@@ -152,29 +73,29 @@ async function main() {
     if (existing && !resetCoordinators) {
       await prisma.user.update({
         where: { email: coord.email },
-        data: { role: 'COORDINATOR', stageId: stage.id, name: coord.name },
+        data: { role: 'COORDINATOR', stageSlug: coord.slug, name: coord.name },
       });
       console.log(`Coordinador ya existe (sin cambios de password): ${coord.email}`);
       continue;
     }
 
     const plainPassword = generatePassword(18);
-    const passwordHash = await bcrypt.hash(plainPassword, 10);
+    const coordHash = await bcrypt.hash(plainPassword, 10);
 
     await prisma.user.upsert({
       where: { email: coord.email },
       update: {
-        password: passwordHash,
+        password: coordHash,
         role: 'COORDINATOR',
-        stageId: stage.id,
+        stageSlug: coord.slug,
         name: coord.name,
       },
       create: {
         email: coord.email,
-        password: passwordHash,
+        password: coordHash,
         name: coord.name,
         role: 'COORDINATOR',
-        stageId: stage.id,
+        stageSlug: coord.slug,
       },
     });
 
@@ -195,20 +116,6 @@ async function main() {
     console.log(`\nGuardadas también en: ${credFile}`);
     console.log('==================================================================\n');
   }
-
-  await prisma.heroSection.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      heroTitle: 'Batallón 11 General José María Paz',
-      heroSubtitle: 'Exploradores Argentinos de Don Bosco',
-      ctaText: 'Conocenos',
-      ctaLink: '#etapas',
-    },
-  });
-  // eslint-disable-next-line no-console
-  console.log('Hero inicial listo');
 }
 
 main()

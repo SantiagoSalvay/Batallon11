@@ -16,7 +16,7 @@ async function attachUserOptional(req, res, next) {
 
     const user = await prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, email: true, role: true, name: true, stageId: true, tokenVersion: true },
+      select: { id: true, email: true, role: true, name: true, stageSlug: true, tokenVersion: true },
     });
 
     if (user && user.tokenVersion === payload.tv) {

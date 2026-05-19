@@ -111,6 +111,9 @@ export default function StagePage() {
               <h1 className="text-4xl sm:text-5xl font-extrabold">
                 <span className="text-gradient">{stage.name}</span>
               </h1>
+              {stage.motto && (
+                <p className="mt-2 text-white/70 italic">{stage.motto}</p>
+              )}
             </div>
           </motion.div>
         </div>

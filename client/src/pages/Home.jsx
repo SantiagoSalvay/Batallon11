@@ -11,7 +11,6 @@ import ContactSection from '../components/ContactSection.jsx';
 
 export default function Home() {
   const location = useLocation();
-  const [hero, setHero] = useState(null);
   const [stages, setStages] = useState([]);
   const [posts, setPosts] = useState([]);
   const [gallery, setGallery] = useState([]);
@@ -35,15 +34,13 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false;
     Promise.allSettled([
-      api.get('/hero'),
       api.get('/stages'),
       api.get('/posts', { params: { limit: 6 } }),
       api.get('/gallery'),
       api.get('/events', { params: { upcoming: true } }),
     ]).then((results) => {
       if (cancelled) return;
-      const [h, s, p, g, e] = results;
-      if (h.status === 'fulfilled') setHero(h.value.data);
+      const [s, p, g, e] = results;
       if (s.status === 'fulfilled') setStages(s.value.data);
       if (p.status === 'fulfilled') setPosts(p.value.data);
       if (g.status === 'fulfilled') setGallery(g.value.data);
@@ -56,7 +53,7 @@ export default function Home() {
 
   return (
     <>
-      <Hero hero={hero} />
+      <Hero />
       <AboutSection />
       <StagesGrid stages={stages} />
       <PostsList posts={posts} title="Últimas novedades" />

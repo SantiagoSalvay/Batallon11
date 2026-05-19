@@ -33,7 +33,7 @@ export default function StagesGrid({ stages = [] }) {
 
             return (
               <motion.div
-                key={stage.id}
+                key={stage.slug}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

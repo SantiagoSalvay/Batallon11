@@ -31,7 +31,7 @@ async function authRequired(req, res, next) {
 
     const user = await prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, email: true, role: true, name: true, stageId: true, tokenVersion: true },
+      select: { id: true, email: true, role: true, name: true, stageSlug: true, tokenVersion: true },
     });
 
     if (!user) {
@@ -64,18 +64,18 @@ function requireStageScope(req, res, next) {
   }
   if (req.user.role !== 'COORDINATOR') return next();
 
-  if (!req.user.stageId) {
+  if (!req.user.stageSlug) {
     return res.status(403).json({ message: 'Coordinador sin etapa asignada' });
   }
 
   const provided =
-    req.body?.stageId ?? req.query?.stageId ?? req.params?.stageId;
+    req.body?.stageSlug ?? req.query?.stageSlug ?? req.params?.stageSlug;
   if (provided !== undefined && provided !== null && provided !== '') {
-    if (Number(provided) !== req.user.stageId) {
+    if (provided !== req.user.stageSlug) {
       return res.status(403).json({ message: 'No autorizado para esta etapa' });
     }
   } else if (req.body && typeof req.body === 'object') {
-    req.body.stageId = req.user.stageId;
+    req.body.stageSlug = req.user.stageSlug;
   }
   next();
 }

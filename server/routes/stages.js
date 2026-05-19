@@ -2,9 +2,7 @@ const router = require('express').Router();
 const {
   listStages,
   getStageBySlug,
-  createStage,
-  updateStage,
-  deleteStage,
+  updateStageMedia,
 } = require('../controllers/stageController');
 const { listStagePostsBySlug } = require('../controllers/stagePostController');
 const { listImagesBySlug } = require('../controllers/stageGalleryController');
@@ -23,24 +21,14 @@ router.get('/:slug', getStageBySlug);
 router.get('/:slug/posts', listStagePostsBySlug);
 router.get('/:slug/gallery', listImagesBySlug);
 
-router.post(
-  '/',
-  uploadLimiter,
-  authRequired,
-  requireRole('ADMIN', 'EDITOR'),
-  stageImageFields,
-  processUploadedImages,
-  createStage
-);
 router.put(
-  '/:id',
+  '/:slug/media',
   uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR'),
   stageImageFields,
   processUploadedImages,
-  updateStage
+  updateStageMedia,
 );
-router.delete('/:id', authRequired, requireRole('ADMIN'), deleteStage);
 
 module.exports = router;

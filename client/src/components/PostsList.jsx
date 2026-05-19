@@ -40,10 +40,10 @@ export default function PostsList({ title, posts = [], emptyText = 'Próximament
                 transition={{ delay: idx * 0.05 }}
                 className="card hover:border-white/20 transition"
               >
-                {p.image && (
+                {p.imageUrl && (
                   <div className="aspect-[16/10] overflow-hidden">
                     <img
-                      src={asset(p.image)}
+                      src={asset(p.imageUrl)}
                       alt={p.title}
                       className="h-full w-full object-cover"
                     />

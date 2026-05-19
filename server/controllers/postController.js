@@ -46,7 +46,7 @@ async function createPost(req, res, next) {
       content,
       published: published === undefined ? true : published === 'true' || published === true,
     };
-    if (req.file) data.image = fileToPublicUrl(req.file);
+    if (req.file) data.imageUrl = fileToPublicUrl(req.file);
 
     const post = await prisma.post.create({ data });
     res.status(201).json(post);
@@ -70,8 +70,8 @@ async function updatePost(req, res, next) {
       }),
     };
     if (req.file) {
-      data.image = fileToPublicUrl(req.file);
-      deleteOldFileFromUrl(fs, current.image, uploadDir);
+      data.imageUrl = fileToPublicUrl(req.file);
+      deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
     const post = await prisma.post.update({ where: { id }, data });
     res.json(post);
@@ -86,7 +86,7 @@ async function deletePost(req, res, next) {
     const current = await prisma.post.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Post no encontrado' });
     await prisma.post.delete({ where: { id } });
-    deleteOldFileFromUrl(fs, current.image, uploadDir);
+    deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     res.json({ ok: true });
   } catch (err) {
     next(err);

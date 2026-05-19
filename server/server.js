@@ -9,12 +9,12 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 
 const prisma = require('./config/prisma');
+const { getLanIPv4Addresses, buildClientOrigins } = require('./utils/lanUrls');
 const { correlationId } = require('./middleware/correlationId');
 const { requireCsrf } = require('./middleware/csrf');
 const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/auth');
-const heroRoutes = require('./routes/hero');
 const stageRoutes = require('./routes/stages');
 const postRoutes = require('./routes/posts');
 const stagePostRoutes = require('./routes/stagePosts');
@@ -30,7 +30,17 @@ if (process.env.TRUST_PROXY === 'true') {
 }
 
 const PORT = process.env.PORT || 4000;
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const CLIENT_PORT = Number(process.env.CLIENT_PORT || 5173);
+const isProd = process.env.NODE_ENV === 'production';
+const corsOrigins = isProd
+  ? (process.env.CLIENT_URL || 'http://localhost:5173')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  : buildClientOrigins(CLIENT_PORT);
+
+const LAN_DEV_ORIGIN =
+  /^https?:\/\/(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}):5173$/;
 
 app.use(correlationId);
 
@@ -60,7 +70,12 @@ app.use(
 
 app.use(
   cors({
-    origin: CLIENT_URL.split(',').map((s) => s.trim()),
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (corsOrigins.includes(origin)) return callback(null, true);
+      if (!isProd && LAN_DEV_ORIGIN.test(origin)) return callback(null, true);
+      return callback(null, false);
+    },
     credentials: true,
   })
 );
@@ -110,7 +125,6 @@ app.get('/api/health', async (_req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
-app.use('/api/hero', heroRoutes);
 app.use('/api/stages', stageRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/stage-posts', stagePostRoutes);
@@ -124,9 +138,21 @@ app.use((req, res, _next) => {
 
 app.use(errorHandler);
 
-const server = app.listen(PORT, () => {
+const HOST = process.env.HOST || '0.0.0.0';
+
+const server = app.listen(PORT, HOST, () => {
   // eslint-disable-next-line no-console
   console.log(`API Batallón 11 escuchando en http://localhost:${PORT}`);
+  if (!isProd) {
+    for (const ip of getLanIPv4Addresses()) {
+      // eslint-disable-next-line no-console
+      console.log(`  Red local: http://${ip}:${PORT}`);
+    }
+    // eslint-disable-next-line no-console
+    console.log(
+      `  CORS (dev): localhost + IPs LAN en puerto ${CLIENT_PORT}`,
+    );
+  }
 });
 
 const shutdown = async (signal) => {

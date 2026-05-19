@@ -91,7 +91,7 @@ export default function EventsAdmin() {
         <div>
           <label className="label">Imagen</label>
           <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] || null)} className="block text-sm text-white/70" />
-          {editing.image && <img src={asset(editing.image)} alt="" className="mt-2 h-32 rounded-lg object-cover" />}
+          {editing.imageUrl && <img src={asset(editing.imageUrl)} alt="" className="mt-2 h-32 rounded-lg object-cover" />}
         </div>
         <button className="btn-primary">{editing.id ? 'Actualizar' : 'Crear'}</button>
       </form>
@@ -99,7 +99,7 @@ export default function EventsAdmin() {
       <div className="mt-8 space-y-3">
         {events.map((ev) => (
           <div key={ev.id} className="card p-4 flex items-center gap-4">
-            {ev.image ? <img src={asset(ev.image)} alt="" className="h-14 w-20 rounded-lg object-cover" /> : <div className="h-14 w-20 rounded-lg bg-white/5" />}
+            {ev.imageUrl ? <img src={asset(ev.imageUrl)} alt="" className="h-14 w-20 rounded-lg object-cover" /> : <div className="h-14 w-20 rounded-lg bg-white/5" />}
             <div className="flex-1 min-w-0">
               <div className="font-bold truncate">{ev.title}</div>
               <div className="text-xs text-white/50">{new Date(ev.date).toLocaleString('es-AR')}{ev.location ? ` · ${ev.location}` : ''}</div>

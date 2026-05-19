@@ -6,7 +6,7 @@ export default function StageGalleryAdmin() {
   const { user } = useAuth();
   const isCoordinator = user?.role === 'COORDINATOR';
   const [stages, setStages] = useState([]);
-  const [stageId, setStageId] = useState('');
+  const [stageSlug, setStageSlug] = useState('');
   const [images, setImages] = useState([]);
   const [file, setFile] = useState(null);
   const [caption, setCaption] = useState('');
@@ -16,22 +16,22 @@ export default function StageGalleryAdmin() {
   useEffect(() => {
     api.get('/stages').then((r) => {
       setStages(r.data);
-      if (isCoordinator && user?.stageId) {
-        setStageId(String(user.stageId));
-      } else if (r.data.length && !stageId) {
-        setStageId(String(r.data[0].id));
+      if (isCoordinator && user?.stageSlug) {
+        setStageSlug(user.stageSlug);
+      } else if (r.data.length && !stageSlug) {
+        setStageSlug(r.data[0].slug);
       }
     });
   }, []); // eslint-disable-line
 
-  const load = (sid) => {
-    if (!sid) return;
-    api.get('/stage-gallery', { params: { stageId: sid } }).then((r) => setImages(r.data));
+  const load = (slug) => {
+    if (!slug) return;
+    api.get('/stage-gallery', { params: { stageSlug: slug } }).then((r) => setImages(r.data));
   };
 
   useEffect(() => {
-    load(stageId);
-  }, [stageId]);
+    load(stageSlug);
+  }, [stageSlug]);
 
   const upload = async (e) => {
     e.preventDefault();
@@ -42,12 +42,12 @@ export default function StageGalleryAdmin() {
       fd.append('image', file);
       fd.append('caption', caption);
       fd.append('order', String(order));
-      fd.append('stageId', String(stageId));
+      fd.append('stageSlug', stageSlug);
       await api.post('/stage-gallery', fd);
       setFile(null);
       setCaption('');
       setOrder(0);
-      load(stageId);
+      load(stageSlug);
       setStatus({ type: 'ok', msg: 'Imagen agregada' });
     } catch (err) {
       setStatus({ type: 'err', msg: err.response?.data?.message || 'Error al subir' });
@@ -57,7 +57,7 @@ export default function StageGalleryAdmin() {
   const remove = async (img) => {
     if (!confirm('Eliminar imagen?')) return;
     await api.delete(`/stage-gallery/${img.id}`);
-    load(stageId);
+    load(stageSlug);
   };
 
   return (
@@ -67,20 +67,29 @@ export default function StageGalleryAdmin() {
       <div className="mt-6">
         <label className="label">Etapa</label>
         {isCoordinator ? (
+          
           <div className="field max-w-sm bg-white/5 cursor-not-allowed">
-            {stages.find((s) => String(s.id) === stageId)?.name || '—'}
+            {stages.find((s) => s.slug === stageSlug)?.name || '—'}
           </div>
         ) : (
-          <select className="field max-w-sm" value={stageId} onChange={(e) => setStageId(e.target.value)}>
+          <select className="field max-w-sm" value={stageSlug} onChange={(e) => setStageSlug(e.target.value)}>
             {stages.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
+              <option key={s.slug} value={s.slug}>
+                {s.name}
+              </option>
             ))}
           </select>
         )}
       </div>
 
       {status && (
-        <div className={`mt-4 rounded-lg px-3 py-2 text-sm ${status.type === 'ok' ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30' : 'bg-red-500/10 text-red-200 border border-red-500/30'}`}>
+        <div
+          className={`mt-4 rounded-lg px-3 py-2 text-sm ${
+            status.type === 'ok'
+              ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30'
+              : 'bg-red-500/10 text-red-200 border border-red-500/30'
+          }`}
+        >
           {status.msg}
         </div>
       )}
@@ -88,7 +97,13 @@ export default function StageGalleryAdmin() {
       <form onSubmit={upload} className="card p-6 mt-6 space-y-4 max-w-2xl">
         <div>
           <label className="label">Imagen</label>
-          <input type="file" accept="image/*" required onChange={(e) => setFile(e.target.files?.[0] || null)} className="block text-sm text-white/70" />
+          <input
+            type="file"
+            accept="image/*"
+            required
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="block text-sm text-white/70"
+          />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -97,7 +112,13 @@ export default function StageGalleryAdmin() {
           </div>
           <div>
             <label className="label">Orden</label>
-            <input type="number" className="field" value={order} onChange={(e) => setOrder(Number(e.target.value))} />
+            <input
+              type="number"
+              className="field"
+              value={order}
+              onChange={(e) => setOrder(Number(e.target.value))}
+            />
+          
           </div>
         </div>
         <button className="btn-primary">Subir imagen</button>
@@ -108,12 +129,18 @@ export default function StageGalleryAdmin() {
           <div key={img.id} className="card overflow-hidden group relative">
             <img src={asset(img.imageUrl)} alt="" className="aspect-square w-full object-cover" />
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-              <button onClick={() => remove(img)} className="text-sm text-red-200 hover:text-red-100">Eliminar</button>
+              <button onClick={() => remove(img)} className="text-sm text-red-200 hover:text-red-100">
+                Eliminar
+              </button>
             </div>
-            {img.caption && <div className="px-3 py-2 text-xs text-white/70 truncate">{img.caption}</div>}
+            {img.caption && (
+              <div className="px-3 py-2 text-xs text-white/70 truncate">{img.caption}</div>
+            )}
           </div>
         ))}
-        {images.length === 0 && <div className="text-sm text-white/50 col-span-full">Sin imágenes en esta etapa.</div>}
+        {images.length === 0 && (
+          <div className="text-sm text-white/50 col-span-full">Sin imágenes en esta etapa.</div>
+        )}
       </div>
     </div>
   );

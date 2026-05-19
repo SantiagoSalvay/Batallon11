@@ -76,7 +76,7 @@ async function login(req, res, next) {
     const turnstileOk = await verifyTurnstileIfConfigured(body.turnstileToken, req.ip);
     if (!turnstileOk) {
       await uniformLoginDelay(120);
-      return res.status(400).json({ message: 'Verificación anti‑bot fallida.' });
+      return res.status(400).json({ message: 'Verificaci?n anti���bot fallida.' });
     }
 
     const { email, password, totpCode } = body;
@@ -87,7 +87,7 @@ async function login(req, res, next) {
 
     if (!userFull || !ok) {
       await uniformLoginDelay(140);
-      return res.status(401).json({ message: 'Credenciales inválidas' });
+      return res.status(401).json({ message: 'Credenciales inv?lidas' });
     }
 
     if (userFull.totpEnabled) {
@@ -96,7 +96,7 @@ async function login(req, res, next) {
       }
       if (!totpCode) {
         return res.status(403).json({
-          message: 'Ingresá el código de autenticación (TOTP).',
+          message: 'Ingres? el c?digo de autenticaci?n (TOTP).',
           code: 'TOTP_REQUIRED',
         });
       }
@@ -107,7 +107,7 @@ async function login(req, res, next) {
       });
       if (!totpResult.valid) {
         await uniformLoginDelay(100);
-        return res.status(401).json({ message: 'Código TOTP inválido', code: 'INVALID_TOTP' });
+        return res.status(401).json({ message: 'C?digo TOTP inv?lido', code: 'INVALID_TOTP' });
       }
     }
 
@@ -131,7 +131,7 @@ async function login(req, res, next) {
         email: userFull.email,
         name: userFull.name,
         role: userFull.role,
-        stageId: userFull.stageId ?? null,
+        stageSlug: userFull.stageSlug ?? null,
       },
     });
   } catch (err) {
@@ -153,13 +153,13 @@ async function refresh(req, res, next) {
 
     if (!session) {
       clearAuthCookies(res);
-      return res.status(401).json({ message: 'Sesión inválida' });
+      return res.status(401).json({ message: 'Sesi?n inv?lida' });
     }
 
     if (session.expiresAt < new Date()) {
       await prisma.refreshSession.delete({ where: { id: session.id } });
       clearAuthCookies(res);
-      return res.status(401).json({ message: 'Sesión expirada' });
+      return res.status(401).json({ message: 'Sesi?n expirada' });
     }
 
     if (session.revokedAt) {
@@ -169,7 +169,7 @@ async function refresh(req, res, next) {
         data: { tokenVersion: { increment: 1 } },
       });
       clearAuthCookies(res);
-      return res.status(401).json({ message: 'Reutilización de token detectada' });
+      return res.status(401).json({ message: 'Reutilizaci?n de token detectada' });
     }
 
     const user = await prisma.user.findUnique({
@@ -202,7 +202,7 @@ async function refresh(req, res, next) {
         email: user.email,
         name: user.name,
         role: user.role,
-        stageId: user.stageId ?? null,
+        stageSlug: user.stageSlug ?? null,
       },
     });
   } catch (err) {

@@ -77,7 +77,7 @@ export default function PostsAdmin() {
         <div>
           <label className="label">Imagen</label>
           <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] || null)} className="block text-sm text-white/70" />
-          {editing.image && <img src={asset(editing.image)} alt="" className="mt-2 h-32 rounded-lg object-cover" />}
+          {editing.imageUrl && <img src={asset(editing.imageUrl)} alt="" className="mt-2 h-32 rounded-lg object-cover" />}
         </div>
         <button className="btn-primary">{editing.id ? 'Actualizar' : 'Crear'}</button>
       </form>
@@ -85,8 +85,8 @@ export default function PostsAdmin() {
       <div className="mt-8 space-y-3">
         {posts.map((p) => (
           <div key={p.id} className="card p-4 flex items-center gap-4">
-            {p.image ? (
-              <img src={asset(p.image)} alt="" className="h-14 w-20 rounded-lg object-cover" />
+            {p.imageUrl ? (
+              <img src={asset(p.imageUrl)} alt="" className="h-14 w-20 rounded-lg object-cover" />
             ) : (
               <div className="h-14 w-20 rounded-lg bg-white/5" />
             )}

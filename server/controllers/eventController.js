@@ -43,7 +43,7 @@ async function createEvent(req, res, next) {
       date: new Date(date),
       location: location || null,
     };
-    if (req.file) data.image = fileToPublicUrl(req.file);
+    if (req.file) data.imageUrl = fileToPublicUrl(req.file);
 
     const event = await prisma.event.create({ data });
     res.status(201).json(event);
@@ -66,8 +66,8 @@ async function updateEvent(req, res, next) {
       ...(location !== undefined && { location }),
     };
     if (req.file) {
-      data.image = fileToPublicUrl(req.file);
-      deleteOldFileFromUrl(fs, current.image, uploadDir);
+      data.imageUrl = fileToPublicUrl(req.file);
+      deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
     const event = await prisma.event.update({ where: { id }, data });
     res.json(event);
@@ -82,7 +82,7 @@ async function deleteEvent(req, res, next) {
     const current = await prisma.event.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Evento no encontrado' });
     await prisma.event.delete({ where: { id } });
-    deleteOldFileFromUrl(fs, current.image, uploadDir);
+    deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     res.json({ ok: true });
   } catch (err) {
     next(err);

@@ -47,9 +47,9 @@ export default function EventsSection({ events = [] }) {
                     {new Date(e.date).getDate()}
                   </div>
                 </div>
-                {e.image && (
+                {e.imageUrl && (
                   <img
-                    src={asset(e.image)}
+                    src={asset(e.imageUrl)}
                     alt={e.title}
                     className="h-20 w-28 object-cover rounded-xl"
                   />

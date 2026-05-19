@@ -14,8 +14,7 @@ model User {
   password     String
   name         String?
   role         Role      @default(ADMIN)
-  stageId      Int?
-  stage        Stage?    @relation(fields: [stageId], references: [id], onDelete: SetNull)
+  stageSlug    String?
   tokenVersion Int       @default(0)
   totpEnabled  Boolean   @default(false)
   totpSecret   String?
@@ -24,7 +23,7 @@ model User {
 
   refreshSessions RefreshSession[]
 
-  @@index([stageId])
+  @@index([stageSlug])
   @@map("users")
 }
 
@@ -53,30 +52,21 @@ model RevokedAccessJti {
   @@map("revoked_access_jti")
 }
 
-model Stage {
-  id          Int                 @id @default(autoincrement())
-  name        String
-  slug        String              @unique
-  logo        String?
-  coverImage  String?
-  description String?
-  color       String?
-  order       Int                 @default(0)
-  active      Boolean             @default(true)
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  gallery     StageGalleryImage[]
-  posts       StagePost[]
-  users       User[]
+/// URLs de logo/portada subidas por etapa (metadatos de etapa están en shared/stages.js).
+model StageMedia {
+  slug      String   @id
+  logoUrl   String?
+  coverUrl  String?
+  updatedAt DateTime @updatedAt
 
-  @@map("stages")
+  @@map("stage_media")
 }
 
 model Post {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
-  image     String?
+  imageUrl  String?
   published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -89,14 +79,13 @@ model StagePost {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
-  image     String?
+  imageUrl  String?
   published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  stageId   Int
-  stage     Stage    @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  stageSlug String
 
-  @@index([stageId, createdAt])
+  @@index([stageSlug, createdAt])
   @@map("stage_posts")
 }
 
@@ -117,10 +106,9 @@ model StageGalleryImage {
   caption   String?
   order     Int      @default(0)
   createdAt DateTime @default(now())
-  stageId   Int
-  stage     Stage    @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  stageSlug String
 
-  @@index([stageId, order])
+  @@index([stageSlug, order])
   @@map("stage_gallery_images")
 }
 
@@ -128,7 +116,7 @@ model Event {
   id          Int      @id @default(autoincrement())
   title       String
   description String
-  image       String?
+  imageUrl    String?
   location    String?
   date        DateTime
   createdAt   DateTime @default(now())
@@ -136,18 +124,6 @@ model Event {
 
   @@index([date])
   @@map("events")
-}
-
-model HeroSection {
-  id           Int      @id @default(autoincrement())
-  heroImage    String?
-  heroTitle    String
-  heroSubtitle String?
-  ctaText      String?
-  ctaLink      String?
-  updatedAt    DateTime @updatedAt
-
-  @@map("hero_section")
 }
 
 enum Role {

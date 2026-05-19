@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const {
-  listStagePostsByStageId,
+  listStagePostsByStageSlug,
   createStagePost,
   updateStagePost,
   deleteStagePost,
@@ -11,7 +11,7 @@ const { upload } = require('../middleware/upload');
 const { processUploadedImages } = require('../middleware/processImage');
 const { uploadLimiter } = require('../middleware/uploadLimiter');
 
-router.get('/', attachUserOptional, listStagePostsByStageId);
+router.get('/', attachUserOptional, listStagePostsByStageSlug);
 router.post(
   '/',
   uploadLimiter,

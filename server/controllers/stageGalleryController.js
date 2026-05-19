@@ -2,14 +2,17 @@ const fs = require('fs');
 const prisma = require('../config/prisma');
 const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
+const { isValidStageSlug } = require('../lib/stages');
 
 async function listImagesBySlug(req, res, next) {
   try {
-    const stage = await prisma.stage.findUnique({ where: { slug: req.params.slug } });
-    if (!stage) return res.status(404).json({ message: 'Etapa no encontrada' });
+    const { slug } = req.params;
+    if (!isValidStageSlug(slug)) {
+      return res.status(404).json({ message: 'Etapa no encontrada' });
+    }
 
     const images = await prisma.stageGalleryImage.findMany({
-      where: { stageId: stage.id },
+      where: { stageSlug: slug },
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
     res.json(images);
@@ -18,12 +21,16 @@ async function listImagesBySlug(req, res, next) {
   }
 }
 
-async function listImagesByStageId(req, res, next) {
+async function listImagesByStageSlug(req, res, next) {
   try {
-    const stageId = Number(req.query.stageId);
-    if (!stageId) return res.status(400).json({ message: 'stageId requerido' });
+    const stageSlug = req.query.stageSlug;
+    if (!stageSlug) return res.status(400).json({ message: 'stageSlug requerido' });
+    if (!isValidStageSlug(stageSlug)) {
+      return res.status(404).json({ message: 'Etapa no encontrada' });
+    }
+
     const images = await prisma.stageGalleryImage.findMany({
-      where: { stageId },
+      where: { stageSlug },
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
     res.json(images);
@@ -35,15 +42,18 @@ async function listImagesByStageId(req, res, next) {
 async function createImage(req, res, next) {
   try {
     if (!req.file) return res.status(400).json({ message: 'imagen requerida' });
-    const { caption, order, stageId } = req.body;
-    if (!stageId) return res.status(400).json({ message: 'stageId requerido' });
+    const { caption, order, stageSlug } = req.body;
+    if (!stageSlug) return res.status(400).json({ message: 'stageSlug requerido' });
+    if (!isValidStageSlug(stageSlug)) {
+      return res.status(400).json({ message: 'Etapa no válida' });
+    }
 
     const image = await prisma.stageGalleryImage.create({
       data: {
         imageUrl: fileToPublicUrl(req.file),
         caption: caption || null,
         order: order !== undefined ? Number(order) : 0,
-        stageId: Number(stageId),
+        stageSlug,
       },
     });
     res.status(201).json(image);
@@ -58,17 +68,20 @@ async function updateImage(req, res, next) {
     const current = await prisma.stageGalleryImage.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
 
-    if (req.user?.role === 'COORDINATOR' && current.stageId !== req.user.stageId) {
+    if (req.user?.role === 'COORDINATOR' && current.stageSlug !== req.user.stageSlug) {
       return res.status(403).json({ message: 'No autorizado para esta etapa' });
     }
 
-    const { caption, order, stageId } = req.body;
+    const { caption, order, stageSlug } = req.body;
     const data = {
       ...(caption !== undefined && { caption }),
       ...(order !== undefined && { order: Number(order) }),
-      ...(stageId !== undefined &&
-        req.user?.role !== 'COORDINATOR' && { stageId: Number(stageId) }),
+      ...(stageSlug !== undefined &&
+        req.user?.role !== 'COORDINATOR' && { stageSlug }),
     };
+    if (stageSlug !== undefined && !isValidStageSlug(stageSlug)) {
+      return res.status(400).json({ message: 'Etapa no válida' });
+    }
     if (req.file) {
       data.imageUrl = fileToPublicUrl(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
@@ -85,7 +98,7 @@ async function deleteImage(req, res, next) {
     const id = Number(req.params.id);
     const current = await prisma.stageGalleryImage.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
-    if (req.user?.role === 'COORDINATOR' && current.stageId !== req.user.stageId) {
+    if (req.user?.role === 'COORDINATOR' && current.stageSlug !== req.user.stageSlug) {
       return res.status(403).json({ message: 'No autorizado para esta etapa' });
     }
     await prisma.stageGalleryImage.delete({ where: { id } });
@@ -98,7 +111,7 @@ async function deleteImage(req, res, next) {
 
 module.exports = {
   listImagesBySlug,
-  listImagesByStageId,
+  listImagesByStageSlug,
   createImage,
   updateImage,
   deleteImage,

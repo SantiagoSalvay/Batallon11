@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const {
-  listImagesByStageId,
+  listImagesByStageSlug,
   createImage,
   updateImage,
   deleteImage,
@@ -10,7 +10,7 @@ const { upload } = require('../middleware/upload');
 const { processUploadedImages } = require('../middleware/processImage');
 const { uploadLimiter } = require('../middleware/uploadLimiter');
 
-router.get('/', listImagesByStageId);
+router.get('/', listImagesByStageSlug);
 router.post(
   '/',
   uploadLimiter,
