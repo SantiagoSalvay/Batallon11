@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import { asset } from '../services/api.js';
@@ -18,9 +19,14 @@ function formatDate(d) {
   }
 }
 
-export default function PostsList({ title, posts = [], emptyText = 'Próximamente publicaciones.' }) {
+export default function PostsList({
+  title,
+  posts = [],
+  emptyText = 'Próximamente publicaciones.',
+  showViewAll = false,
+}) {
   return (
-    <section id="publicaciones" className="py-20 sm:py-28">
+    <section id="publicaciones" className="py-14 sm:py-20">
       <div className="container-app">
         <div className="max-w-2xl">
           <span className="badge mb-3">Publicaciones</span>
@@ -58,6 +64,17 @@ export default function PostsList({ title, posts = [], emptyText = 'Próximament
                 </div>
               </motion.article>
             ))}
+          </div>
+        )}
+
+        {showViewAll && posts.length >= 3 && (
+          <div className="mt-8 text-center">
+            <Link
+              to="/publicaciones"
+              className="text-xs text-white/45 hover:text-white/75 underline-offset-2 hover:underline transition"
+            >
+              ver todas las publicaciones
+            </Link>
           </div>
         )}
       </div>

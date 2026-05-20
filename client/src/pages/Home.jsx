@@ -5,7 +5,7 @@ import Hero from '../components/Hero.jsx';
 import AboutSection from '../components/AboutSection.jsx';
 import StagesGrid from '../components/StagesGrid.jsx';
 import PostsList from '../components/PostsList.jsx';
-import Gallery from '../components/Gallery.jsx';
+import VisitUsSection from '../components/VisitUsSection.jsx';
 import EventsSection from '../components/EventsSection.jsx';
 import ContactSection from '../components/ContactSection.jsx';
 
@@ -13,7 +13,7 @@ export default function Home() {
   const location = useLocation();
   const [stages, setStages] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [gallery, setGallery] = useState([]);
+  const [hasMorePosts, setHasMorePosts] = useState(false);
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -35,15 +35,17 @@ export default function Home() {
     let cancelled = false;
     Promise.allSettled([
       api.get('/stages'),
-      api.get('/posts', { params: { limit: 6 } }),
-      api.get('/gallery'),
+      api.get('/posts', { params: { limit: 4 } }),
       api.get('/events', { params: { upcoming: true } }),
     ]).then((results) => {
       if (cancelled) return;
-      const [s, p, g, e] = results;
+      const [s, p, e] = results;
       if (s.status === 'fulfilled') setStages(s.value.data);
-      if (p.status === 'fulfilled') setPosts(p.value.data);
-      if (g.status === 'fulfilled') setGallery(g.value.data);
+      if (p.status === 'fulfilled') {
+        const all = p.value.data;
+        setHasMorePosts(all.length > 3);
+        setPosts(all.slice(0, 3));
+      }
       if (e.status === 'fulfilled') setEvents(e.value.data);
     });
     return () => {
@@ -56,8 +58,8 @@ export default function Home() {
       <Hero />
       <AboutSection />
       <StagesGrid stages={stages} />
-      <PostsList posts={posts} title="Últimas novedades" />
-      <Gallery images={gallery} />
+      <PostsList posts={posts} title="Últimas novedades" showViewAll={hasMorePosts} />
+      <VisitUsSection />
       <EventsSection events={events} />
       <ContactSection />
     </>

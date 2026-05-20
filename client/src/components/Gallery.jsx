@@ -6,7 +6,7 @@ export default function Gallery({ title = 'Galería', images = [] }) {
   const [active, setActive] = useState(null);
 
   return (
-    <section id="galeria" className="py-20 sm:py-28 bg-ink-900">
+    <section id="galeria" className="py-14 sm:py-20 bg-ink-900">
       <div className="container-app">
         <div className="max-w-2xl">
           <span className="badge mb-3">Galería</span>

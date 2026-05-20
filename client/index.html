@@ -10,7 +10,7 @@
     <!-- CSP base: endurecé en producción (p. ej. sin unsafe-eval) delante del CDN/proxy -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' http://127.0.0.1:* http://localhost:* http://10.0.0.0/8 http://192.168.0.0/16 http://172.16.0.0/12 ws://127.0.0.1:* ws://localhost:* ws://10.0.0.0/8 ws://192.168.0.0/16 ws://172.16.0.0/12 wss: https://challenges.cloudflare.com;"
+      content="default-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://www.google.com https://maps.google.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' http://127.0.0.1:* http://localhost:* http://10.0.0.0/8 http://192.168.0.0/16 http://172.16.0.0/12 ws://127.0.0.1:* ws://localhost:* ws://10.0.0.0/8 ws://192.168.0.0/16 ws://172.16.0.0/12 wss: https://challenges.cloudflare.com;"
     />
     <meta
       name="description"

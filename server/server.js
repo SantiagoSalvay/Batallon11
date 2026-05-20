@@ -98,9 +98,10 @@ app.use(
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: Number(process.env.API_RATE_LIMIT_MAX || 150),
+  max: Number(process.env.API_RATE_LIMIT_MAX || (isProd ? 150 : 5000)),
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => !isProd && req.method === 'GET',
 });
 app.use('/api', apiLimiter);
 

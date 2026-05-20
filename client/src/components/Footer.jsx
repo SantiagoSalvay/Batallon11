@@ -9,7 +9,7 @@ const MOBILE_BREAKPOINT = 768;
 const INFO_LINKS = [
   { target: 'top', label: 'Inicio' },
   { target: 'etapas', label: 'Etapas' },
-  { target: 'galeria', label: 'Galería' },
+  { target: 'conocenos', label: 'Conocenos' },
   { target: 'eventos', label: 'Eventos' },
   { target: 'contacto', label: 'Contacto' },
 ];

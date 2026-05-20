@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './layouts/PublicLayout.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import Home from './pages/Home.jsx';
+import PublicationsPage from './pages/PublicationsPage.jsx';
 import StagePage from './pages/StagePage.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
@@ -21,6 +22,7 @@ export default function App() {
     <Routes>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/publicaciones" element={<PublicationsPage />} />
         <Route path="/etapas/:slug" element={<StagePage />} />
       </Route>
 

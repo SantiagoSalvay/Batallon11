@@ -16,7 +16,7 @@ function formatDate(d) {
 
 export default function EventsSection({ events = [] }) {
   return (
-    <section id="eventos" className="py-20 sm:py-28">
+    <section id="eventos" className="py-14 sm:py-20">
       <div className="container-app">
         <div className="max-w-2xl">
           <span className="badge mb-3">Agenda</span>

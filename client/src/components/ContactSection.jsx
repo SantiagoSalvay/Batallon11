@@ -25,7 +25,7 @@ export default function ContactSection() {
   return (
     <section
       id="contacto"
-      className="relative isolate min-h-[55vh] sm:min-h-[75vh] flex items-center py-12 sm:py-24 overflow-hidden"
+      className="relative isolate min-h-[55vh] sm:min-h-[75vh] flex items-center py-10 sm:py-16 overflow-hidden"
     >
       <div className="absolute inset-0 -z-10">
         <img
