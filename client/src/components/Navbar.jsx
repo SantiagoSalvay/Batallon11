@@ -5,9 +5,9 @@ import { EMBLEMA } from '../lib/stageAssets.js';
 
 const links = [
   { target: 'top', label: 'Inicio' },
+  { target: 'quienes-somos', label: 'Quienes somos' },
   { target: 'etapas', label: 'Etapas' },
   { target: 'conocenos', label: 'Conocenos' },
-  { target: 'eventos', label: 'Eventos' },
   { target: 'contacto', label: 'Contacto' },
 ];
 
