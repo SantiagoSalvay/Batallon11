@@ -2,6 +2,10 @@ packages:
   - "client"
   - "server"
 
+overrides:
+  shell-quote: ">=1.8.4"
+  qs: ">=6.15.2"
+
 allowBuilds:
   "@prisma/client": true
   "@prisma/engines": true
