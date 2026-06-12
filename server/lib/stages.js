@@ -3,14 +3,8 @@ const {
   getStageBySlug,
   isValidStageSlug,
 } = require('../../shared/stages');
-const prisma = require('../config/prisma');
 
-async function getStageMediaMap() {
-  const rows = await prisma.stageMedia.findMany();
-  return new Map(rows.map((r) => [r.slug, r]));
-}
-
-function mergeStage(config, media) {
+function mergeStage(config) {
   if (!config) return null;
   return {
     slug: config.slug,
@@ -19,21 +13,15 @@ function mergeStage(config, media) {
     description: config.description,
     color: config.color,
     order: config.order,
-    logo: media?.logoUrl ?? null,
-    coverImage: media?.coverUrl ?? null,
   };
 }
 
-async function listStagesMerged() {
-  const mediaMap = await getStageMediaMap();
-  return listStages().map((s) => mergeStage(s, mediaMap.get(s.slug)));
+function listStagesMerged() {
+  return listStages().map((s) => mergeStage(s));
 }
 
-async function getStageMergedBySlug(slug) {
-  const config = getStageBySlug(slug);
-  if (!config) return null;
-  const media = await prisma.stageMedia.findUnique({ where: { slug } });
-  return mergeStage(config, media);
+function getStageMergedBySlug(slug) {
+  return mergeStage(getStageBySlug(slug));
 }
 
 module.exports = {

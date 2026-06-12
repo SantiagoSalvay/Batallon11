@@ -7,7 +7,6 @@ import StagePage from './pages/StagePage.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Dashboard from './pages/admin/Dashboard.jsx';
-import StagesAdmin from './pages/admin/StagesAdmin.jsx';
 import PostsAdmin from './pages/admin/PostsAdmin.jsx';
 import StagePostsAdmin from './pages/admin/StagePostsAdmin.jsx';
 import GalleryAdmin from './pages/admin/GalleryAdmin.jsx';
@@ -37,7 +36,6 @@ export default function App() {
         }
       >
         <Route index element={<CoordinatorIndexRedirect><Dashboard /></CoordinatorIndexRedirect>} />
-        <Route path="etapas" element={<RoleRoute allow={['ADMIN', 'EDITOR']}><StagesAdmin /></RoleRoute>} />
         <Route path="publicaciones" element={<RoleRoute allow={['ADMIN', 'EDITOR']}><PostsAdmin /></RoleRoute>} />
         <Route path="publicaciones-etapa" element={<StagePostsAdmin />} />
         <Route path="galeria" element={<RoleRoute allow={['ADMIN', 'EDITOR']}><GalleryAdmin /></RoleRoute>} />

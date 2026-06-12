@@ -1,5 +1,4 @@
-// Mapeo slug -> logo en /public (fallback cuando el admin no subió logo propio).
-// Si el admin sube un logo desde el dashboard, ese tiene prioridad.
+// Logos de etapas en /public (fuente única; no se guardan en la base de datos).
 
 export const STAGE_LOGOS = {
   soles: '/Logo_Soles.png',
@@ -36,7 +35,7 @@ export const EMBLEMA = '/Emblema-Mes.png';
 
 export function logoForStage(stage) {
   if (!stage) return null;
-  return stage.logo || STAGE_LOGOS[stage.slug] || null;
+  return STAGE_LOGOS[stage.slug] || null;
 }
 
 export function glowColorForStage(stage) {

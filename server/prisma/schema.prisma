@@ -51,16 +51,6 @@ model RevokedAccessJti {
   @@map("revoked_access_jti")
 }
 
-/// URLs de logo/portada subidas por etapa (metadatos de etapa están en shared/stages.js).
-model StageMedia {
-  slug      String   @id
-  logoUrl   String?
-  coverUrl  String?
-  updatedAt DateTime @updatedAt
-
-  @@map("stage_media")
-}
-
 model Post {
   id        Int      @id @default(autoincrement())
   title     String

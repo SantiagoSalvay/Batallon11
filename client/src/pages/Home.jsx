@@ -8,10 +8,10 @@ import PostsList from '../components/PostsList.jsx';
 import VisitUsSection from '../components/VisitUsSection.jsx';
 import EventsSection from '../components/EventsSection.jsx';
 import ContactSection from '../components/ContactSection.jsx';
+import { LOCAL_STAGES } from '../lib/stages.js';
 
 export default function Home() {
   const location = useLocation();
-  const [stages, setStages] = useState([]);
   const [posts, setPosts] = useState([]);
   const [hasMorePosts, setHasMorePosts] = useState(false);
   const [events, setEvents] = useState([]);
@@ -34,13 +34,11 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false;
     Promise.allSettled([
-      api.get('/stages'),
       api.get('/posts', { params: { limit: 4 } }),
       api.get('/events', { params: { upcoming: true } }),
     ]).then((results) => {
       if (cancelled) return;
-      const [s, p, e] = results;
-      if (s.status === 'fulfilled') setStages(s.value.data);
+      const [p, e] = results;
       if (p.status === 'fulfilled') {
         const all = p.value.data;
         setHasMorePosts(all.length > 3);
@@ -57,7 +55,7 @@ export default function Home() {
     <>
       <Hero />
       <AboutSection />
-      <StagesGrid stages={stages} />
+      <StagesGrid stages={LOCAL_STAGES} />
       <PostsList posts={posts} title="Últimas novedades" showViewAll={hasMorePosts} />
       <VisitUsSection />
       <EventsSection events={events} />

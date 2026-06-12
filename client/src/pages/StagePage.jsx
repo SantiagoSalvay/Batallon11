@@ -6,6 +6,7 @@ import PostsList from '../components/PostsList.jsx';
 import Gallery from '../components/Gallery.jsx';
 import StageContactSection from '../components/StageContactSection.jsx';
 import { logoForStage } from '../lib/stageAssets.js';
+import { localStageBySlug } from '../lib/stages.js';
 
 function resolveLogo(path) {
   if (!path) return null;
@@ -26,10 +27,19 @@ export default function StagePage() {
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
     api
       .get(`/stages/${slug}`)
       .then((r) => setStage(r.data))
-      .catch((err) => setError(err.response?.data?.message || err.message))
+      .catch((err) => {
+        // Si la API/base no responde, mostramos la etapa con los datos locales.
+        const local = localStageBySlug(slug);
+        if (local) {
+          setStage({ ...local, posts: [], gallery: [] });
+        } else {
+          setError(err.response?.data?.message || err.message);
+        }
+      })
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -63,13 +73,6 @@ export default function StagePage() {
     <>
       <section className="relative isolate overflow-hidden bg-ink-900">
         <div className="absolute inset-0 -z-10">
-          {stage.coverImage && (
-            <img
-              src={asset(stage.coverImage)}
-              alt=""
-              className="h-full w-full object-cover opacity-60"
-            />
-          )}
           <div
             className="absolute inset-0"
             style={{
