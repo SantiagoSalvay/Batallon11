@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 
-export default function Gallery({ title = 'Galería', images = [] }) {
+export default function Gallery({ title = 'Galería', images = [], whiteTitle = false }) {
   const [active, setActive] = useState(null);
 
   return (
@@ -10,7 +10,7 @@ export default function Gallery({ title = 'Galería', images = [] }) {
       <div className="container-app">
         <div className="max-w-2xl">
           <span className="badge mb-3">Galería</span>
-          <h2 className="section-title">{title}</h2>
+          <h2 className={`section-title${whiteTitle ? ' text-white' : ''}`}>{title}</h2>
         </div>
 
         {images.length === 0 ? (

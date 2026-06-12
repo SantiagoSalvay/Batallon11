@@ -63,7 +63,7 @@ export default function StageContactSection({ stage }) {
           className="max-w-2xl"
         >
           <span className="badge mb-3">Comunicate</span>
-          <h2 className="section-title">Contacto de {stage.name}</h2>
+          <h2 className="section-title text-white">Contacto de {stage.name}</h2>
           <p className="mt-4 text-white/80">
             Si tenés alguna consulta sobre esta etapa, podés comunicarte
             directamente con sus coordinadores por WhatsApp.

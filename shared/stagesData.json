@@ -2,48 +2,54 @@
   {
     "slug": "horneros-pichones",
     "name": "Horneros y Pichones",
-    "motto": "Pequeños pasos, grandes descubrimientos",
-    "description": "Los más chicos descubren el mundo de los Exploradores a través del juego, la naturaleza y los valores.",
+    "motto": "Siempre Mejor",
+    "emblemExplanation": "Un distintivo con un HORNERO dibujado sobre un rectángulo de fondo verde, con la inscripción: Exploradores Argentinos de Don Bosco. Se recibe cuando ya se ha consolidado el grupo de Horneros Pichones.\n\nEtapa Pichones: Punto culmine es la realización del \"Compromiso de Horneros\".\n\nEtapa Horneros: Está conformada por los que ya han realizado la mencionada ceremonia.",
+    "description": "En esta etapa, los niños a partir de los 8 años, se preparan para integrarse a la familia exploradoril. Desde 1995, esta nueva etapa acompaña a la familia exploradoril.",
     "color": "#F59E0B",
     "order": 1
   },
   {
     "slug": "caminantes-chispistas",
     "name": "Caminantes y Chispistas",
-    "motto": "Aventura, amistad y servicio",
-    "description": "Etapa de aventura y descubrimiento, donde se fortalecen la amistad, el servicio y el contacto con la creación.",
+    "motto": "Siempre unidos",
+    "emblemExplanation": "Las puntas del triángulo representan Dios, Patria y Hogar, que son los tres pilares que definen la etapa en preparación para la Promesa. El Color VERDE señala la esperanza del comienzo de un camino: el destino es la Promesa Exploradoril. La antorcha son los animadores que transmiten el fuego con enseñanzas y con el ejemplo. Los leños representarían a los/las caminantes/chispitas, quienes buscan la Unión porque un solo leño no hace un buen fuego. Estos leños se preparan para encender el fuego exploradoril.",
+    "description": "Esta etapa brinda la posibilidad de experimentar los conocimientos básicos del Exploradorismo, permite la interrelación, nivela la formación cristiana, preparándolos para vivir su experiencia de explorador.",
     "color": "#10B981",
     "order": 2
   },
   {
     "slug": "pioneros-fuegos",
     "name": "Pioneros y Fuegos",
-    "motto": "Compromiso y liderazgo en patrulla",
-    "description": "Etapa de compromiso y liderazgo: proyectos propios, campamentos exigentes y vida en patrulla.",
+    "motto": "Afianzar el grupo",
+    "emblemExplanation": "El Color ANARANJADO es símbolo de amistad, signo del calor que se comunica. Tiene forma circular porque ese círculo es amistoso y acepta a todos los demás; porque no tiene principio ni fin, como Dios, quien es el que le da esta forma al grupo. El círculo no tiene aristas, se muestra igual desde todo punto de vista; se comunica fácilmente con lo que hay alrededor. En la Unidad de los leños podemos ver que Juntos se dan calor y que de esa manera sirven brindado calor, haciendo un buen fuego ya que cada uno individualmente se apagaría. De ellos se aprende a AFIANZAR EL GRUPO.\n\nCALOR: amor, familia, alegría, bienestar, fiesta, generosidad, victoria ante el frío.\n\nENERGÍA: vida, entusiasmo, fervor interior, fuerza renovadora.\n\nLUZ: ilumina el camino, es sabiduría.\n\nPURIFICA: nos perfecciona y nos forja.\n\nCristo es el leño de la vida. Esos leños se consumen dando cada uno todo lo que tiene.",
+    "description": "El Explorador, con su promesa recientemente formulada, comienza a madurar en la dimensión comunitaria. Debe afianzar sus experiencias de grupo, que se convierten en la base de la formación, a fin de empezar a vivir y a sentirse miembro de una comunidad y de la Iglesia.",
     "color": "#EF4444",
     "order": 3
   },
   {
     "slug": "rastreadores",
     "name": "Rastreadores",
-    "motto": "Guiar, animar y acompañar",
-    "description": "Jóvenes que asumen el rol de guías, animadores y protagonistas dentro del batallón.",
+    "motto": "Consolidar el camino",
+    "emblemExplanation": "El círculo ANARANJADO sigue expresando calidez, apertura y amistad. La Iglesia es la Casa de la Familia de Dios; es el lugar donde el fuego crece, se perfecciona y toma sentido porque se eleva a Dios; es la IGLESIA. A través de la Cruz vemos de Cristo la cabeza.\n\nEl dibujo de Don Bosco nos hace recordar que el rastreador/hoguera sigue sus huellas; lo anima con sus enseñanzas y su ejemplo. El Rastreador/Hoguera está atento a la voz de los pastores que llaman desde ella. Por eso la campana.",
+    "description": "En el comienzo de la adolescencia, el Explorador está abierto a la vida que lo llena de preguntas y llamados. El M.E.S. lo acompaña en la profundización de su ser como persona en su triple dimensión humana, cristiana y exploradoril. Toma como contenido y experiencia central la ética o moral (ley de honor). Le ayuda a descubrir que en la Iglesia, los exploradores somos cristianos con el estilo de Don Bosco.",
     "color": "#6366F1",
     "order": 4
   },
   {
     "slug": "baqueanos",
     "name": "Baqueanos",
-    "motto": "Liderar y representar al batallón",
-    "description": "Etapa de mayor compromiso: lideran, acompañan a las etapas menores y representan al batallón.",
+    "motto": "Prepararse para servir",
+    "emblemExplanation": "El fondo oscuro es vencido por el amarillo, que es fuerza, y por el rojo, que es coraje dinamismo, calor y movimiento. Esos dos colores son los que trae el fuego. En la Cruz del Sur vemos a Jesús que orienta al baqueano; y también representamos la presencia de Jesús en lo cotidiano. La antorcha ilumina en lo alto, como proponiendo la Luz a los demás. Esa luz no es nada más que Cristo. El fuego de la antorcha es fuego que se deja llevar generosamente, que se transporta, que se entrega a los demás. El combustible no es ahora una suma de leños, sino un elemento único que se consume para iluminar. La antorcha es instrumento de la mano que lo lleva. Se deja llevar por la Mano de Dios, para servirlo a Él y al prójimo.",
+    "description": "El M.E.S. acompaña al Explorador a lo largo de su ciclo de formación, para que descubra las posibilidades de realización de su juventud. Le ofrece servir apostólicamente en una comunidad: la exploradoril o en la que el Señor lo llame a servir.",
     "color": "#8B5CF6",
     "order": 5
   },
   {
     "slug": "soles",
     "name": "Soles",
-    "motto": "Primeros pasos con Don Bosco",
-    "description": "Los Soles dan sus primeros pasos en el mundo de los Exploradores, descubriendo amigos, juegos y los valores de Don Bosco.",
+    "motto": "Siempre listo para servir",
+    "emblemExplanation": "El Sol es el que orienta, ilumina, da Vida y se entrega en silencio. Sabemos, que aunque a veces no lo vemos el Sol siempre está. El Color ROJO de la Cruz simboliza la caridad, el martirio de Jesús, el Sacrificio. La Cruz es camino de perfección en el servicio. El círculo VERDE nos habla de la armonía con la Naturaleza y por otro lado la esperanza de los jóvenes. El Madero horizontal, es signo de la apertura a la vida y a los demás. El Madero vertical es signo de comunicación con Dios (Oración).",
+    "description": "El Sol tiene dos formas de servicio:\n\nUn modo de realizarse como Sol es el \"Servicio en misión\". En el batallón todo/a explorador/a es llamado/a a ser misionero/a, es decir, a entregar ese Jesús que un día encontró y que la comunidad intenta comunicarle. Pero hay algunos exploradores que sienten fuertemente un llamado para ir a otros lugares y con personas diferentes de su comunidad, a fin de compartir con ellos la propia experiencia del Evangelio y realizar allí su apostolado.\n\nEl Sol en Misión tiene que formar parte de un equipo que responda a un proyecto, acompañado por la obra a la que pertenece y en contacto con la Comunidad de Soles de referencia.\n\nOtro modo de ser Sol, es el \"Servicio especial\". Son los/as exploradores/as que sienten el llamado de ofrecer su servicio apostólico dentro de la Institución como sus referentes. Se capacitan para compartir las riquezas educativas que recibieron en el batallón, con los niños, adolescentes y jóvenes que cada año hacen posible de este modo la continuidad de la Obra.\n\nLos servicios en misión y especial no son excluyentes. Se contempla el servicio en Misión como una experiencia formativa disponible para todos los Soles.",
     "color": "#FBBF24",
     "order": 6
   }

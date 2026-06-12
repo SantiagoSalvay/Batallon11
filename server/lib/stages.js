@@ -10,6 +10,7 @@ function mergeStage(config) {
     slug: config.slug,
     name: config.name,
     motto: config.motto,
+    emblemExplanation: config.emblemExplanation,
     description: config.description,
     color: config.color,
     order: config.order,

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { api, asset } from '../services/api.js';
 import PostsList from '../components/PostsList.jsx';
 import Gallery from '../components/Gallery.jsx';
+import StageInfoSection from '../components/StageInfoSection.jsx';
 import StageContactSection from '../components/StageContactSection.jsx';
 import { logoForStage } from '../lib/stageAssets.js';
 import { localStageBySlug } from '../lib/stages.js';
@@ -111,8 +112,8 @@ export default function StagePage() {
                 className="inline-block h-1.5 w-12 rounded mb-3"
                 style={{ backgroundColor: color }}
               />
-              <h1 className="text-4xl sm:text-5xl font-extrabold">
-                <span className="text-gradient">{stage.name}</span>
+              <h1 className="text-4xl sm:text-5xl font-extrabold text-white">
+                {stage.name}
               </h1>
               {stage.motto && (
                 <p className="mt-2 text-white/70 italic">{stage.motto}</p>
@@ -122,13 +123,20 @@ export default function StagePage() {
         </div>
       </section>
 
+      <StageInfoSection stage={stage} />
+
       <PostsList
         title={`Publicaciones de ${stage.name}`}
         posts={stage.posts || []}
         emptyText="Aún no hay publicaciones en esta etapa."
+        whiteTitle
       />
 
-      <Gallery title={`Galería de ${stage.name}`} images={stage.gallery || []} />
+      <Gallery
+        title={`Galería de ${stage.name}`}
+        images={stage.gallery || []}
+        whiteTitle
+      />
 
       <StageContactSection stage={stage} />
     </>

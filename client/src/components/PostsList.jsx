@@ -24,13 +24,16 @@ export default function PostsList({
   posts = [],
   emptyText = 'Próximamente publicaciones.',
   showViewAll = false,
+  whiteTitle = false,
 }) {
   return (
     <section id="publicaciones" className="py-14 sm:py-20">
       <div className="container-app">
         <div className="max-w-2xl">
           <span className="badge mb-3">Publicaciones</span>
-          <h2 className="section-title">{title || 'Últimas novedades'}</h2>
+          <h2 className={`section-title${whiteTitle ? ' text-white' : ''}`}>
+            {title || 'Últimas novedades'}
+          </h2>
         </div>
 
         {posts.length === 0 ? (
