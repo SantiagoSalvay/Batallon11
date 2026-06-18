@@ -1,5 +1,8 @@
 require('dotenv').config();
 
+const { validateEnv } = require('./config/validateEnv');
+validateEnv();
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -85,8 +88,23 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
 const uploadDir = path.resolve(__dirname, process.env.UPLOAD_DIR || 'uploads');
+
+function blockUnsafeUploadPath(req, res, next) {
+  let decoded = req.path;
+  try {
+    decoded = decodeURIComponent(req.path);
+  } catch {
+    return res.status(400).end();
+  }
+  if (decoded.includes('\0') || decoded.split('/').some((part) => part === '..')) {
+    return res.status(400).end();
+  }
+  next();
+}
+
 app.use(
   '/uploads',
+  blockUnsafeUploadPath,
   express.static(uploadDir, {
     maxAge: '7d',
     etag: true,
@@ -134,7 +152,9 @@ app.use('/api/stage-gallery', stageGalleryRoutes);
 app.use('/api/events', eventRoutes);
 
 app.use((req, res, _next) => {
-  res.status(404).json({ message: `Ruta no encontrada: ${req.originalUrl}` });
+  res.status(404).json({
+    message: isProd ? 'Ruta no encontrada' : `Ruta no encontrada: ${req.originalUrl}`,
+  });
 });
 
 app.use(errorHandler);

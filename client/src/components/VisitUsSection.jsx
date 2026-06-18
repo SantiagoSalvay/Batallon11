@@ -43,7 +43,7 @@ function ExternalLinkIcon({ className }) {
 
 export default function VisitUsSection() {
   return (
-    <section id="conocenos" className="py-14 sm:py-20 relative overflow-hidden">
+    <section id="ubicacion" className="py-14 sm:py-20 relative overflow-hidden">
       <div className="container-app relative">
         <div className="grid lg:grid-cols-[1fr_1.15fr] gap-8 lg:gap-12 items-center">
           <motion.div

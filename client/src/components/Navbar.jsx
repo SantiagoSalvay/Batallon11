@@ -7,7 +7,7 @@ const links = [
   { target: 'top', label: 'Inicio' },
   { target: 'quienes-somos', label: 'Quienes somos' },
   { target: 'etapas', label: 'Etapas' },
-  { target: 'conocenos', label: 'Conocenos' },
+  { target: 'ubicacion', label: 'Ubicación' },
   { target: 'contacto', label: 'Contacto' },
 ];
 
