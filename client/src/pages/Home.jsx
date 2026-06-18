@@ -8,10 +8,11 @@ import PostsList from '../components/PostsList.jsx';
 import VisitUsSection from '../components/VisitUsSection.jsx';
 import EventsSection from '../components/EventsSection.jsx';
 import ContactSection from '../components/ContactSection.jsx';
+import { LOCAL_STAGES } from '../lib/stages.js';
 
 export default function Home() {
   const location = useLocation();
-  const [stages, setStages] = useState([]);
+  const [stages, setStages] = useState(LOCAL_STAGES);
   const [posts, setPosts] = useState([]);
   const [hasMorePosts, setHasMorePosts] = useState(false);
   const [events, setEvents] = useState([]);
@@ -40,7 +41,7 @@ export default function Home() {
     ]).then((results) => {
       if (cancelled) return;
       const [s, p, e] = results;
-      if (s.status === 'fulfilled') setStages(s.value.data);
+      if (s.status === 'fulfilled' && s.value.data?.length) setStages(s.value.data);
       if (p.status === 'fulfilled') {
         const all = p.value.data;
         setHasMorePosts(all.length > 3);
@@ -58,9 +59,9 @@ export default function Home() {
       <Hero />
       <AboutSection />
       <StagesGrid stages={stages} />
-      <PostsList posts={posts} title="Últimas novedades" showViewAll={hasMorePosts} />
-      <VisitUsSection />
+      <PostsList posts={posts} title="Ultimas novedades" showViewAll={hasMorePosts} />
       <EventsSection events={events} />
+      <VisitUsSection />
       <ContactSection />
     </>
   );

@@ -4,8 +4,10 @@ import { motion } from 'framer-motion';
 import { api, asset } from '../services/api.js';
 import PostsList from '../components/PostsList.jsx';
 import Gallery from '../components/Gallery.jsx';
+import StageInfoSection from '../components/StageInfoSection.jsx';
 import StageContactSection from '../components/StageContactSection.jsx';
 import { logoForStage } from '../lib/stageAssets.js';
+import { localStageBySlug } from '../lib/stages.js';
 
 function resolveLogo(path) {
   if (!path) return null;
@@ -26,10 +28,18 @@ export default function StagePage() {
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
     api
       .get(`/stages/${slug}`)
       .then((r) => setStage(r.data))
-      .catch((err) => setError(err.response?.data?.message || err.message))
+      .catch((err) => {
+        const local = localStageBySlug(slug);
+        if (local) {
+          setStage({ ...local, posts: [], gallery: [] });
+        } else {
+          setError(err.response?.data?.message || err.message);
+        }
+      })
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -40,15 +50,17 @@ export default function StagePage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] grid place-items-center text-white/60">Cargando…</div>
+      <div className="grid min-h-[60vh] place-items-center bg-stone-50 pt-20 text-slate-500">
+        Cargando...
+      </div>
     );
   }
   if (error || !stage) {
     return (
-      <div className="min-h-[60vh] grid place-items-center text-white/70">
+      <div className="grid min-h-[60vh] place-items-center bg-stone-50 px-4 pt-20 text-slate-700">
         <div className="text-center">
           <p>{error || 'Etapa no encontrada'}</p>
-          <Link to="/" className="btn-ghost mt-4 inline-flex">
+          <Link to="/" className="public-button-primary mt-4">
             Volver al inicio
           </Link>
         </div>
@@ -56,76 +68,77 @@ export default function StagePage() {
     );
   }
 
-  const color = stage.color || '#3458ff';
+  const color = stage.color || '#172554';
   const logo = resolveLogo(logoForStage(stage));
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-ink-900">
-        <div className="absolute inset-0 -z-10">
-          {stage.coverImage && (
-            <img
-              src={asset(stage.coverImage)}
-              alt=""
-              className="h-full w-full object-cover opacity-60"
-            />
-          )}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `radial-gradient(ellipse 80% 70% at top left, ${color}66, transparent 65%)`,
-            }}
-          />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-ink-900" />
-        </div>
-
-        <div className="container-app pt-24 pb-12 sm:pt-28 sm:pb-16">
+      <section className="bg-stone-50 pt-24 text-slate-950">
+        <div className="container-app pb-12 pt-6 sm:pb-16">
           <Link
             to="/"
             onClick={goHome}
-            className="text-sm text-white/60 hover:text-white"
+            className="text-sm font-semibold text-slate-500 transition hover:text-blue-950"
           >
-            ← Volver al principio
+            {'<-'} Volver al inicio
           </Link>
 
           <motion.div
-            initial={{ y: 30, opacity: 0 }}
+            initial={{ y: 24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="max-w-3xl mt-10 flex items-center gap-5"
+            className="mt-10 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
           >
-            {logo && (
-              <img
-                src={logo}
-                alt={stage.name}
-                className="h-28 w-28 sm:h-32 sm:w-32 object-contain"
-                style={{
-                  filter: `drop-shadow(0 12px 30px rgba(0,0,0,0.5)) drop-shadow(0 0 20px ${color}80)`,
-                }}
-              />
+            {stage.coverImage && (
+              <div className="h-48 overflow-hidden bg-slate-100 sm:h-64">
+                <img
+                  src={asset(stage.coverImage)}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              </div>
             )}
-            <div>
-              <span
-                className="inline-block h-1.5 w-12 rounded mb-3"
-                style={{ backgroundColor: color }}
-              />
-              <h1 className="text-4xl sm:text-5xl font-extrabold">
-                <span className="text-gradient">{stage.name}</span>
-              </h1>
-              {stage.motto && (
-                <p className="mt-2 text-white/70 italic">{stage.motto}</p>
+            <div className="grid gap-8 p-6 sm:grid-cols-[140px_1fr] sm:p-8">
+              {logo && (
+                <div className="flex h-32 w-32 items-center justify-center rounded-md border border-slate-200 bg-stone-50 p-4">
+                  <img
+                    src={logo}
+                    alt={stage.name}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
               )}
+              <div>
+                <span
+                  className="mb-4 inline-block h-1.5 w-14 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <p className="public-eyebrow">Etapa</p>
+                <h1 className="mt-2 font-display text-4xl font-extrabold text-slate-950 sm:text-5xl">
+                  {stage.name}
+                </h1>
+                {stage.motto && (
+                  <p className="mt-3 text-lg font-medium italic text-slate-600">
+                    {stage.motto}
+                  </p>
+                )}
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
+      <StageInfoSection stage={stage} />
+
       <PostsList
         title={`Publicaciones de ${stage.name}`}
         posts={stage.posts || []}
-        emptyText="Aún no hay publicaciones en esta etapa."
+        emptyText="Aun no hay publicaciones en esta etapa."
       />
 
-      <Gallery title={`Galería de ${stage.name}`} images={stage.gallery || []} />
+      <Gallery
+        title={`Galeria de ${stage.name}`}
+        images={stage.gallery || []}
+      />
 
       <StageContactSection stage={stage} />
     </>
