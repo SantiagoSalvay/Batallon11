@@ -16,50 +16,61 @@ function formatDate(d) {
 
 export default function EventsSection({ events = [] }) {
   return (
-    <section id="eventos" className="py-14 sm:py-20">
+    <section id="eventos" className="public-band py-16 sm:py-24">
       <div className="container-app">
-        <div className="max-w-2xl">
-          <span className="badge mb-3">Agenda</span>
-          <h2 className="section-title">Próximos eventos</h2>
-          <p className="mt-3 text-white/70">
-            Campamentos, salidas, encuentros y actividades del batallón.
+        <div className="grid gap-6 border-b border-slate-200 pb-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <div>
+            <span className="public-eyebrow">Agenda</span>
+            <h2 className="public-title mt-3">Proximas actividades</h2>
+          </div>
+          <p className="public-copy max-w-2xl lg:ml-auto">
+            Campamentos, encuentros, salidas y momentos importantes de la vida
+            del batallon.
           </p>
         </div>
 
         {events.length === 0 ? (
-          <div className="mt-10 text-white/50">No hay eventos programados por el momento.</div>
+          <div className="mt-8 rounded-md border border-dashed border-slate-300 bg-stone-50 px-5 py-8 text-sm text-slate-500">
+            No hay eventos programados por el momento.
+          </div>
         ) : (
-          <ul className="mt-10 space-y-4">
+          <ul className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
             {events.map((e, idx) => (
               <motion.li
                 key={e.id}
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.05 }}
-                className="card p-5 flex flex-col sm:flex-row gap-5 items-start sm:items-center"
+                transition={{ delay: idx * 0.04 }}
+                className="grid gap-5 py-5 sm:grid-cols-[96px_1fr] sm:items-center lg:grid-cols-[96px_140px_1fr]"
               >
-                <div className="flex-shrink-0 w-20 text-center rounded-xl bg-brand-500/15 border border-brand-500/30 p-3">
-                  <div className="text-xs uppercase text-brand-300 font-bold">
+                <div className="w-24 rounded-md border border-blue-950/20 bg-blue-950 px-3 py-3 text-center text-white">
+                  <div className="text-xs font-bold uppercase tracking-[0.16em] text-white/75">
                     {new Date(e.date).toLocaleDateString('es-AR', { month: 'short' })}
                   </div>
-                  <div className="text-3xl font-extrabold">
+                  <div className="mt-1 text-3xl font-extrabold leading-none">
                     {new Date(e.date).getDate()}
                   </div>
                 </div>
+
                 {e.imageUrl && (
                   <img
                     src={asset(e.imageUrl)}
                     alt={e.title}
-                    className="h-20 w-28 object-cover rounded-xl"
+                    className="hidden h-24 w-32 rounded-md object-cover lg:block"
                   />
                 )}
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold">{e.title}</h3>
-                  <p className="text-sm text-white/70 mt-1 line-clamp-2">{e.description}</p>
-                  <div className="mt-2 text-xs text-white/50 flex flex-wrap gap-3">
+
+                <div>
+                  <h3 className="font-display text-xl font-extrabold text-slate-950">
+                    {e.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-700">
+                    {e.description}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">
                     <span>{formatDate(e.date)}</span>
-                    {e.location && <span>· {e.location}</span>}
+                    {e.location && <span>{e.location}</span>}
                   </div>
                 </div>
               </motion.li>

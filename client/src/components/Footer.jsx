@@ -3,15 +3,21 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BRAND_LOGO, EMBLEMA } from '../lib/stageAssets.js';
 import { requestAdminAccess } from '../lib/adminAccess.js';
 
-// Tailwind md breakpoint
 const MOBILE_BREAKPOINT = 768;
 
 const INFO_LINKS = [
   { target: 'top', label: 'Inicio' },
+  { target: 'quienes-somos', label: 'Quienes somos' },
   { target: 'etapas', label: 'Etapas' },
-  { target: 'ubicacion', label: 'Ubicación' },
+  { target: 'conocenos', label: 'Visitarnos' },
   { target: 'eventos', label: 'Eventos' },
   { target: 'contacto', label: 'Contacto' },
+];
+
+const SOCIAL_LINKS = [
+  { label: 'Instagram', handle: '@batallon11', href: 'https://www.instagram.com/batallon11/' },
+  { label: 'Facebook', handle: 'Batallon11Cordoba', href: 'https://www.facebook.com/Batallon11Cordoba/?locale=es_LA' },
+  { label: 'TikTok', handle: '@batallon11cba', href: 'https://www.tiktok.com/@batallon11cba' },
 ];
 
 function scrollToTarget(target) {
@@ -53,41 +59,44 @@ export default function Footer() {
   };
 
   return (
-    <footer className="border-t border-white/10 bg-ink-900">
-      {/* ===== Desktop (md+) ===== */}
-      <div className="hidden md:grid container-app py-12 gap-8 grid-cols-3 text-left">
-        <div className="flex flex-col items-start">
-          <div className="flex items-center gap-3">
+    <footer className="border-t border-slate-200 bg-stone-100 text-slate-900">
+      <div className="container-app grid gap-10 py-12 md:grid-cols-[1.2fr_0.8fr_0.9fr]">
+        <div>
+          <div className="flex items-center gap-4">
             <img
               src={BRAND_LOGO}
-              alt="Batallón 11"
-              className="h-12 w-12 object-contain"
+              alt="Batallon 11"
+              className="h-14 w-14 object-contain"
             />
             <div>
-              <div className="font-display font-bold">Batallón 11</div>
-              <div className="text-xs text-white/60">Gral. José María Paz</div>
+              <div className="font-display text-lg font-extrabold">Batallon 11</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Gral. Jose Maria Paz
+              </div>
             </div>
           </div>
-          <p className="mt-4 text-white/60 text-sm max-w-xs">
-            Exploradores Argentinos de Don Bosco. Formando jóvenes con valores,
+          <p className="mt-4 max-w-md text-sm leading-6 text-slate-600">
+            Exploradores Argentinos de Don Bosco. Comunidad, formacion,
             aventura y servicio.
           </p>
           <img
             src={EMBLEMA}
             alt="Emblema EADB"
-            className="mt-6 h-16 w-16 object-contain opacity-80"
+            onClick={handleEmblemaClick}
+            draggable={false}
+            className="mt-6 h-14 w-14 select-none object-contain opacity-80 md:cursor-default"
           />
         </div>
 
         <div>
-          <h4 className="font-semibold mb-3">Información</h4>
-          <ul className="space-y-1 text-sm">
+          <h4 className="font-display font-extrabold">Informacion</h4>
+          <ul className="mt-4 space-y-2 text-sm">
             {INFO_LINKS.map((l) => (
               <li key={l.target}>
                 <button
                   type="button"
                   onClick={() => handleNavClick(l.target)}
-                  className="text-white/70 hover:text-white transition"
+                  className="text-slate-600 transition hover:text-blue-950"
                 >
                   {l.label}
                 </button>
@@ -97,76 +106,29 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-semibold mb-3">Contacto</h4>
-          <ul className="space-y-1 text-sm text-white/70 break-words">
+          <h4 className="font-display font-extrabold">Contacto</h4>
+          <ul className="mt-4 space-y-2 break-words text-sm text-slate-600">
             <li>contacto@batallon11.com</li>
-            <li>Instagram · @batallon11</li>
-            <li>Facebook · Batallón 11</li>
+            {SOCIAL_LINKS.map((social) => (
+              <li key={social.href}>
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition hover:text-blue-950"
+                >
+                  {social.label} - {social.handle}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
 
-      {/* ===== Mobile (< md) ===== */}
-      <div className="md:hidden container-app py-10 flex flex-col items-center gap-8 text-center">
-        <div>
-          <div className="font-display font-bold text-lg">Batallón 11</div>
-          <div className="text-xs text-white/60">Gral. José María Paz</div>
-          <p className="mt-3 text-white/60 text-sm max-w-xs mx-auto">
-            Exploradores Argentinos de Don Bosco. Formando jóvenes con valores,
-            aventura y servicio.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6 w-full max-w-sm text-left">
-          <div className="pl-6">
-            <h4 className="font-semibold mb-3 text-sm">Información</h4>
-            <ul className="space-y-1 text-xs">
-              {INFO_LINKS.map((l) => (
-                <li key={l.target}>
-                  <button
-                    type="button"
-                    onClick={() => handleNavClick(l.target)}
-                    className="text-white/70 hover:text-white transition"
-                  >
-                    {l.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-3 text-sm">Contacto</h4>
-            <ul className="space-y-1 text-xs text-white/70 break-words">
-              <li>contacto@batallon11.com</li>
-              <li>Instagram · @batallon11</li>
-              <li>Facebook · Batallón 11</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center gap-6 pt-2">
-          <img
-            src={BRAND_LOGO}
-            alt="Batallón 11"
-            className="h-16 w-16 object-contain"
-          />
-          <img
-            src={EMBLEMA}
-            alt="Emblema EADB"
-            onClick={handleEmblemaClick}
-            draggable={false}
-            className="h-16 w-16 object-contain opacity-90 cursor-pointer select-none"
-          />
-        </div>
-      </div>
-
-      <div className="border-t border-white/10">
-        <div className="container-app py-4 text-xs text-white/50 text-center">
-          <span>
-            © {new Date().getFullYear()} Batallón 11 — Exploradores Argentinos
-            de Don Bosco.
-          </span>
+      <div className="border-t border-slate-200">
+        <div className="container-app py-4 text-center text-xs text-slate-500">
+          {new Date().getFullYear()} Batallon 11 - Exploradores Argentinos de
+          Don Bosco.
         </div>
       </div>
     </footer>

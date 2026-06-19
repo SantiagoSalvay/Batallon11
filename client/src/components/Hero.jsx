@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { BRAND_LOGO } from '../lib/stageAssets.js';
 
 const DEFAULT_BG = '/Fondo_Primera_seccion.jpg';
 
@@ -11,105 +12,70 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative isolate min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative isolate min-h-[88vh] overflow-hidden bg-slate-950 text-white"
     >
-      
       <div className="absolute inset-0 -z-10">
         <img
           src={DEFAULT_BG}
           alt=""
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink-900/60 via-ink-900/55 to-ink-900/85" />
-        
-        <div className="absolute inset-0 bg-ink-900/35" />
+        <div className="absolute inset-0 bg-slate-950/55" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-stone-50" />
       </div>
 
-      <div className="container-app pt-2 pb-24 sm:py-32 text-center flex flex-col items-center justify-center w-full">
-        <motion.p
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="text-[10px] sm:text-sm font-semibold tracking-[0.25em] sm:tracking-[0.35em] uppercase text-white/40 mb-6 px-2"
-        >
-          Exploradores Argentinos de Don Bosco
-        </motion.p>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.1 }}
-          className="font-display font-extrabold leading-[0.95] text-5xl sm:text-6xl lg:text-7xl xl:text-8xl"
-        >
-          <span className="text-gradient drop-shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
-            Batallón 11
-          </span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.25 }}
-          className="mt-5 text-lg sm:text-xl lg:text-2xl font-display font-semibold text-white/80 tracking-wide"
-        >
-          General José María Paz
-        </motion.p>
-
+      <div className="container-app flex min-h-[88vh] items-end pb-20 pt-28 sm:pb-24">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.5 }}
-          className="mt-10 flex flex-wrap gap-3 justify-center"
+          transition={{ duration: 0.75 }}
+          className="max-w-3xl"
         >
-          <a
-            href="#etapas"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToId('etapas');
-            }}
-            className="btn-primary"
-          >
-            Conocenos
-          </a>
-          <a
-            href="#etapas"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToId('etapas');
-            }}
-            className="btn-ghost"
-          >
-            Ver etapas
-          </a>
+          <div className="mb-6 flex items-center gap-4">
+            <img
+              src={BRAND_LOGO}
+              alt="Batallon 11"
+              className="h-16 w-16 object-contain sm:h-20 sm:w-20"
+            />
+            <div className="border-l border-white/35 pl-4">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/75">
+                Exploradores Argentinos de Don Bosco
+              </p>
+              <p className="mt-1 text-sm font-semibold text-white/70">
+                Cordoba, Argentina
+              </p>
+            </div>
+          </div>
+
+          <h1 className="font-display text-5xl font-extrabold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
+            Batallon 11
+          </h1>
+          <p className="mt-4 text-xl font-semibold text-white/90 sm:text-2xl">
+            General Jose Maria Paz
+          </p>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-white/80 sm:text-lg">
+            Una comunidad de chicos, jovenes y animadores que crece entre la vida
+            de grupo, el servicio, la fe y las actividades al aire libre.
+          </p>
+
+          <div className="mt-9 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => scrollToId('quienes-somos')}
+              className="public-button-primary"
+            >
+              Conocer el batallon
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToId('etapas')}
+              className="public-button-secondary"
+            >
+              Ver etapas
+            </button>
+          </div>
         </motion.div>
       </div>
-
-      <motion.button
-        type="button"
-        onClick={() => scrollToId('etapas')}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-        aria-label="Bajar a la siguiente sección"
-        className="group absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50 hover:text-white text-xs uppercase tracking-[0.3em] focus:outline-none"
-      >
-        <span className="font-semibold">Bajar</span>
-        <motion.svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-          className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]"
-        >
-          <path d="M7 10l5 5 5-5" />
-        </motion.svg>
-      </motion.button>
     </section>
   );
 }

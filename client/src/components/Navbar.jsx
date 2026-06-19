@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { EMBLEMA } from '../lib/stageAssets.js';
+import { BRAND_LOGO } from '../lib/stageAssets.js';
 
 const links = [
   { target: 'top', label: 'Inicio' },
   { target: 'quienes-somos', label: 'Quienes somos' },
   { target: 'etapas', label: 'Etapas' },
-  { target: 'ubicacion', label: 'Ubicación' },
+  { target: 'conocenos', label: 'Visitarnos' },
   { target: 'contacto', label: 'Contacto' },
 ];
 
@@ -52,33 +52,47 @@ export default function Navbar() {
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className={`fixed top-0 inset-x-0 z-50 transition-colors ${
+      className={`fixed inset-x-0 top-0 z-50 transition-colors ${
         scrolled
-          ? 'bg-ink-900/80 backdrop-blur-md border-b border-white/10'
-          : 'bg-transparent'
+          ? 'border-b border-slate-200 bg-stone-50/95 text-slate-950 shadow-sm backdrop-blur-md'
+          : 'bg-gradient-to-b from-slate-950/70 to-transparent text-white'
       }`}
     >
       <div className="container-app flex h-16 items-center justify-between">
         <Link
           to="/"
           onClick={(e) => handleNav(e, 'top')}
-          className="flex items-center"
+          className="flex items-center gap-3"
           aria-label="Inicio"
         >
           <img
-            src={EMBLEMA}
-            alt="Exploradores Argentinos de Don Bosco"
-            className="h-12 w-12 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+            src={BRAND_LOGO}
+            alt="Batallon 11"
+            className="h-11 w-11 object-contain"
           />
+          <div className="hidden leading-tight sm:block">
+            <div className="font-display text-sm font-extrabold">Batallon 11</div>
+            <div
+              className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                scrolled ? 'text-slate-600' : 'text-white/70'
+              }`}
+            >
+              Gral. Jose Maria Paz
+            </div>
+          </div>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden items-center gap-1 md:flex">
           {links.map((l) => (
             <a
               key={l.target}
               href={`#${l.target}`}
               onClick={(e) => handleNav(e, l.target)}
-              className="px-3 py-2 rounded-lg text-sm text-white/80 hover:text-white hover:bg-white/5 transition"
+              className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                scrolled
+                  ? 'text-slate-700 hover:bg-slate-200/70 hover:text-slate-950'
+                  : 'text-white/85 hover:bg-white/10 hover:text-white'
+              }`}
             >
               {l.label}
             </a>
@@ -86,8 +100,10 @@ export default function Navbar() {
         </nav>
 
         <button
-          aria-label="Abrir menú"
-          className="md:hidden p-2 rounded-lg bg-white/5"
+          aria-label="Abrir menu"
+          className={`rounded-md p-2 md:hidden ${
+            scrolled ? 'bg-slate-200 text-slate-950' : 'bg-white/10 text-white'
+          }`}
           onClick={() => setOpen((v) => !v)}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -104,15 +120,15 @@ export default function Navbar() {
         <motion.div
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
-          className="md:hidden bg-ink-900/95 border-t border-white/10"
+          className="border-t border-slate-200 bg-stone-50 text-slate-950 shadow-lg md:hidden"
         >
-          <div className="container-app py-4 flex flex-col gap-1">
+          <div className="container-app flex flex-col gap-1 py-4">
             {links.map((l) => (
               <a
                 key={l.target}
                 href={`#${l.target}`}
                 onClick={(e) => handleNav(e, l.target)}
-                className="px-3 py-2 rounded-lg text-white/80 hover:bg-white/5"
+                className="rounded-md px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200/70 hover:text-slate-950"
               >
                 {l.label}
               </a>

@@ -28,23 +28,23 @@ export default function PublicationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] grid place-items-center text-white/60 pt-24">
-        Cargando…
+      <div className="grid min-h-[60vh] place-items-center bg-stone-50 pt-24 text-slate-500">
+        Cargando...
       </div>
     );
   }
 
   return (
-    <div className="pt-16">
-      <div className="container-app pt-8 pb-2">
-        <Link to="/" className="text-sm text-white/60 hover:text-white transition">
-          ← Volver al inicio
+    <div className="bg-stone-50 pt-16">
+      <div className="container-app pb-2 pt-8">
+        <Link to="/" className="text-sm font-semibold text-slate-500 transition hover:text-blue-950">
+          {'<-'} Volver al inicio
         </Link>
       </div>
       <PostsList
         title="Todas las publicaciones"
         posts={posts}
-        emptyText="Aún no hay publicaciones."
+        emptyText="Aun no hay publicaciones."
       />
     </div>
   );
