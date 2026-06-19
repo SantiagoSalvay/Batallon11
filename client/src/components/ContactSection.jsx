@@ -32,8 +32,8 @@ function WhatsAppIcon({ className }) {
 export default function ContactSection() {
   return (
     <section id="contacto" className="bg-slate-950 text-white">
-      <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="relative min-h-80 overflow-hidden lg:min-h-[560px]">
+      <div className="split-layout lg:items-center">
+        <div className="relative min-h-64 overflow-hidden sm:min-h-72 lg:h-[420px] lg:min-h-0">
           <img
             src="/Seccion_Contacto.jpg"
             alt=""
@@ -42,26 +42,26 @@ export default function ContactSection() {
           <div className="absolute inset-0 bg-slate-950/20" />
         </div>
 
-        <div className="flex items-center px-4 py-16 sm:px-8 lg:px-14 lg:py-24">
+        <div className="split-layout__right-pad flex items-center py-12 sm:py-14 lg:py-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55 }}
-            className="max-w-2xl"
+            className="max-w-2xl lg:pl-10 xl:pl-14"
           >
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200">
               Contacto
             </span>
-            <h2 className="mt-3 font-display text-3xl font-extrabold leading-tight sm:text-4xl">
+            <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
               Hablemos con alguien del batallon
             </h2>
-            <p className="mt-4 text-base leading-7 text-white/75">
+            <p className="mt-3 text-base leading-7 text-white/75">
               Para consultas sobre actividades, inscripciones o acercarte por
               primera vez, podes escribir directamente por WhatsApp.
             </p>
 
-            <div className="mt-9 grid gap-3 sm:grid-cols-2">
+            <div className="mt-7 grid gap-3 sm:grid-cols-2">
               {LEADERS.map((leader, idx) => (
                 <motion.a
                   key={leader.name}
@@ -72,7 +72,7 @@ export default function ContactSection() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.08, duration: 0.4 }}
-                  className="rounded-md border border-white/15 bg-white/5 p-5 transition hover:border-emerald-400/60 hover:bg-emerald-500/10"
+                  className="rounded-md border border-white/15 bg-white/5 p-4 transition hover:border-emerald-400/60 hover:bg-emerald-500/10"
                 >
                   <div className="flex items-center gap-3">
                     <WhatsAppIcon className="h-6 w-6 text-emerald-300" />

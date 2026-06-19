@@ -43,60 +43,61 @@ function ExternalLinkIcon({ className }) {
 
 export default function VisitUsSection() {
   return (
-    <section id="conocenos" className="public-section py-16 sm:py-24">
-      <div className="container-app">
-        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="public-eyebrow">Visitarnos</span>
-            <h2 className="public-title mt-3">Veni a conocer el batallon</h2>
-            <p className="public-copy mt-4">
-              Si queres acercarte, escribirnos o ubicar nuestra sede, aca tenes
-              la informacion principal para dar el primer paso.
-            </p>
+    <section id="conocenos" className="public-section">
+      <div className="split-layout">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="split-layout__left-pad py-16 sm:py-24"
+        >
+          <span className="public-eyebrow">Visitarnos</span>
+          <h2 className="public-title mt-3">Veni a conocer el batallon</h2>
+          <p className="public-copy mt-4">
+            Si queres acercarte, escribirnos o ubicar nuestra sede, aca tenes
+            la informacion principal para dar el primer paso.
+          </p>
 
-            <div className="mt-7 rounded-md border border-slate-200 bg-white p-5">
-              <div className="flex items-start gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-blue-950 text-white">
-                  <MapPinIcon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-display text-lg font-extrabold text-slate-950">
-                    Batallon 11 Gral. Jose Maria Paz
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">Cordoba, Argentina</p>
-                </div>
+          <div className="mt-7 rounded-md border border-slate-200 bg-white p-5">
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-blue-950 text-white">
+                <MapPinIcon className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-display text-lg font-extrabold text-slate-950">
+                  Batallon 11 Gral. Jose Maria Paz
+                </p>
+                <p className="mt-1 text-sm text-slate-600">Cordoba, Argentina</p>
               </div>
             </div>
+          </div>
 
-            {BATTALION_MAP_OPEN_URL && (
-              <a
-                href={BATTALION_MAP_OPEN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="public-maps-link mt-5"
-              >
-                <ExternalLinkIcon className="h-4 w-4" />
-                Abrir en Google Maps
-              </a>
-            )}
-          </motion.div>
+          {BATTALION_MAP_OPEN_URL && (
+            <a
+              href={BATTALION_MAP_OPEN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="public-maps-link mt-5"
+            >
+              <ExternalLinkIcon className="h-4 w-4" />
+              Abrir en Google Maps
+            </a>
+          )}
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55, delay: 0.08 }}
-            className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
-          >
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55, delay: 0.08 }}
+          className="split-layout__right-pad flex items-center py-10 lg:py-16"
+        >
+          <div className="w-full overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-200 px-4 py-3 text-sm font-bold text-slate-700">
               Nuestra sede
             </div>
-            <div className="h-80">
+            <div className="h-80 lg:h-[min(28rem,calc(100vh-12rem))]">
               {BATTALION_MAP_EMBED_URL ? (
                 <iframe
                   title="Ubicacion del Batallon 11"
@@ -112,8 +113,8 @@ export default function VisitUsSection() {
                 </div>
               )}
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
