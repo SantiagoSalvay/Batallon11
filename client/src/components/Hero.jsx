@@ -31,12 +31,12 @@ export default function Hero() {
         />
       </div>
 
-      <div className="container-app flex min-h-[88vh] items-end pb-36 pt-24 sm:pb-44 sm:pt-28">
+      <div className="container-app flex min-h-[88vh] items-end pb-10 pt-20 sm:pb-24 sm:pt-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75 }}
-          className="max-w-3xl"
+          className="mb-[17vh] w-full max-w-3xl sm:mb-0"
         >
           <div className="mb-6 flex items-center gap-4">
             <img

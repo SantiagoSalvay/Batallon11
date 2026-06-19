@@ -17,7 +17,7 @@ const VALUES = [
 
 export default function AboutSection() {
   return (
-    <section id="quienes-somos" className="public-section py-16 sm:py-24">
+    <section id="quienes-somos" className="public-section -mt-px py-16 sm:py-24">
       <div className="container-app">
         <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <motion.div

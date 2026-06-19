@@ -29,62 +29,116 @@ function WhatsAppIcon({ className }) {
   );
 }
 
+function LeaderWhatsAppButton({ leader, idx, variant }) {
+  const isMobile = variant === 'mobile';
+
+  return (
+    <motion.a
+      href={buildWhatsAppUrl(leader.phone)}
+      target="_blank"
+      rel="noopener noreferrer"
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: idx * 0.08, duration: 0.4 }}
+      className={
+        isMobile
+          ? 'contact-whatsapp-pill'
+          : 'rounded-md border border-white/15 bg-white/5 p-4 transition hover:border-emerald-400/60 hover:bg-emerald-500/10'
+      }
+    >
+      {isMobile ? (
+        <>
+          <WhatsAppIcon className="h-5 w-5 shrink-0" />
+          <span>{leader.name}</span>
+        </>
+      ) : (
+        <div className="flex items-center gap-3">
+          <WhatsAppIcon className="h-6 w-6 text-emerald-300" />
+          <div>
+            <div className="font-display font-extrabold">{leader.name}</div>
+            <div className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-white/55">
+              {leader.role}
+            </div>
+          </div>
+        </div>
+      )}
+    </motion.a>
+  );
+}
+
 export default function ContactSection() {
   return (
-    <section id="contacto" className="bg-slate-950 text-white">
+    <section id="contacto" className="relative isolate overflow-hidden bg-slate-950 text-white">
+      <div className="absolute inset-0 -z-10 lg:hidden">
+        <img
+          src="/Seccion_Contacto.jpg"
+          alt=""
+          className="h-full w-full object-cover object-top"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/85 via-slate-950/75 to-slate-950/95" />
+      </div>
+
       <div className="split-layout lg:items-center">
-        <div className="relative min-h-64 overflow-hidden sm:min-h-72 lg:h-[420px] lg:min-h-0">
+        <div className="relative hidden overflow-hidden lg:block lg:h-[420px]">
           <img
             src="/Seccion_Contacto.jpg"
             alt=""
-            className="h-full w-full object-cover object-top lg:absolute lg:inset-0"
+            className="absolute inset-0 h-full w-full object-cover object-top"
           />
           <div className="absolute inset-0 bg-slate-950/20" />
         </div>
 
-        <div className="split-layout__right-pad flex items-center py-12 sm:py-14 lg:py-10">
+        <div className="container-app relative flex min-h-[62vh] items-center py-16 sm:min-h-[68vh] sm:py-20 lg:min-h-0 lg:items-center lg:py-10 lg:pl-0 lg:pr-0 split-layout__right-pad">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55 }}
-            className="max-w-2xl lg:pl-10 xl:pl-14"
+            className="w-full max-w-2xl lg:pl-10 xl:pl-14"
           >
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200">
-              Contacto
-            </span>
-            <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-              Hablemos con alguien del batallon
-            </h2>
-            <p className="mt-3 text-base leading-7 text-white/75">
-              Para consultas sobre actividades, inscripciones o acercarte por
-              primera vez, podes escribir directamente por WhatsApp.
-            </p>
+            <div className="lg:hidden">
+              <span className="badge mb-3">Comunicate</span>
+              <h2 className="section-title">Contacto</h2>
+              <p className="mt-4 text-base leading-7 text-white/80">
+                Si tenes alguna consulta, podes comunicarte directamente con los
+                jefes del batallon por WhatsApp.
+              </p>
 
-            <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              {LEADERS.map((leader, idx) => (
-                <motion.a
-                  key={leader.name}
-                  href={buildWhatsAppUrl(leader.phone)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.08, duration: 0.4 }}
-                  className="rounded-md border border-white/15 bg-white/5 p-4 transition hover:border-emerald-400/60 hover:bg-emerald-500/10"
-                >
-                  <div className="flex items-center gap-3">
-                    <WhatsAppIcon className="h-6 w-6 text-emerald-300" />
-                    <div>
-                      <div className="font-display font-extrabold">{leader.name}</div>
-                      <div className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-white/55">
-                        {leader.role}
-                      </div>
-                    </div>
-                  </div>
-                </motion.a>
-              ))}
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+                {LEADERS.map((leader, idx) => (
+                  <LeaderWhatsAppButton
+                    key={leader.name}
+                    leader={leader}
+                    idx={idx}
+                    variant="mobile"
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="hidden lg:block">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200">
+                Contacto
+              </span>
+              <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
+                Hablemos con alguien del batallon
+              </h2>
+              <p className="mt-3 text-base leading-7 text-white/75">
+                Para consultas sobre actividades, inscripciones o acercarte por
+                primera vez, podes escribir directamente por WhatsApp.
+              </p>
+
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                {LEADERS.map((leader, idx) => (
+                  <LeaderWhatsAppButton
+                    key={leader.name}
+                    leader={leader}
+                    idx={idx}
+                    variant="desktop"
+                  />
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>

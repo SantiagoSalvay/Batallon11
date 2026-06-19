@@ -130,6 +130,9 @@
       #020617 100%
     );
   }
+  .contact-whatsapp-pill {
+    @apply inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-emerald-500/40 bg-emerald-500/15 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/10 transition hover:bg-emerald-500/25;
+  }
 
   .page-dark .public-section {
     @apply bg-slate-950 text-white;
