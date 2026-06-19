@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { PageBackgroundProvider } from './context/PageBackgroundContext.jsx';
 import PublicLayout from './layouts/PublicLayout.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import Home from './pages/Home.jsx';
@@ -18,7 +19,8 @@ import CoordinatorIndexRedirect from './components/CoordinatorIndexRedirect.jsx'
 
 export default function App() {
   return (
-    <Routes>
+    <PageBackgroundProvider>
+      <Routes>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/publicaciones" element={<PublicationsPage />} />
@@ -45,6 +47,7 @@ export default function App() {
 
       <Route path="*" element={<NotFound />} />
       <Route path="/admin/*" element={<Navigate to="/admin" replace />} />
-    </Routes>
+      </Routes>
+    </PageBackgroundProvider>
   );
 }

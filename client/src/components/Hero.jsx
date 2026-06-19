@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
+import { usePageBackground } from '../context/PageBackgroundContext.jsx';
 
 const DEFAULT_BG = '/Fondo_Primera_seccion.jpg';
 
@@ -9,6 +10,8 @@ function scrollToId(id) {
 }
 
 export default function Hero() {
+  const { darkMode } = usePageBackground();
+
   return (
     <section
       id="top"
@@ -21,10 +24,14 @@ export default function Hero() {
           className="h-full w-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-slate-950/55" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-stone-50" />
+        <div
+          className={`pointer-events-none absolute inset-x-0 bottom-0 h-48 sm:h-56 ${
+            darkMode ? 'hero-bottom-fade-dark' : 'hero-bottom-fade-light'
+          }`}
+        />
       </div>
 
-      <div className="container-app flex min-h-[88vh] items-end pb-20 pt-28 sm:pb-24">
+      <div className="container-app flex min-h-[88vh] items-end pb-36 pt-24 sm:pb-44 sm:pt-28">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}

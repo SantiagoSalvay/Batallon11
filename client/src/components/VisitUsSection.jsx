@@ -78,7 +78,7 @@ export default function VisitUsSection() {
                 href={BATTALION_MAP_OPEN_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 inline-flex items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-950 hover:text-blue-950"
+                className="public-maps-link mt-5"
               >
                 <ExternalLinkIcon className="h-4 w-4" />
                 Abrir en Google Maps

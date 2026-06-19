@@ -80,6 +80,99 @@
   .public-button-secondary {
     @apply inline-flex items-center justify-center rounded-md border border-white/70 px-5 py-3 text-sm font-bold text-white transition hover:bg-white hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-slate-900;
   }
+  .public-maps-link {
+    @apply inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-950 hover:bg-blue-950 hover:text-white;
+  }
+  .hero-bottom-fade-light {
+    background: linear-gradient(
+      to bottom,
+      rgba(250, 250, 249, 0) 0%,
+      rgba(250, 250, 249, 0) 42%,
+      #fafaf9 100%
+    );
+  }
+  .hero-bottom-fade-dark {
+    background: linear-gradient(
+      to bottom,
+      rgba(2, 6, 23, 0) 0%,
+      rgba(2, 6, 23, 0) 42%,
+      #020617 100%
+    );
+  }
+
+  .page-dark .public-section {
+    @apply bg-slate-950 text-white;
+  }
+  .page-dark .public-band {
+    @apply border-slate-800 bg-slate-900 text-white;
+  }
+  .page-dark .public-eyebrow {
+    @apply text-sky-300;
+  }
+  .page-dark .public-title {
+    @apply text-white;
+  }
+  .page-dark .public-copy {
+    @apply text-slate-300;
+  }
+  .page-dark .public-card {
+    @apply border-slate-700 bg-slate-900 shadow-none;
+  }
+  .page-dark .public-button-primary {
+    @apply focus:ring-offset-slate-950;
+  }
+  .page-dark .public-maps-link {
+    @apply border-white/20 bg-slate-900 text-white;
+  }
+  .page-dark .public-maps-link:hover {
+    border-color: #fff;
+    background-color: #fff;
+    color: #020617;
+  }
+  .page-dark footer {
+    @apply border-slate-800 bg-slate-950 text-white;
+  }
+  .page-dark .bg-stone-50 {
+    @apply bg-slate-900 text-white;
+  }
+  .page-dark .bg-white {
+    @apply bg-slate-900;
+  }
+  .page-dark .bg-stone-100 {
+    @apply bg-slate-950;
+  }
+  .page-dark .text-slate-950,
+  .page-dark .text-slate-900 {
+    @apply text-white;
+  }
+  .page-dark .text-slate-700 {
+    @apply text-slate-300;
+  }
+  .page-dark .text-slate-600,
+  .page-dark .text-slate-500 {
+    @apply text-slate-400;
+  }
+  .page-dark .text-blue-950 {
+    @apply text-sky-300;
+  }
+  .page-dark .border-slate-200 {
+    @apply border-slate-700;
+  }
+  .page-dark .border-slate-300 {
+    @apply border-slate-600;
+  }
+  .page-dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+    @apply border-slate-700;
+  }
+  .page-dark .hover\:bg-white:hover {
+    @apply bg-slate-800;
+  }
+  .page-dark .hover\:border-slate-300:hover {
+    @apply border-slate-500;
+  }
+  .page-dark .hover\:text-blue-950:hover {
+    @apply text-sky-200;
+  }
 }
 
 @layer utilities {
