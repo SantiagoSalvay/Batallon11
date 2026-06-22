@@ -31,7 +31,7 @@ export default function Hero() {
         />
       </div>
 
-      <div className="container-app flex min-h-[88vh] items-end pb-10 pt-20 sm:pb-24 sm:pt-24">
+      <div className="container-app flex min-h-[88vh] items-end pb-10 pt-20 sm:pb-24 sm:pt-24 lg:pb-48 lg:pt-28 xl:pb-52">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}

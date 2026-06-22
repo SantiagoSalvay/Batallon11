@@ -25,6 +25,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/publicaciones" element={<PublicationsPage />} />
         <Route path="/etapas/:slug" element={<StagePage />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
 
       <Route path="/p/:token" element={<Login />} />
@@ -45,7 +46,6 @@ export default function App() {
         <Route path="eventos" element={<RoleRoute allow={['ADMIN', 'EDITOR']}><EventsAdmin /></RoleRoute>} />
       </Route>
 
-      <Route path="*" element={<NotFound />} />
       <Route path="/admin/*" element={<Navigate to="/admin" replace />} />
       </Routes>
     </PageBackgroundProvider>
