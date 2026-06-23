@@ -2,6 +2,7 @@ const fs = require('fs');
 const prisma = require('../config/prisma');
 const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
+const { audit } = require('../utils/auditLog');
 
 async function listImages(_req, res, next) {
   try {
@@ -60,6 +61,7 @@ async function deleteImage(req, res, next) {
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
     await prisma.galleryImage.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    audit(req, 'gallery.delete', { imageId: id });
     res.json({ ok: true });
   } catch (err) {
     next(err);

@@ -2,6 +2,7 @@ const fs = require('fs');
 const prisma = require('../config/prisma');
 const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
+const { audit } = require('../utils/auditLog');
 
 async function listPosts(req, res, next) {
   try {
@@ -37,18 +38,12 @@ async function getPost(req, res, next) {
 
 async function createPost(req, res, next) {
   try {
-    const { title, content, published } = req.body;
-    if (!title || !content) {
-      return res.status(400).json({ message: 'title y content son requeridos' });
-    }
-    const data = {
-      title,
-      content,
-      published: published === undefined ? true : published === 'true' || published === true,
-    };
+    const { title, content, published = true } = req.body;
+    const data = { title, content, published };
     if (req.file) data.imageUrl = fileToPublicUrl(req.file);
 
     const post = await prisma.post.create({ data });
+    audit(req, 'post.create', { postId: post.id });
     res.status(201).json(post);
   } catch (err) {
     next(err);
@@ -65,9 +60,7 @@ async function updatePost(req, res, next) {
     const data = {
       ...(title !== undefined && { title }),
       ...(content !== undefined && { content }),
-      ...(published !== undefined && {
-        published: published === 'true' || published === true,
-      }),
+      ...(published !== undefined && { published }),
     };
     if (req.file) {
       data.imageUrl = fileToPublicUrl(req.file);
@@ -87,6 +80,7 @@ async function deletePost(req, res, next) {
     if (!current) return res.status(404).json({ message: 'Post no encontrado' });
     await prisma.post.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    audit(req, 'post.delete', { postId: id });
     res.json({ ok: true });
   } catch (err) {
     next(err);

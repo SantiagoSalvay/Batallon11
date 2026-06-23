@@ -9,6 +9,7 @@
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const { generateSecret, generateURI } = require('otplib');
+const { encrypt } = require('../utils/cryptoAtRest');
 
 const email = process.argv[2];
 if (!email) {
@@ -22,7 +23,7 @@ async function main() {
   const secret = generateSecret();
   const user = await prisma.user.update({
     where: { email: email.trim() },
-    data: { totpSecret: secret, totpEnabled: true },
+    data: { totpSecret: encrypt(secret), totpEnabled: true },
   });
   const uri = generateURI({
     secret,

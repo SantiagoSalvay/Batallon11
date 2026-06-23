@@ -2,6 +2,7 @@ const fs = require('fs');
 const prisma = require('../config/prisma');
 const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
+const { audit } = require('../utils/auditLog');
 
 async function listEvents(req, res, next) {
   try {
@@ -32,11 +33,6 @@ async function getEvent(req, res, next) {
 async function createEvent(req, res, next) {
   try {
     const { title, description, date, location } = req.body;
-    if (!title || !description || !date) {
-      return res
-        .status(400)
-        .json({ message: 'title, description y date son requeridos' });
-    }
     const data = {
       title,
       description,
@@ -46,6 +42,7 @@ async function createEvent(req, res, next) {
     if (req.file) data.imageUrl = fileToPublicUrl(req.file);
 
     const event = await prisma.event.create({ data });
+    audit(req, 'event.create', { eventId: event.id });
     res.status(201).json(event);
   } catch (err) {
     next(err);
@@ -83,6 +80,7 @@ async function deleteEvent(req, res, next) {
     if (!current) return res.status(404).json({ message: 'Evento no encontrado' });
     await prisma.event.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    audit(req, 'event.delete', { eventId: id });
     res.json({ ok: true });
   } catch (err) {
     next(err);

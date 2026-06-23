@@ -1,6 +1,15 @@
-/**
- * Valida variables críticas al arranque. En producción falla si faltan secretos fuertes.
- */
+const WEAK_VALUES = new Set([
+  'changeme',
+  'secret',
+  'password',
+  'jwt_secret',
+  'test',
+  '1234',
+  '12345678',
+  'admin',
+  'qwerty',
+]);
+
 function validateEnv() {
   const isProd = process.env.NODE_ENV === 'production';
   const errors = [];
@@ -11,20 +20,31 @@ function validateEnv() {
   };
 
   const jwtSecret = process.env.JWT_SECRET;
+  const cookieSecret = process.env.COOKIE_SIGNING_SECRET;
+
   if (!jwtSecret) {
     push('JWT_SECRET no está definido.');
   } else if (jwtSecret.length < 32) {
     push('JWT_SECRET debe tener al menos 32 caracteres.');
+  } else if (WEAK_VALUES.has(jwtSecret.toLowerCase())) {
+    push('JWT_SECRET tiene un valor demasiado débil.');
   }
 
   if (isProd) {
-    if (!process.env.DATABASE_URL) {
-      errors.push('DATABASE_URL es requerida en producción.');
-    }
-
-    const cookieSecret = process.env.COOKIE_SIGNING_SECRET;
     if (!cookieSecret || cookieSecret.length < 32) {
       errors.push('COOKIE_SIGNING_SECRET debe tener al menos 32 caracteres en producción.');
+    } else if (WEAK_VALUES.has(cookieSecret.toLowerCase())) {
+      errors.push('COOKIE_SIGNING_SECRET tiene un valor demasiado débil.');
+    }
+
+    if (jwtSecret && cookieSecret && jwtSecret === cookieSecret) {
+      errors.push('JWT_SECRET y COOKIE_SIGNING_SECRET deben ser distintos entre sí.');
+    }
+
+    if (!process.env.DATABASE_URL) {
+      errors.push('DATABASE_URL es requerida en producción.');
+    } else if (!process.env.DATABASE_URL.includes('sslmode=require')) {
+      errors.push('DATABASE_URL en producción debe incluir sslmode=require.');
     }
 
     const clientUrl = (process.env.CLIENT_URL || '').trim();
@@ -40,6 +60,13 @@ function validateEnv() {
 
     if (process.env.COOKIE_SECURE === 'false') {
       warnings.push('COOKIE_SECURE=false en producción reduce la seguridad de las cookies.');
+    }
+  } else {
+    if (jwtSecret && cookieSecret && jwtSecret === cookieSecret) {
+      warnings.push('JWT_SECRET y COOKIE_SIGNING_SECRET deberían ser distintos.');
+    }
+    if (!process.env.DATABASE_URL) {
+      warnings.push('DATABASE_URL no está definida.');
     }
   }
 

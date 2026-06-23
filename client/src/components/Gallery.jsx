@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
+import { safeText } from '../lib/safeText.js';
 
 export default function Gallery({ title = 'Galeria', images = [] }) {
   const [active, setActive] = useState(null);
@@ -31,7 +32,7 @@ export default function Gallery({ title = 'Galeria', images = [] }) {
               >
                 <img
                   src={asset(img.imageUrl)}
-                  alt={img.caption || ''}
+                  alt={safeText(img.caption) || ''}
                   loading="lazy"
                   className="h-full w-full object-cover transition group-hover:scale-105"
                 />
@@ -55,12 +56,12 @@ export default function Gallery({ title = 'Galeria', images = [] }) {
               initial={{ scale: 0.98 }}
               animate={{ scale: 1 }}
               src={asset(active.imageUrl)}
-              alt={active.caption || ''}
+              alt={safeText(active.caption) || ''}
               className="max-h-[85vh] max-w-[90vw] rounded-md shadow-2xl"
             />
             {active.caption && (
               <div className="absolute bottom-6 px-4 text-center text-sm text-white/80">
-                {active.caption}
+                {safeText(active.caption)}
               </div>
             )}
           </motion.div>

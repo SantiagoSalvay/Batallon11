@@ -1,11 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import DOMPurify from 'dompurify';
 import { asset } from '../services/api.js';
-
-function safeText(value) {
-  return DOMPurify.sanitize(String(value ?? ''), { ALLOWED_TAGS: [] });
-}
+import { safeText } from '../lib/safeText.js';
 
 function formatDate(d) {
   try {
@@ -63,7 +59,7 @@ export default function PostsList({
                   <div className="aspect-[16/9] overflow-hidden bg-slate-100">
                     <img
                       src={asset(p.imageUrl)}
-                      alt={p.title}
+                      alt={safeText(p.title)}
                       className="h-full w-full object-cover"
                     />
                   </div>

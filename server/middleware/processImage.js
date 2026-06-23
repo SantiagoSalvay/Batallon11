@@ -12,8 +12,10 @@ async function detectMimeFromBuffer(buffer) {
   return (await fileTypeFromBufferFn)(buffer);
 }
 
-/** Entradas permitidas antes de re-encode a WebP (sin SVG). */
 const ALLOWED_BEFORE_WEBP = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const MAX_PIXELS = Number(process.env.MAX_IMAGE_PIXELS ?? 25_000_000);
+const MAX_EDGE = Number(process.env.MAX_IMAGE_EDGE_PX ?? 8192);
+const QUALITY = Number(process.env.WEBP_QUALITY ?? 86);
 
 async function bufferToWebpDisk(buffer) {
   const type = await detectMimeFromBuffer(buffer);
@@ -23,12 +25,43 @@ async function bufferToWebpDisk(buffer) {
     throw err;
   }
 
-  const outName = `${Date.now()}-${crypto.randomBytes(10).toString('hex')}.webp`;
+  let meta;
+  try {
+    meta = await sharp(buffer, {
+      animated: false,
+      limitInputPixels: MAX_PIXELS,
+    }).metadata();
+  } catch {
+    const err = new Error('Imagen inválida o demasiado grande para leer');
+    err.status = 400;
+    throw err;
+  }
+
+  const { width = 0, height = 0 } = meta;
+  if (
+    width === 0 ||
+    height === 0 ||
+    width > MAX_EDGE ||
+    height > MAX_EDGE ||
+    width * height > MAX_PIXELS
+  ) {
+    const err = new Error(
+      `Imagen demasiado grande (máx ${MAX_EDGE}px por lado, ${MAX_PIXELS} píxeles totales)`
+    );
+    err.status = 400;
+    throw err;
+  }
+
+  const outName = `${crypto.randomBytes(16).toString('hex')}.webp`;
   const outPath = path.join(uploadDir, outName);
 
-  await sharp(buffer, { animated: false, limitInputPixels: 268402689 })
+  await sharp(buffer, {
+    animated: false,
+    limitInputPixels: MAX_PIXELS,
+  })
     .rotate()
-    .webp({ quality: 86, effort: 4 })
+    .webp({ quality: QUALITY, effort: 4 })
+    .withMetadata(false)
     .toFile(outPath);
 
   const stat = await fs.promises.stat(outPath);
@@ -51,9 +84,6 @@ async function processOneMulterFile(file) {
   return processed;
 }
 
-/**
- * Tras multer: convierte req.file / req.files a WebP en disco.
- */
 async function processUploadedImages(req, res, next) {
   try {
     if (req.file) {

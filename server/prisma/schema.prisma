@@ -21,6 +21,8 @@ model User {
   totpSecret      String?
   stageSlug       String?
   refreshSessions RefreshSession[]
+  totpUsedCodes   TotpUsedCode[]
+  totpBackupCodes TotpBackupCode[]
 
   @@index([stageSlug])
   @@map("users")
@@ -119,4 +121,40 @@ enum Role {
   ADMIN
   EDITOR
   COORDINATOR
+}
+
+model AdminGateChallenge {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([expiresAt])
+  @@map("admin_gate_challenges")
+}
+
+model TotpUsedCode {
+  id        String   @id @default(cuid())
+  userId    Int
+  codeHash  String
+  usedAt    DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, codeHash])
+  @@index([expiresAt])
+  @@map("totp_used_codes")
+}
+
+model TotpBackupCode {
+  id        String    @id @default(cuid())
+  userId    Int
+  codeHash  String    @unique
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("totp_backup_codes")
 }

@@ -3,6 +3,7 @@ const prisma = require('../config/prisma');
 const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
 const { isValidStageSlug } = require('../lib/stages');
+const { audit } = require('../utils/auditLog');
 
 async function listImagesBySlug(req, res, next) {
   try {
@@ -103,6 +104,7 @@ async function deleteImage(req, res, next) {
     }
     await prisma.stageGalleryImage.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    audit(req, 'stage_gallery.delete', { imageId: id, stageSlug: current.stageSlug });
     res.json({ ok: true });
   } catch (err) {
     next(err);

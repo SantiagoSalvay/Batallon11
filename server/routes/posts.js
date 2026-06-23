@@ -11,26 +11,30 @@ const { attachUserOptional } = require('../middleware/attachUserOptional');
 const { upload } = require('../middleware/upload');
 const { processUploadedImages } = require('../middleware/processImage');
 const { uploadLimiter } = require('../middleware/uploadLimiter');
+const { validateBody } = require('../middleware/validateRequest');
+const { postBodySchema, postBodyUpdateSchema } = require('../schemas/contentSchemas');
 
 router.get('/', listPosts);
 router.get('/:id', attachUserOptional, getPost);
 
 router.post(
   '/',
-  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR'),
+  uploadLimiter,
   upload.single('image'),
   processUploadedImages,
+  validateBody(postBodySchema),
   createPost
 );
 router.put(
   '/:id',
-  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR'),
+  uploadLimiter,
   upload.single('image'),
   processUploadedImages,
+  validateBody(postBodyUpdateSchema),
   updatePost
 );
 router.delete('/:id', authRequired, requireRole('ADMIN', 'EDITOR'), deletePost);

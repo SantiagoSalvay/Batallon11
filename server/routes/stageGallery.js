@@ -9,25 +9,30 @@ const { authRequired, requireRole, requireStageScope } = require('../middleware/
 const { upload } = require('../middleware/upload');
 const { processUploadedImages } = require('../middleware/processImage');
 const { uploadLimiter } = require('../middleware/uploadLimiter');
+const { validateBody } = require('../middleware/validateRequest');
+const { stageGalleryImageSchema } = require('../schemas/contentSchemas');
 
 router.get('/', listImagesByStageSlug);
 router.post(
   '/',
-  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
+  uploadLimiter,
   upload.single('image'),
   processUploadedImages,
   requireStageScope,
+  validateBody(stageGalleryImageSchema),
   createImage
 );
 router.put(
   '/:id',
-  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
+  uploadLimiter,
   upload.single('image'),
   processUploadedImages,
+  requireStageScope,
+  validateBody(stageGalleryImageSchema.partial()),
   updateImage
 );
 router.delete(

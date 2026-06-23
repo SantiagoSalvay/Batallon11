@@ -9,7 +9,7 @@ const INFO_LINKS = [
   { target: 'top', label: 'Inicio' },
   { target: 'quienes-somos', label: 'Quienes somos' },
   { target: 'etapas', label: 'Etapas' },
-  { target: 'conocenos', label: 'Visitarnos' },
+  { target: 'conocenos', label: 'Ubicación' },
   { target: 'eventos', label: 'Eventos' },
   { target: 'contacto', label: 'Contacto' },
 ];

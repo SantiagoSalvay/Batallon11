@@ -16,6 +16,7 @@ const { getLanIPv4Addresses, buildClientOrigins } = require('./utils/lanUrls');
 const { correlationId } = require('./middleware/correlationId');
 const { requireCsrf } = require('./middleware/csrf');
 const errorHandler = require('./middleware/errorHandler');
+const { cleanupExpiredRecords } = require('./jobs/cleanupExpiredRecords');
 
 const authRoutes = require('./routes/auth');
 const stageRoutes = require('./routes/stages');
@@ -56,20 +57,45 @@ if (process.env.NODE_ENV !== 'test') {
   );
 }
 
+const cspDirectives = isProd
+  ? {
+      defaultSrc: ["'self'"],
+      baseUri: ["'none'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      frameSrc: ["'self'", 'https://www.google.com', 'https://maps.google.com'],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+      connectSrc: ["'self'", 'https://challenges.cloudflare.com'],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    }
+  : false;
+
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
-    contentSecurityPolicy: false,
-    hsts:
-      process.env.NODE_ENV === 'production'
-        ? { maxAge: 15552000, includeSubDomains: true, preload: true }
-        : false,
+    contentSecurityPolicy: cspDirectives,
+    hsts: isProd
+      ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+      : false,
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     permittedCrossDomainPolicies: false,
     frameguard: { action: 'deny' },
     crossOriginOpenerPolicy: { policy: 'same-origin' },
+    crossOriginEmbedderPolicy: false,
   })
 );
+
+app.use((_req, res, next) => {
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+  );
+  next();
+});
 
 app.use(
   cors({
@@ -128,7 +154,7 @@ app.use('/api', (req, res, next) => {
     return next();
   }
   const pathOnly = req.originalUrl.split('?')[0];
-  if (/\/api\/auth\/(login|refresh|prepare)$/.test(pathOnly)) {
+  if (/\/api\/auth\/(login|refresh|prepare|gate)$/.test(pathOnly)) {
     return next();
   }
   return requireCsrf(req, res, next);
@@ -174,7 +200,23 @@ const server = app.listen(PORT, HOST, () => {
       `  CORS (dev): localhost + IPs LAN en puerto ${CLIENT_PORT}`,
     );
   }
+
+  cleanupExpiredRecords().catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('[cleanup] error al iniciar:', err.message);
+  });
+  if (process.env.NODE_ENV !== 'test') {
+    setInterval(
+      () => cleanupExpiredRecords().catch(() => {}),
+      24 * 60 * 60 * 1000
+    );
+  }
 });
+
+server.setTimeout(30_000);
+server.headersTimeout = 31_000;
+server.requestTimeout = 30_000;
+server.keepAliveTimeout = 5_000;
 
 const shutdown = async (signal) => {
   // eslint-disable-next-line no-console

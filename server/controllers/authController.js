@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const { verifySync } = require('otplib');
 const prisma = require('../config/prisma');
 const {
@@ -11,15 +12,23 @@ const {
 const {
   COOKIE_ACCESS,
   COOKIE_REFRESH,
+  COOKIE_CSRF,
   accessCookieOptions,
   refreshCookieOptions,
+  csrfCookieOptions,
   clearCookieOptions,
 } = require('../config/cookies');
-const { ensureCsrfCookie } = require('../middleware/csrf');
+const { ensureCsrfCookie, generateCsrfValue } = require('../middleware/csrf');
+const { hashGateToken } = require('../utils/adminGate');
+const { decrypt } = require('../utils/cryptoAtRest');
+const { verifyTotpAntiReplay } = require('../utils/totpSecurity');
+const { audit } = require('../utils/auditLog');
 
 async function verifyTurnstileIfConfigured(token, remoteip) {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
+  const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
   if (!secret) return true;
+  // Solo exigir widget Turnstile si TURNSTILE_ENFORCE=true (secret solo no alcanza)
+  if (process.env.TURNSTILE_ENFORCE !== 'true') return true;
   if (!token) return false;
   const body = new URLSearchParams();
   body.set('secret', secret);
@@ -49,7 +58,6 @@ function setRefreshCookie(res, raw) {
 function clearAuthCookies(res) {
   res.clearCookie(COOKIE_ACCESS, clearCookieOptions());
   res.clearCookie(COOKIE_REFRESH, { ...refreshCookieOptions(), maxAge: 0 });
-  /* CSRF se mantiene o se renueva en /prepare */
 }
 
 async function persistRefreshSession(userId, rawRefresh, req) {
@@ -70,13 +78,46 @@ async function persistRefreshSession(userId, rawRefresh, req) {
   return jti;
 }
 
+async function resolveAdminGate(req, res) {
+  const gateRaw = req.get('x-admin-gate') || '';
+  if (!gateRaw) {
+    await uniformLoginDelay(140);
+    res.status(403).json({ message: 'Acceso no autorizado.' });
+    return null;
+  }
+
+  const gate = await prisma.adminGateChallenge.findUnique({
+    where: { tokenHash: hashGateToken(gateRaw) },
+  });
+
+  const gateValid = gate && !gate.usedAt && gate.expiresAt > new Date();
+  if (!gateValid) {
+    await uniformLoginDelay(140);
+    res.status(403).json({ message: 'Acceso no autorizado.' });
+    return null;
+  }
+
+  return gate;
+}
+
+async function consumeAdminGate(gateId) {
+  await prisma.adminGateChallenge.update({
+    where: { id: gateId },
+    data: { usedAt: new Date() },
+  });
+}
+
 async function login(req, res, next) {
   try {
+    const gate = await resolveAdminGate(req, res);
+    if (!gate) return;
+
     const body = req.validatedBody || req.body;
     const turnstileOk = await verifyTurnstileIfConfigured(body.turnstileToken, req.ip);
     if (!turnstileOk) {
       await uniformLoginDelay(120);
-      return res.status(400).json({ message: 'Verificaci?n antiÿÿÿbot fallida.' });
+      audit(req, 'auth.login.failed', { reason: 'turnstile' });
+      return res.status(400).json({ message: 'Verificacin anti-bot fallida.' });
     }
 
     const { email, password, totpCode } = body;
@@ -87,7 +128,8 @@ async function login(req, res, next) {
 
     if (!userFull || !ok) {
       await uniformLoginDelay(140);
-      return res.status(401).json({ message: 'Credenciales inv?lidas' });
+      audit(req, 'auth.login.failed', { email: email?.slice(0, 100) });
+      return res.status(401).json({ message: 'Credenciales invlidas' });
     }
 
     if (userFull.totpEnabled) {
@@ -95,25 +137,45 @@ async function login(req, res, next) {
         return res.status(500).json({ message: 'MFA mal configurado' });
       }
       if (!totpCode) {
-        return res.status(403).json({
-          message: 'Ingres? el c?digo de autenticaci?n (TOTP).',
-          code: 'TOTP_REQUIRED',
+        await uniformLoginDelay(120);
+        return res.status(401).json({
+          message: 'Credenciales invlidas',
+          code: 'MFA_REQUIRED',
         });
       }
+
+      let rawSecret;
+      try {
+        rawSecret = decrypt(userFull.totpSecret);
+      } catch {
+        await uniformLoginDelay(120);
+        audit(req, 'auth.login.failed', { userId: userFull.id, reason: 'totp_decrypt' });
+        return res.status(401).json({ message: 'Credenciales invlidas' });
+      }
+
       const totpResult = verifySync({
         token: totpCode,
-        secret: userFull.totpSecret,
+        secret: rawSecret,
         window: 1,
       });
       if (!totpResult.valid) {
-        await uniformLoginDelay(100);
-        return res.status(401).json({ message: 'C?digo TOTP inv?lido', code: 'INVALID_TOTP' });
+        await uniformLoginDelay(120);
+        audit(req, 'auth.login.failed', { userId: userFull.id, reason: 'totp_invalid' });
+        return res.status(401).json({ message: 'Credenciales invlidas' });
+      }
+
+      const notReplay = await verifyTotpAntiReplay(userFull.id, totpCode);
+      if (!notReplay) {
+        await uniformLoginDelay(120);
+        audit(req, 'auth.login.failed', { userId: userFull.id, reason: 'totp_replay' });
+        return res.status(401).json({ message: 'Credenciales invlidas' });
       }
     }
 
     const accessJti = newJti();
     const accessToken = signAccessToken(userFull, accessJti);
     const rawRefresh = randomRefreshRaw();
+    await consumeAdminGate(gate.id);
     await persistRefreshSession(userFull.id, rawRefresh, req);
 
     ensureCsrfCookie(req, res);
@@ -123,6 +185,8 @@ async function login(req, res, next) {
     await prisma.revokedAccessJti.deleteMany({
       where: { expiresAt: { lt: new Date() } },
     });
+
+    audit(req, 'auth.login.success', { userId: userFull.id, role: userFull.role });
 
     res.json({
       ok: true,
@@ -147,52 +211,76 @@ async function refresh(req, res, next) {
     }
 
     const h = hashRefresh(raw);
-    const session = await prisma.refreshSession.findFirst({
-      where: { tokenHash: h },
-    });
+    let rawNew;
+    let user;
 
-    if (!session) {
-      clearAuthCookies(res);
-      return res.status(401).json({ message: 'Sesi?n inv?lida' });
-    }
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        const session = await tx.refreshSession.findFirst({
+          where: {
+            tokenHash: h,
+            revokedAt: null,
+            expiresAt: { gt: new Date() },
+          },
+          include: {
+            user: true,
+          },
+        });
 
-    if (session.expiresAt < new Date()) {
-      await prisma.refreshSession.delete({ where: { id: session.id } });
-      clearAuthCookies(res);
-      return res.status(401).json({ message: 'Sesi?n expirada' });
-    }
+        if (!session) {
+          const reused = await tx.refreshSession.findFirst({
+            where: { tokenHash: h },
+          });
+          if (reused?.revokedAt) {
+            await tx.refreshSession.deleteMany({ where: { userId: reused.userId } });
+            await tx.user.update({
+              where: { id: reused.userId },
+              data: { tokenVersion: { increment: 1 } },
+            });
+          }
+          const err = new Error('REUSE_DETECTED');
+          err.status = 401;
+          throw err;
+        }
 
-    if (session.revokedAt) {
-      await prisma.refreshSession.deleteMany({ where: { userId: session.userId } });
-      await prisma.user.update({
-        where: { id: session.userId },
-        data: { tokenVersion: { increment: 1 } },
+        await tx.refreshSession.update({
+          where: { id: session.id },
+          data: { revokedAt: new Date() },
+        });
+
+        const nextRaw = randomRefreshRaw();
+        const days = Number(process.env.REFRESH_TOKEN_DAYS || 7);
+        await tx.refreshSession.create({
+          data: {
+            userId: session.userId,
+            tokenHash: hashRefresh(nextRaw),
+            jti: newJti(),
+            expiresAt: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
+            ip: req.ip || null,
+            userAgent: req.get('user-agent')?.slice(0, 512) || null,
+          },
+        });
+
+        return { rawNew: nextRaw, user: session.user };
       });
-      clearAuthCookies(res);
-      return res.status(401).json({ message: 'Reutilizaci?n de token detectada' });
+
+      rawNew = result.rawNew;
+      user = result.user;
+    } catch (err) {
+      if (err.message === 'REUSE_DETECTED') {
+        clearAuthCookies(res);
+        audit(req, 'auth.refresh.reuse_detected');
+        return res.status(401).json({
+          message: 'Sesin invlida. Inici sesin nuevamente.',
+        });
+      }
+      throw err;
     }
-
-    const user = await prisma.user.findUnique({
-      where: { id: session.userId },
-    });
-    if (!user) {
-      clearAuthCookies(res);
-      return res.status(401).json({ message: 'Usuario no encontrado' });
-    }
-
-    await prisma.refreshSession.update({
-      where: { id: session.id },
-      data: { revokedAt: new Date() },
-    });
-
-    const rawNew = randomRefreshRaw();
-    await persistRefreshSession(user.id, rawNew, req);
 
     const accessJti = newJti();
     const accessToken = signAccessToken(user, accessJti);
     setAccessCookie(res, accessToken);
     setRefreshCookie(res, rawNew);
-
     ensureCsrfCookie(req, res);
 
     res.json({
@@ -240,6 +328,10 @@ async function logout(req, res, next) {
     }
 
     clearAuthCookies(res);
+    res.cookie(COOKIE_CSRF, generateCsrfValue(), csrfCookieOptions());
+
+    audit(req, 'auth.logout', { userId: req.user?.id ?? null });
+
     res.json({ ok: true });
   } catch (err) {
     next(err);

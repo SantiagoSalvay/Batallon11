@@ -3,6 +3,7 @@ const prisma = require('../config/prisma');
 const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
 const { isValidStageSlug } = require('../lib/stages');
+const { audit } = require('../utils/auditLog');
 
 async function listStagePostsBySlug(req, res, next) {
   try {
@@ -46,24 +47,15 @@ async function listStagePostsByStageSlug(req, res, next) {
 
 async function createStagePost(req, res, next) {
   try {
-    const { title, content, stageSlug, published } = req.body;
-    if (!title || !content || !stageSlug) {
-      return res
-        .status(400)
-        .json({ message: 'title, content y stageSlug son requeridos' });
-    }
+    const { title, content, stageSlug, published = true } = req.body;
     if (!isValidStageSlug(stageSlug)) {
       return res.status(400).json({ message: 'Etapa no válida' });
     }
 
-    const data = {
-      title,
-      content,
-      stageSlug,
-      published: published === undefined ? true : published === 'true' || published === true,
-    };
+    const data = { title, content, stageSlug, published };
     if (req.file) data.imageUrl = fileToPublicUrl(req.file);
     const post = await prisma.stagePost.create({ data });
+    audit(req, 'stage_post.create', { postId: post.id, stageSlug });
     res.status(201).json(post);
   } catch (err) {
     next(err);
@@ -86,9 +78,7 @@ async function updateStagePost(req, res, next) {
       ...(content !== undefined && { content }),
       ...(stageSlug !== undefined &&
         req.user?.role !== 'COORDINATOR' && { stageSlug }),
-      ...(published !== undefined && {
-        published: published === 'true' || published === true,
-      }),
+      ...(published !== undefined && { published }),
     };
     if (stageSlug !== undefined && !isValidStageSlug(stageSlug)) {
       return res.status(400).json({ message: 'Etapa no válida' });
@@ -114,6 +104,7 @@ async function deleteStagePost(req, res, next) {
     }
     await prisma.stagePost.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    audit(req, 'stage_post.delete', { postId: id, stageSlug: current.stageSlug });
     res.json({ ok: true });
   } catch (err) {
     next(err);
