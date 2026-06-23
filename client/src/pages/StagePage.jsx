@@ -74,7 +74,7 @@ export default function StagePage() {
   return (
     <>
       <section className="bg-stone-50 pt-24 text-slate-950">
-        <div className="container-app pb-12 pt-6 sm:pb-16">
+        <div className="container-app pb-8 pt-4 sm:pb-16 sm:pt-6">
           <Link
             to="/"
             onClick={goHome}
@@ -86,10 +86,10 @@ export default function StagePage() {
           <motion.div
             initial={{ y: 24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="mt-10 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
+            className="mt-6 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm sm:mt-10"
           >
             {stage.coverImage && (
-              <div className="h-48 overflow-hidden bg-slate-100 sm:h-64">
+              <div className="h-36 overflow-hidden bg-slate-100 sm:h-64">
                 <img
                   src={asset(stage.coverImage)}
                   alt=""
@@ -97,27 +97,25 @@ export default function StagePage() {
                 />
               </div>
             )}
-            <div className="grid gap-8 p-6 sm:grid-cols-[140px_1fr] sm:p-8">
+            <div className="flex items-center gap-4 p-4 sm:grid sm:grid-cols-[140px_1fr] sm:items-center sm:gap-8 sm:p-8">
               {logo && (
-                <div className="flex h-32 w-32 items-center justify-center rounded-md border border-slate-200 bg-stone-50 p-4">
-                  <img
-                    src={logo}
-                    alt={stage.name}
-                    className="h-full w-full object-contain"
-                  />
-                </div>
+                <img
+                  src={logo}
+                  alt={stage.name}
+                  className="h-28 w-28 shrink-0 object-contain sm:h-36 sm:w-36"
+                />
               )}
-              <div>
+              <div className="min-w-0 flex-1">
                 <span
-                  className="mb-4 inline-block h-1.5 w-14 rounded-full"
+                  className="mb-2 inline-block h-1 w-10 rounded-full sm:mb-4 sm:h-1.5 sm:w-14"
                   style={{ backgroundColor: color }}
                 />
-                <p className="public-eyebrow">Etapa</p>
-                <h1 className="mt-2 font-display text-4xl font-extrabold text-slate-950 sm:text-5xl">
+                <p className="public-eyebrow text-[0.65rem] sm:text-xs">Etapa</p>
+                <h1 className="mt-1 font-display text-2xl font-extrabold leading-tight text-slate-950 sm:mt-2 sm:text-5xl">
                   {stage.name}
                 </h1>
                 {stage.motto && (
-                  <p className="mt-3 text-lg font-medium italic text-slate-600">
+                  <p className="mt-2 text-sm font-medium italic leading-snug text-slate-600 sm:mt-3 sm:text-lg">
                     {stage.motto}
                   </p>
                 )}
