@@ -8,27 +8,27 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id              Int              @id @default(autoincrement())
-  email           String           @unique
-  password        String
-  name            String?
-  role            Role             @default(ADMIN)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  tokenVersion    Int              @default(0)
-  totpEnabled     Boolean          @default(false)
-  totpSecret      String?
-  stageSlug       String?
-  refreshSessions RefreshSession[]
-  totpUsedCodes   TotpUsedCode[]
-  totpBackupCodes TotpBackupCode[]
+model Usuario {
+  id                Int                 @id @default(autoincrement())
+  email             String              @unique
+  password          String
+  name              String?
+  role              Rol                 @default(ADMIN)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  tokenVersion      Int                 @default(0)
+  totpEnabled       Boolean             @default(false)
+  totpSecret        String?
+  stageSlug         String?
+  sesionesRefresco  SesionRefresco[]
+  codigosTotpUsados CodigoTotpUsado[]
+  codigosRespaldo   CodigoRespaldoTotp[]
 
   @@index([stageSlug])
-  @@map("users")
+  @@map("usuarios")
 }
 
-model RefreshSession {
+model SesionRefresco {
   id        String    @id @default(cuid())
   userId    Int
   tokenHash String
@@ -38,22 +38,22 @@ model RefreshSession {
   revokedAt DateTime?
   ip        String?
   userAgent String?
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usuario   Usuario   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
-  @@map("refresh_sessions")
+  @@map("sesiones_refresco")
 }
 
-model RevokedAccessJti {
+model JtiAccesoRevocado {
   jti       String   @id
   expiresAt DateTime
 
   @@index([expiresAt])
-  @@map("revoked_access_jti")
+  @@map("jti_acceso_revocado")
 }
 
-model Post {
+model Publicacion {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
@@ -63,10 +63,10 @@ model Post {
   updatedAt DateTime @updatedAt
 
   @@index([createdAt])
-  @@map("posts")
+  @@map("publicaciones")
 }
 
-model StagePost {
+model PublicacionEtapa {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
@@ -77,10 +77,10 @@ model StagePost {
   stageSlug String
 
   @@index([stageSlug, createdAt])
-  @@map("stage_posts")
+  @@map("publicaciones_etapa")
 }
 
-model GalleryImage {
+model ImagenGaleria {
   id        Int      @id @default(autoincrement())
   imageUrl  String
   caption   String?
@@ -88,10 +88,10 @@ model GalleryImage {
   createdAt DateTime @default(now())
 
   @@index([order])
-  @@map("gallery_images")
+  @@map("imagenes_galeria")
 }
 
-model StageGalleryImage {
+model ImagenGaleriaEtapa {
   id        Int      @id @default(autoincrement())
   imageUrl  String
   caption   String?
@@ -100,10 +100,10 @@ model StageGalleryImage {
   stageSlug String
 
   @@index([stageSlug, order])
-  @@map("stage_gallery_images")
+  @@map("imagenes_galeria_etapa")
 }
 
-model Event {
+model Evento {
   id          Int      @id @default(autoincrement())
   title       String
   description String
@@ -114,16 +114,16 @@ model Event {
   updatedAt   DateTime @updatedAt
 
   @@index([date])
-  @@map("events")
+  @@map("eventos")
 }
 
-enum Role {
+enum Rol {
   ADMIN
   EDITOR
   COORDINATOR
 }
 
-model AdminGateChallenge {
+model DesafioAccesoAdmin {
   id        String    @id @default(cuid())
   tokenHash String    @unique
   expiresAt DateTime
@@ -131,30 +131,30 @@ model AdminGateChallenge {
   createdAt DateTime  @default(now())
 
   @@index([expiresAt])
-  @@map("admin_gate_challenges")
+  @@map("desafios_acceso_admin")
 }
 
-model TotpUsedCode {
+model CodigoTotpUsado {
   id        String   @id @default(cuid())
   userId    Int
   codeHash  String
   usedAt    DateTime @default(now())
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usuario   Usuario  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, codeHash])
   @@index([expiresAt])
-  @@map("totp_used_codes")
+  @@map("codigos_totp_usados")
 }
 
-model TotpBackupCode {
+model CodigoRespaldoTotp {
   id        String    @id @default(cuid())
   userId    Int
   codeHash  String    @unique
   usedAt    DateTime?
   createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usuario   Usuario   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@map("totp_backup_codes")
+  @@map("codigos_respaldo_totp")
 }

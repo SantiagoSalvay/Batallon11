@@ -8,7 +8,7 @@ async function listEvents(req, res, next) {
   try {
     const onlyUpcoming = req.query.upcoming === 'true';
     const where = onlyUpcoming ? { date: { gte: new Date() } } : {};
-    const events = await prisma.event.findMany({
+    const events = await prisma.evento.findMany({
       where,
       orderBy: { date: 'asc' },
     });
@@ -20,7 +20,7 @@ async function listEvents(req, res, next) {
 
 async function getEvent(req, res, next) {
   try {
-    const event = await prisma.event.findUnique({
+    const event = await prisma.evento.findUnique({
       where: { id: Number(req.params.id) },
     });
     if (!event) return res.status(404).json({ message: 'Evento no encontrado' });
@@ -41,7 +41,7 @@ async function createEvent(req, res, next) {
     };
     if (req.file) data.imageUrl = fileToPublicUrl(req.file);
 
-    const event = await prisma.event.create({ data });
+    const event = await prisma.evento.create({ data });
     audit(req, 'event.create', { eventId: event.id });
     res.status(201).json(event);
   } catch (err) {
@@ -52,7 +52,7 @@ async function createEvent(req, res, next) {
 async function updateEvent(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.event.findUnique({ where: { id } });
+    const current = await prisma.evento.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Evento no encontrado' });
 
     const { title, description, date, location } = req.body;
@@ -66,7 +66,7 @@ async function updateEvent(req, res, next) {
       data.imageUrl = fileToPublicUrl(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
-    const event = await prisma.event.update({ where: { id }, data });
+    const event = await prisma.evento.update({ where: { id }, data });
     res.json(event);
   } catch (err) {
     next(err);
@@ -76,9 +76,9 @@ async function updateEvent(req, res, next) {
 async function deleteEvent(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.event.findUnique({ where: { id } });
+    const current = await prisma.evento.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Evento no encontrado' });
-    await prisma.event.delete({ where: { id } });
+    await prisma.evento.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     audit(req, 'event.delete', { eventId: id });
     res.json({ ok: true });

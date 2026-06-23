@@ -3,9 +3,9 @@ const prisma = require('../config/prisma');
 async function cleanupExpiredRecords() {
   const now = new Date();
   const [jtiResult, gateResult, totpResult] = await Promise.all([
-    prisma.revokedAccessJti.deleteMany({ where: { expiresAt: { lt: now } } }),
-    prisma.adminGateChallenge.deleteMany({ where: { expiresAt: { lt: now } } }),
-    prisma.totpUsedCode.deleteMany({ where: { expiresAt: { lt: now } } }),
+    prisma.jtiAccesoRevocado.deleteMany({ where: { expiresAt: { lt: now } } }),
+    prisma.desafioAccesoAdmin.deleteMany({ where: { expiresAt: { lt: now } } }),
+    prisma.codigoTotpUsado.deleteMany({ where: { expiresAt: { lt: now } } }),
   ]);
   // eslint-disable-next-line no-console
   console.log(

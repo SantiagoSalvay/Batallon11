@@ -65,7 +65,7 @@ async function persistRefreshSession(userId, rawRefresh, req) {
   const jti = newJti();
   const days = Number(process.env.REFRESH_TOKEN_DAYS || 7);
   const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
-  await prisma.refreshSession.create({
+  await prisma.sesionRefresco.create({
     data: {
       userId,
       tokenHash,
@@ -86,7 +86,7 @@ async function resolveAdminGate(req, res) {
     return null;
   }
 
-  const gate = await prisma.adminGateChallenge.findUnique({
+  const gate = await prisma.desafioAccesoAdmin.findUnique({
     where: { tokenHash: hashGateToken(gateRaw) },
   });
 
@@ -101,7 +101,7 @@ async function resolveAdminGate(req, res) {
 }
 
 async function consumeAdminGate(gateId) {
-  await prisma.adminGateChallenge.update({
+  await prisma.desafioAccesoAdmin.update({
     where: { id: gateId },
     data: { usedAt: new Date() },
   });
@@ -122,7 +122,7 @@ async function login(req, res, next) {
 
     const { email, password, totpCode } = body;
 
-    const userFull = await prisma.user.findUnique({ where: { email: email.trim() } });
+    const userFull = await prisma.usuario.findUnique({ where: { email: email.trim() } });
     const hash = userFull?.password || '$2b$10$invalidinvalidinvalidinvalidinv';
     const ok = await bcrypt.compare(password, hash);
 
@@ -182,7 +182,7 @@ async function login(req, res, next) {
     setAccessCookie(res, accessToken);
     setRefreshCookie(res, rawRefresh);
 
-    await prisma.revokedAccessJti.deleteMany({
+    await prisma.jtiAccesoRevocado.deleteMany({
       where: { expiresAt: { lt: new Date() } },
     });
 
@@ -216,24 +216,24 @@ async function refresh(req, res, next) {
 
     try {
       const result = await prisma.$transaction(async (tx) => {
-        const session = await tx.refreshSession.findFirst({
+        const session = await tx.sesionRefresco.findFirst({
           where: {
             tokenHash: h,
             revokedAt: null,
             expiresAt: { gt: new Date() },
           },
           include: {
-            user: true,
+            usuario: true,
           },
         });
 
         if (!session) {
-          const reused = await tx.refreshSession.findFirst({
+          const reused = await tx.sesionRefresco.findFirst({
             where: { tokenHash: h },
           });
           if (reused?.revokedAt) {
-            await tx.refreshSession.deleteMany({ where: { userId: reused.userId } });
-            await tx.user.update({
+            await tx.sesionRefresco.deleteMany({ where: { userId: reused.userId } });
+            await tx.usuario.update({
               where: { id: reused.userId },
               data: { tokenVersion: { increment: 1 } },
             });
@@ -243,14 +243,14 @@ async function refresh(req, res, next) {
           throw err;
         }
 
-        await tx.refreshSession.update({
+        await tx.sesionRefresco.update({
           where: { id: session.id },
           data: { revokedAt: new Date() },
         });
 
         const nextRaw = randomRefreshRaw();
         const days = Number(process.env.REFRESH_TOKEN_DAYS || 7);
-        await tx.refreshSession.create({
+        await tx.sesionRefresco.create({
           data: {
             userId: session.userId,
             tokenHash: hashRefresh(nextRaw),
@@ -261,7 +261,7 @@ async function refresh(req, res, next) {
           },
         });
 
-        return { rawNew: nextRaw, user: session.user };
+        return { rawNew: nextRaw, user: session.usuario };
       });
 
       rawNew = result.rawNew;
@@ -308,7 +308,7 @@ async function logout(req, res, next) {
         const payload = verifyAccessToken(access);
         const expSec = payload.exp;
         if (payload.jti && expSec) {
-          await prisma.revokedAccessJti.upsert({
+          await prisma.jtiAccesoRevocado.upsert({
             where: { jti: payload.jti },
             create: {
               jti: payload.jti,
@@ -324,7 +324,7 @@ async function logout(req, res, next) {
 
     if (raw) {
       const h = hashRefresh(raw);
-      await prisma.refreshSession.deleteMany({ where: { tokenHash: h } });
+      await prisma.sesionRefresco.deleteMany({ where: { tokenHash: h } });
     }
 
     clearAuthCookies(res);

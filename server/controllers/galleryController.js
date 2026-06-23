@@ -6,7 +6,7 @@ const { audit } = require('../utils/auditLog');
 
 async function listImages(_req, res, next) {
   try {
-    const images = await prisma.galleryImage.findMany({
+    const images = await prisma.imagenGaleria.findMany({
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
     res.json(images);
@@ -19,7 +19,7 @@ async function createImage(req, res, next) {
   try {
     if (!req.file) return res.status(400).json({ message: 'imagen requerida' });
     const { caption, order } = req.body;
-    const image = await prisma.galleryImage.create({
+    const image = await prisma.imagenGaleria.create({
       data: {
         imageUrl: fileToPublicUrl(req.file),
         caption: caption || null,
@@ -35,7 +35,7 @@ async function createImage(req, res, next) {
 async function updateImage(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.galleryImage.findUnique({ where: { id } });
+    const current = await prisma.imagenGaleria.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
 
     const { caption, order } = req.body;
@@ -47,7 +47,7 @@ async function updateImage(req, res, next) {
       data.imageUrl = fileToPublicUrl(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
-    const image = await prisma.galleryImage.update({ where: { id }, data });
+    const image = await prisma.imagenGaleria.update({ where: { id }, data });
     res.json(image);
   } catch (err) {
     next(err);
@@ -57,9 +57,9 @@ async function updateImage(req, res, next) {
 async function deleteImage(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.galleryImage.findUnique({ where: { id } });
+    const current = await prisma.imagenGaleria.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
-    await prisma.galleryImage.delete({ where: { id } });
+    await prisma.imagenGaleria.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     audit(req, 'gallery.delete', { imageId: id });
     res.json({ ok: true });

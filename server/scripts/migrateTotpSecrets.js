@@ -7,12 +7,12 @@ const { encrypt } = require('../utils/cryptoAtRest');
 const prisma = new PrismaClient();
 
 async function main() {
-  const users = await prisma.user.findMany({
+  const users = await prisma.usuario.findMany({
     where: { totpEnabled: true, totpSecret: { not: null } },
   });
   for (const u of users) {
     if (u.totpSecret.split('.').length !== 3) {
-      await prisma.user.update({
+      await prisma.usuario.update({
         where: { id: u.id },
         data: { totpSecret: encrypt(u.totpSecret) },
       });

@@ -60,7 +60,7 @@ async function main() {
   const password = requireEnv('ADMIN_PASSWORD');
   const passwordHash = await bcrypt.hash(password, 10);
 
-  const admin = await prisma.user.upsert({
+  const admin = await prisma.usuario.upsert({
     where: { email },
     update: {
       password: passwordHash,
@@ -87,7 +87,7 @@ async function main() {
     const plainPassword = requireEnv(coord.passwordEnv);
     const coordHash = await bcrypt.hash(plainPassword, 10);
 
-    await prisma.user.upsert({
+    await prisma.usuario.upsert({
       where: { email: coord.email },
       update: {
         password: coordHash,

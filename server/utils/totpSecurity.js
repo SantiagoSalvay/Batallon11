@@ -10,7 +10,7 @@ async function verifyTotpAntiReplay(userId, code) {
   const codeHash = hashTotpCode(code, userId);
   const windowEnd = new Date(Date.now() + 90_000);
 
-  const existing = await prisma.totpUsedCode.findFirst({
+  const existing = await prisma.codigoTotpUsado.findFirst({
     where: {
       userId,
       codeHash,
@@ -19,11 +19,11 @@ async function verifyTotpAntiReplay(userId, code) {
   });
   if (existing) return false;
 
-  await prisma.totpUsedCode.create({
+  await prisma.codigoTotpUsado.create({
     data: { userId, codeHash, expiresAt: windowEnd },
   });
 
-  await prisma.totpUsedCode.deleteMany({
+  await prisma.codigoTotpUsado.deleteMany({
     where: { expiresAt: { lt: new Date() } },
   });
 

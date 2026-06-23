@@ -12,7 +12,7 @@ async function listImagesBySlug(req, res, next) {
       return res.status(404).json({ message: 'Etapa no encontrada' });
     }
 
-    const images = await prisma.stageGalleryImage.findMany({
+    const images = await prisma.imagenGaleriaEtapa.findMany({
       where: { stageSlug: slug },
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
@@ -30,7 +30,7 @@ async function listImagesByStageSlug(req, res, next) {
       return res.status(404).json({ message: 'Etapa no encontrada' });
     }
 
-    const images = await prisma.stageGalleryImage.findMany({
+    const images = await prisma.imagenGaleriaEtapa.findMany({
       where: { stageSlug },
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
@@ -49,7 +49,7 @@ async function createImage(req, res, next) {
       return res.status(400).json({ message: 'Etapa no válida' });
     }
 
-    const image = await prisma.stageGalleryImage.create({
+    const image = await prisma.imagenGaleriaEtapa.create({
       data: {
         imageUrl: fileToPublicUrl(req.file),
         caption: caption || null,
@@ -66,7 +66,7 @@ async function createImage(req, res, next) {
 async function updateImage(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.stageGalleryImage.findUnique({ where: { id } });
+    const current = await prisma.imagenGaleriaEtapa.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
 
     if (req.user?.role === 'COORDINATOR' && current.stageSlug !== req.user.stageSlug) {
@@ -87,7 +87,7 @@ async function updateImage(req, res, next) {
       data.imageUrl = fileToPublicUrl(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
-    const image = await prisma.stageGalleryImage.update({ where: { id }, data });
+    const image = await prisma.imagenGaleriaEtapa.update({ where: { id }, data });
     res.json(image);
   } catch (err) {
     next(err);
@@ -97,12 +97,12 @@ async function updateImage(req, res, next) {
 async function deleteImage(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.stageGalleryImage.findUnique({ where: { id } });
+    const current = await prisma.imagenGaleriaEtapa.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
     if (req.user?.role === 'COORDINATOR' && current.stageSlug !== req.user.stageSlug) {
       return res.status(403).json({ message: 'No autorizado para esta etapa' });
     }
-    await prisma.stageGalleryImage.delete({ where: { id } });
+    await prisma.imagenGaleriaEtapa.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     audit(req, 'stage_gallery.delete', { imageId: id, stageSlug: current.stageSlug });
     res.json({ ok: true });

@@ -47,10 +47,10 @@ router.post('/gate', gateRateLimit, async (req, res, next) => {
   try {
     const raw = generateRawGateToken();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-    await prisma.adminGateChallenge.create({
+    await prisma.desafioAccesoAdmin.create({
       data: { tokenHash: hashGateToken(raw), expiresAt },
     });
-    await prisma.adminGateChallenge.deleteMany({
+    await prisma.desafioAccesoAdmin.deleteMany({
       where: { expiresAt: { lt: new Date() } },
     });
     res.json({ gateToken: raw, expiresInSec: 600 });

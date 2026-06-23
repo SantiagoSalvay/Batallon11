@@ -8,7 +8,7 @@ async function listPosts(req, res, next) {
   try {
     const take = Math.min(Number(req.query.limit) || 20, 100);
     const skip = Number(req.query.offset) || 0;
-    const posts = await prisma.post.findMany({
+    const posts = await prisma.publicacion.findMany({
       where: { published: true },
       orderBy: { createdAt: 'desc' },
       take,
@@ -22,7 +22,7 @@ async function listPosts(req, res, next) {
 
 async function getPost(req, res, next) {
   try {
-    const post = await prisma.post.findUnique({
+    const post = await prisma.publicacion.findUnique({
       where: { id: Number(req.params.id) },
     });
     if (!post) return res.status(404).json({ message: 'Post no encontrado' });
@@ -42,7 +42,7 @@ async function createPost(req, res, next) {
     const data = { title, content, published };
     if (req.file) data.imageUrl = fileToPublicUrl(req.file);
 
-    const post = await prisma.post.create({ data });
+    const post = await prisma.publicacion.create({ data });
     audit(req, 'post.create', { postId: post.id });
     res.status(201).json(post);
   } catch (err) {
@@ -53,7 +53,7 @@ async function createPost(req, res, next) {
 async function updatePost(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.post.findUnique({ where: { id } });
+    const current = await prisma.publicacion.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Post no encontrado' });
 
     const { title, content, published } = req.body;
@@ -66,7 +66,7 @@ async function updatePost(req, res, next) {
       data.imageUrl = fileToPublicUrl(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
-    const post = await prisma.post.update({ where: { id }, data });
+    const post = await prisma.publicacion.update({ where: { id }, data });
     res.json(post);
   } catch (err) {
     next(err);
@@ -76,9 +76,9 @@ async function updatePost(req, res, next) {
 async function deletePost(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.post.findUnique({ where: { id } });
+    const current = await prisma.publicacion.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Post no encontrado' });
-    await prisma.post.delete({ where: { id } });
+    await prisma.publicacion.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     audit(req, 'post.delete', { postId: id });
     res.json({ ok: true });

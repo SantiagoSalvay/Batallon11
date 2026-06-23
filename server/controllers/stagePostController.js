@@ -12,7 +12,7 @@ async function listStagePostsBySlug(req, res, next) {
       return res.status(404).json({ message: 'Etapa no encontrada' });
     }
 
-    const posts = await prisma.stagePost.findMany({
+    const posts = await prisma.publicacionEtapa.findMany({
       where: { stageSlug: slug, published: true },
       orderBy: { createdAt: 'desc' },
     });
@@ -35,7 +35,7 @@ async function listStagePostsByStageSlug(req, res, next) {
       (['ADMIN', 'EDITOR'].includes(req.user.role) ||
         (req.user.role === 'COORDINATOR' && req.user.stageSlug === stageSlug));
 
-    const posts = await prisma.stagePost.findMany({
+    const posts = await prisma.publicacionEtapa.findMany({
       where: canManage ? { stageSlug } : { stageSlug, published: true },
       orderBy: { createdAt: 'desc' },
     });
@@ -54,7 +54,7 @@ async function createStagePost(req, res, next) {
 
     const data = { title, content, stageSlug, published };
     if (req.file) data.imageUrl = fileToPublicUrl(req.file);
-    const post = await prisma.stagePost.create({ data });
+    const post = await prisma.publicacionEtapa.create({ data });
     audit(req, 'stage_post.create', { postId: post.id, stageSlug });
     res.status(201).json(post);
   } catch (err) {
@@ -65,7 +65,7 @@ async function createStagePost(req, res, next) {
 async function updateStagePost(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.stagePost.findUnique({ where: { id } });
+    const current = await prisma.publicacionEtapa.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Post no encontrado' });
 
     if (req.user?.role === 'COORDINATOR' && current.stageSlug !== req.user.stageSlug) {
@@ -87,7 +87,7 @@ async function updateStagePost(req, res, next) {
       data.imageUrl = fileToPublicUrl(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
-    const post = await prisma.stagePost.update({ where: { id }, data });
+    const post = await prisma.publicacionEtapa.update({ where: { id }, data });
     res.json(post);
   } catch (err) {
     next(err);
@@ -97,12 +97,12 @@ async function updateStagePost(req, res, next) {
 async function deleteStagePost(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.stagePost.findUnique({ where: { id } });
+    const current = await prisma.publicacionEtapa.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Post no encontrado' });
     if (req.user?.role === 'COORDINATOR' && current.stageSlug !== req.user.stageSlug) {
       return res.status(403).json({ message: 'No autorizado para esta etapa' });
     }
-    await prisma.stagePost.delete({ where: { id } });
+    await prisma.publicacionEtapa.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     audit(req, 'stage_post.delete', { postId: id, stageSlug: current.stageSlug });
     res.json({ ok: true });

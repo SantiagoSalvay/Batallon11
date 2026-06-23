@@ -21,7 +21,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const secret = generateSecret();
-  const user = await prisma.user.update({
+  const user = await prisma.usuario.update({
     where: { email: email.trim() },
     data: { totpSecret: encrypt(secret), totpEnabled: true },
   });

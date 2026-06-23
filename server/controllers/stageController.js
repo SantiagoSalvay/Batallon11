@@ -23,12 +23,12 @@ async function getStageBySlug(req, res, next) {
     let gallery = [];
     try {
       [posts, gallery] = await Promise.all([
-        prisma.stagePost.findMany({
+        prisma.publicacionEtapa.findMany({
           where: { stageSlug: stage.slug, published: true },
           orderBy: { createdAt: 'desc' },
           take: 10,
         }),
-        prisma.stageGalleryImage.findMany({
+        prisma.imagenGaleriaEtapa.findMany({
           where: { stageSlug: stage.slug },
           orderBy: { order: 'asc' },
         }),
