@@ -10,7 +10,6 @@ const {
 const { authRequired, requireRole } = require('../middleware/auth');
 const { attachUserOptional } = require('../middleware/attachUserOptional');
 const { upload } = require('../middleware/upload');
-const { processUploadedImages } = require('../middleware/processImage');
 const { uploadLimiter } = require('../middleware/uploadLimiter');
 
 router.get('/', attachUserOptional, listarPublicaciones);
@@ -21,7 +20,6 @@ router.post(
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   upload.array('imagenes', 6),
-  processUploadedImages,
   crearPublicacion,
 );
 router.put(
@@ -30,7 +28,6 @@ router.put(
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   upload.array('imagenes', 6),
-  processUploadedImages,
   actualizarPublicacion,
 );
 router.delete(

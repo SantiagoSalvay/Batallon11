@@ -1,8 +1,15 @@
 const fs = require('fs');
 const prisma = require('../config/prisma');
-const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
+const { deleteOldFileFromUrl } = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
 const { isValidStageSlug } = require('../lib/stages');
+const {
+  eliminarObjetos,
+  nuevoIdImagen,
+  prepararYSubirImagen,
+  urlDescarga,
+  urlPublica,
+} = require('../services/almacenamientoS3');
 
 const incluirImagenes = {
   imagenes: { orderBy: [{ orden: 'asc' }, { creadaEn: 'asc' }] },
@@ -36,30 +43,59 @@ function validarEtapa(etapaSlug) {
   }
 }
 
-function datosImagenes(files = []) {
-  return files.map((file, orden) => ({
-    rutaOriginal: null,
-    rutaOptimizada: fileToPublicUrl(file),
-    nombreOriginal: file.originalname || null,
-    tipoMimeOriginal: file.mimetype || null,
-    tamanoOptimizado: file.size || null,
-    orden,
-  }));
+function presentarImagen(imagen) {
+  return {
+    ...imagen,
+    rutaOriginal: urlPublica(imagen.rutaOriginal),
+    rutaOptimizada: urlPublica(imagen.rutaOptimizada),
+    descargaUrl: urlDescarga(
+      imagen.rutaOriginal || imagen.rutaOptimizada,
+      imagen.nombreOriginal || 'imagen.webp',
+    ),
+  };
 }
 
-function borrarArchivos(files = []) {
-  for (const file of files) {
-    deleteOldFileFromUrl(fs, fileToPublicUrl(file), uploadDir);
-  }
+function presentarPublicacion(publicacion) {
+  return {
+    ...publicacion,
+    imagenes: (publicacion.imagenes || []).map(presentarImagen),
+  };
 }
 
-function borrarRutasDeImagenes(imagenes = []) {
+function rutasS3(imagenes = []) {
+  return imagenes.flatMap((imagen) => [imagen.rutaOriginal, imagen.rutaOptimizada]);
+}
+
+function borrarArchivosLocales(imagenes = []) {
   const rutas = new Set();
   for (const imagen of imagenes) {
-    if (imagen.rutaOriginal) rutas.add(imagen.rutaOriginal);
-    if (imagen.rutaOptimizada) rutas.add(imagen.rutaOptimizada);
+    if (imagen.rutaOriginal?.startsWith('/uploads/')) rutas.add(imagen.rutaOriginal);
+    if (imagen.rutaOptimizada?.startsWith('/uploads/')) rutas.add(imagen.rutaOptimizada);
   }
   for (const ruta of rutas) deleteOldFileFromUrl(fs, ruta, uploadDir);
+}
+
+async function eliminarAlmacenamiento(imagenes = []) {
+  await eliminarObjetos(rutasS3(imagenes));
+  borrarArchivosLocales(imagenes);
+}
+
+async function subirImagenes({ archivos, publicacionId, ordenInicial = 0 }) {
+  const subidas = [];
+  try {
+    for (let indice = 0; indice < archivos.length; indice += 1) {
+      const datos = await prepararYSubirImagen({
+        archivo: archivos[indice],
+        publicacionId,
+        imagenId: nuevoIdImagen(),
+      });
+      subidas.push({ ...datos, orden: ordenInicial + indice });
+    }
+    return subidas;
+  } catch (error) {
+    await eliminarObjetos(rutasS3(subidas)).catch(() => {});
+    throw error;
+  }
 }
 
 async function listarPublicaciones(req, res, next) {
@@ -83,7 +119,7 @@ async function listarPublicaciones(req, res, next) {
       take: limite,
       skip: desplazamiento,
     });
-    res.json(publicaciones);
+    res.json(publicaciones.map(presentarPublicacion));
   } catch (error) {
     next(error);
   }
@@ -93,6 +129,7 @@ async function listarPublicacionesDeEtapa(req, res, next) {
   req.query.etapa = req.params.slug;
   return listarPublicaciones(req, res, next);
 }
+
 async function obtenerPublicacion(req, res, next) {
   try {
     const publicacion = await prisma.publicacion.findUnique({
@@ -103,18 +140,19 @@ async function obtenerPublicacion(req, res, next) {
     if (!publicacion.publicada && !puedeGestionar(req.user, publicacion)) {
       return res.status(404).json({ message: 'Publicacion no encontrada' });
     }
-    res.json(publicacion);
+    res.json(presentarPublicacion(publicacion));
   } catch (error) {
     next(error);
   }
 }
 
 async function crearPublicacion(req, res, next) {
-  const files = Array.isArray(req.files) ? req.files : [];
+  const archivos = Array.isArray(req.files) ? req.files : [];
+  let creada;
+  let imagenesSubidas = [];
   try {
     const { titulo, contenido, publicada } = req.body;
     if (!titulo || !contenido) {
-      borrarArchivos(files);
       return res.status(400).json({ message: 'titulo y contenido son requeridos' });
     }
 
@@ -124,37 +162,45 @@ async function crearPublicacion(req, res, next) {
         : resolverEtapaSolicitada(req.body.etapaSlug);
     validarEtapa(etapaSlug);
 
-    const publicacion = await prisma.publicacion.create({
+    creada = await prisma.publicacion.create({
       data: {
         titulo,
         contenido,
         publicada: publicada === undefined ? true : publicada === 'true' || publicada === true,
         etapaSlug,
-        imagenes: { create: datosImagenes(files) },
       },
+    });
+
+    imagenesSubidas = await subirImagenes({ archivos, publicacionId: creada.id });
+    if (imagenesSubidas.length) {
+      await prisma.imagenPublicacion.createMany({
+        data: imagenesSubidas.map((imagen) => ({ ...imagen, publicacionId: creada.id })),
+      });
+    }
+
+    const publicacion = await prisma.publicacion.findUnique({
+      where: { id: creada.id },
       include: incluirImagenes,
     });
-    res.status(201).json(publicacion);
+    res.status(201).json(presentarPublicacion(publicacion));
   } catch (error) {
-    borrarArchivos(files);
+    await eliminarObjetos(rutasS3(imagenesSubidas)).catch(() => {});
+    if (creada) await prisma.publicacion.delete({ where: { id: creada.id } }).catch(() => {});
     next(error);
   }
 }
 
 async function actualizarPublicacion(req, res, next) {
-  const files = Array.isArray(req.files) ? req.files : [];
+  const archivos = Array.isArray(req.files) ? req.files : [];
+  let imagenesSubidas = [];
   try {
     const id = Number(req.params.id);
     const actual = await prisma.publicacion.findUnique({
       where: { id },
       include: incluirImagenes,
     });
-    if (!actual) {
-      borrarArchivos(files);
-      return res.status(404).json({ message: 'Publicacion no encontrada' });
-    }
+    if (!actual) return res.status(404).json({ message: 'Publicacion no encontrada' });
     if (!puedeGestionar(req.user, actual)) {
-      borrarArchivos(files);
       return res.status(403).json({ message: 'No autorizado para esta publicacion' });
     }
 
@@ -167,14 +213,11 @@ async function actualizarPublicacion(req, res, next) {
       validarEtapa(etapaSlug);
     }
 
-    const siguienteOrden = actual.imagenes.reduce(
+    const ordenInicial = actual.imagenes.reduce(
       (maximo, imagen) => Math.max(maximo, imagen.orden),
       -1,
     ) + 1;
-    const nuevasImagenes = datosImagenes(files).map((imagen, indice) => ({
-      ...imagen,
-      orden: siguienteOrden + indice,
-    }));
+    imagenesSubidas = await subirImagenes({ archivos, publicacionId: id, ordenInicial });
 
     const publicacion = await prisma.publicacion.update({
       where: { id },
@@ -185,13 +228,28 @@ async function actualizarPublicacion(req, res, next) {
           publicada: publicada === 'true' || publicada === true,
         }),
         etapaSlug,
-        ...(nuevasImagenes.length && { imagenes: { create: nuevasImagenes } }),
+        ...(imagenesSubidas.length && {
+          imagenes: {
+            create: imagenesSubidas.map((imagen) => ({
+              id: imagen.id,
+              rutaOriginal: imagen.rutaOriginal,
+              rutaOptimizada: imagen.rutaOptimizada,
+              nombreOriginal: imagen.nombreOriginal,
+              tipoMimeOriginal: imagen.tipoMimeOriginal,
+              tamanoOriginal: imagen.tamanoOriginal,
+              tamanoOptimizado: imagen.tamanoOptimizado,
+              ancho: imagen.ancho,
+              alto: imagen.alto,
+              orden: imagen.orden,
+            })),
+          },
+        }),
       },
       include: incluirImagenes,
     });
-    res.json(publicacion);
+    res.json(presentarPublicacion(publicacion));
   } catch (error) {
-    borrarArchivos(files);
+    await eliminarObjetos(rutasS3(imagenesSubidas)).catch(() => {});
     next(error);
   }
 }
@@ -210,8 +268,8 @@ async function eliminarImagenPublicacion(req, res, next) {
       return res.status(403).json({ message: 'No autorizado para esta publicacion' });
     }
 
+    await eliminarAlmacenamiento([imagen]);
     await prisma.imagenPublicacion.delete({ where: { id: imagen.id } });
-    borrarRutasDeImagenes([imagen]);
     res.json({ ok: true });
   } catch (error) {
     next(error);
@@ -230,8 +288,8 @@ async function eliminarPublicacion(req, res, next) {
       return res.status(403).json({ message: 'No autorizado para esta publicacion' });
     }
 
+    await eliminarAlmacenamiento(actual.imagenes);
     await prisma.publicacion.delete({ where: { id } });
-    borrarRutasDeImagenes(actual.imagenes);
     res.json({ ok: true });
   } catch (error) {
     next(error);

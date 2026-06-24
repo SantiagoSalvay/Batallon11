@@ -45,7 +45,7 @@ function ImagenesPublicacion({ publicacion }) {
         {imagenes.map((imagen, indice) => (
           <a
             key={imagen.id}
-            href={asset(imagen.rutaOriginal || imagen.rutaOptimizada)}
+            href={imagen.descargaUrl || asset(imagen.rutaOriginal || imagen.rutaOptimizada)}
             download={imagen.nombreOriginal || `imagen-${indice + 1}.webp`}
             className="text-xs font-semibold text-blue-950 underline-offset-2 hover:underline"
           >
