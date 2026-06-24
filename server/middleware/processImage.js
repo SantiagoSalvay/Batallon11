@@ -3,6 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const sharp = require('sharp');
 const { uploadDir } = require('./upload');
+const { isStorageConfigured, uploadBuffer } = require('../utils/supabaseStorage');
 
 let fileTypeFromBufferFn;
 async function detectMimeFromBuffer(buffer) {
@@ -53,17 +54,33 @@ async function bufferToWebpDisk(buffer) {
   }
 
   const outName = `${crypto.randomBytes(16).toString('hex')}.webp`;
-  const outPath = path.join(uploadDir, outName);
 
-  await sharp(buffer, {
+  const webpBuffer = await sharp(buffer, {
     animated: false,
     limitInputPixels: MAX_PIXELS,
   })
     .rotate()
     .webp({ quality: QUALITY, effort: 4 })
     .withMetadata(false)
-    .toFile(outPath);
+    .toBuffer();
 
+  if (isStorageConfigured()) {
+    const prefix = (process.env.SUPABASE_STORAGE_PREFIX || 'uploads').replace(/\/$/, '');
+    const storageKey = `${prefix}/${outName}`;
+    await uploadBuffer(storageKey, webpBuffer, 'image/webp');
+    return {
+      fieldname: undefined,
+      originalname: outName,
+      encoding: '7bit',
+      mimetype: 'image/webp',
+      filename: outName,
+      storageKey,
+      size: webpBuffer.length,
+    };
+  }
+
+  const outPath = path.join(uploadDir, outName);
+  await fs.promises.writeFile(outPath, webpBuffer);
   const stat = await fs.promises.stat(outPath);
   return {
     fieldname: undefined,
@@ -75,7 +92,6 @@ async function bufferToWebpDisk(buffer) {
     size: stat.size,
   };
 }
-
 async function processOneMulterFile(file) {
   if (!file || !file.buffer) return file;
   const processed = await bufferToWebpDisk(file.buffer);

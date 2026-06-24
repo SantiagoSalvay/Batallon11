@@ -3,6 +3,8 @@ const {
   listStagesMerged,
   getStageMergedBySlug,
 } = require('../lib/stages');
+const { postInclude, toPostApiList } = require('../utils/publicacionApi');
+const { withResolvedImageUrlList } = require('../utils/fileUrl');
 
 async function listStages(_req, res, next) {
   try {
@@ -23,8 +25,9 @@ async function getStageBySlug(req, res, next) {
     let gallery = [];
     try {
       [posts, gallery] = await Promise.all([
-        prisma.publicacionEtapa.findMany({
+        prisma.publicacion.findMany({
           where: { stageSlug: stage.slug, published: true },
+          include: postInclude,
           orderBy: { createdAt: 'desc' },
           take: 10,
         }),
@@ -33,6 +36,8 @@ async function getStageBySlug(req, res, next) {
           orderBy: { order: 'asc' },
         }),
       ]);
+      posts = toPostApiList(posts);
+      gallery = withResolvedImageUrlList(gallery);
     } catch (err) {
       console.warn('[stages] No se pudieron leer posts/galería de la etapa:', err.message);
     }

@@ -54,17 +54,37 @@ model JtiAccesoRevocado {
 }
 
 model Publicacion {
-  id                   Int                    @id @default(autoincrement())
-  titulo               String
-  contenido            String
-  publicada            Boolean                @default(true)
-  creadaEn             DateTime               @default(now())
-  actualizadaEn        DateTime
-  etapaSlug            String?
-  imagenes_publicacion imagenes_publicacion[]
+  id        Int                 @id @default(autoincrement())
+  title     String              @map("titulo")
+  content   String              @map("contenido")
+  published Boolean             @default(true) @map("publicada")
+  createdAt DateTime            @default(now()) @map("creadaEn")
+  updatedAt DateTime            @updatedAt @map("actualizadaEn")
+  stageSlug String?             @map("etapaSlug")
+  imagenes  ImagenPublicacion[]
 
-  @@index([etapaSlug, creadaEn])
+  @@index([stageSlug, createdAt])
   @@map("publicaciones")
+}
+
+model ImagenPublicacion {
+  id               String      @id
+  publicacionId    Int
+  rutaOriginal     String?
+  rutaOptimizada   String
+  nombreOriginal   String?
+  tipoMimeOriginal String?
+  tamanoOriginal   Int?
+  tamanoOptimizado Int?
+  ancho            Int?
+  alto             Int?
+  caption          String?     @map("leyenda")
+  order            Int         @default(0) @map("orden")
+  createdAt        DateTime    @default(now()) @map("creadaEn")
+  publicacion      Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+
+  @@index([publicacionId, order])
+  @@map("imagenes_publicacion")
 }
 
 model ImagenGaleria {
@@ -138,26 +158,6 @@ model CodigoRespaldoTotp {
 
   @@index([userId])
   @@map("codigos_respaldo_totp")
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model imagenes_publicacion {
-  id               String      @id
-  publicacionId    Int
-  rutaOriginal     String?
-  rutaOptimizada   String
-  nombreOriginal   String?
-  tipoMimeOriginal String?
-  tamanoOriginal   Int?
-  tamanoOptimizado Int?
-  ancho            Int?
-  alto             Int?
-  leyenda          String?
-  orden            Int         @default(0)
-  creadaEn         DateTime    @default(now())
-  publicaciones    Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
-
-  @@index([publicacionId, orden])
 }
 
 enum Rol {

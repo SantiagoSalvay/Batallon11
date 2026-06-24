@@ -1,6 +1,11 @@
 const fs = require('fs');
 const prisma = require('../config/prisma');
-const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
+const {
+  fileToStorageReference,
+  withResolvedImageUrl,
+  withResolvedImageUrlList,
+  deleteOldFileFromUrl,
+} = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
 const { audit } = require('../utils/auditLog');
 
@@ -9,7 +14,7 @@ async function listImages(_req, res, next) {
     const images = await prisma.imagenGaleria.findMany({
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
-    res.json(images);
+    res.json(withResolvedImageUrlList(images));
   } catch (err) {
     next(err);
   }
@@ -21,12 +26,12 @@ async function createImage(req, res, next) {
     const { caption, order } = req.body;
     const image = await prisma.imagenGaleria.create({
       data: {
-        imageUrl: fileToPublicUrl(req.file),
+        imageUrl: fileToStorageReference(req.file),
         caption: caption || null,
         order: order !== undefined ? Number(order) : 0,
       },
     });
-    res.status(201).json(image);
+    res.status(201).json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
   }
@@ -44,11 +49,11 @@ async function updateImage(req, res, next) {
       ...(order !== undefined && { order: Number(order) }),
     };
     if (req.file) {
-      data.imageUrl = fileToPublicUrl(req.file);
+      data.imageUrl = fileToStorageReference(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
     const image = await prisma.imagenGaleria.update({ where: { id }, data });
-    res.json(image);
+    res.json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
   }

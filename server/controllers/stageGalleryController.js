@@ -1,6 +1,11 @@
 const fs = require('fs');
 const prisma = require('../config/prisma');
-const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
+const {
+  fileToStorageReference,
+  withResolvedImageUrl,
+  withResolvedImageUrlList,
+  deleteOldFileFromUrl,
+} = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
 const { isValidStageSlug } = require('../lib/stages');
 const { audit } = require('../utils/auditLog');
@@ -16,7 +21,7 @@ async function listImagesBySlug(req, res, next) {
       where: { stageSlug: slug },
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
-    res.json(images);
+    res.json(withResolvedImageUrlList(images));
   } catch (err) {
     next(err);
   }
@@ -34,7 +39,7 @@ async function listImagesByStageSlug(req, res, next) {
       where: { stageSlug },
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
-    res.json(images);
+    res.json(withResolvedImageUrlList(images));
   } catch (err) {
     next(err);
   }
@@ -51,13 +56,13 @@ async function createImage(req, res, next) {
 
     const image = await prisma.imagenGaleriaEtapa.create({
       data: {
-        imageUrl: fileToPublicUrl(req.file),
+        imageUrl: fileToStorageReference(req.file),
         caption: caption || null,
         order: order !== undefined ? Number(order) : 0,
         stageSlug,
       },
     });
-    res.status(201).json(image);
+    res.status(201).json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
   }
@@ -84,11 +89,11 @@ async function updateImage(req, res, next) {
       return res.status(400).json({ message: 'Etapa no válida' });
     }
     if (req.file) {
-      data.imageUrl = fileToPublicUrl(req.file);
+      data.imageUrl = fileToStorageReference(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
     const image = await prisma.imagenGaleriaEtapa.update({ where: { id }, data });
-    res.json(image);
+    res.json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
   }
