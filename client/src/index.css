@@ -207,6 +207,10 @@
   .page-dark .hover\:text-blue-950:hover {
     @apply text-sky-200;
   }
+
+  .stage-gallery-carousel {
+    @apply -mx-4 px-4 sm:mx-0 sm:px-0;
+  }
 }
 
 @layer utilities {

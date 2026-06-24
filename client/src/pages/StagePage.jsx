@@ -34,11 +34,12 @@ export default function StagePage() {
       .then((r) => setStage(r.data))
       .catch((err) => {
         const local = localStageBySlug(slug);
-        if (local) {
+        const isNetworkError = !err.response;
+        if (local && isNetworkError) {
           setStage({ ...local, posts: [], gallery: [] });
-        } else {
-          setError(err.response?.data?.message || err.message);
+          return;
         }
+        setError(err.response?.data?.message || err.message);
       })
       .finally(() => setLoading(false));
   }, [slug]);
@@ -131,11 +132,22 @@ export default function StagePage() {
         title={`Publicaciones de ${stage.name}`}
         posts={stage.posts || []}
         emptyText="Aun no hay publicaciones en esta etapa."
+        compact
+        maxItems={4}
+        viewAllLink={`/etapas/${slug}/publicaciones`}
+        viewAllThreshold={4}
+        viewAllLabel="Ver más publicaciones"
+        animate={false}
       />
 
       <Gallery
         title={`Galeria de ${stage.name}`}
         images={stage.gallery || []}
+        carousel
+        viewAllLink={`/etapas/${slug}/galeria`}
+        viewAllThreshold={4}
+        viewAllLabel="Ver más fotos"
+        animate={false}
       />
 
       <StageContactSection stage={stage} />

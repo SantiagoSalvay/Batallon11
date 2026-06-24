@@ -15,6 +15,12 @@ function errorHandler(err, req, res, _next) {
   if (err.code === 'P2025') {
     return res.status(404).json({ message: 'Recurso no encontrado.', requestId });
   }
+  if (err.code === 'P2024') {
+    return res.status(503).json({
+      message: 'Base de datos ocupada. Reintentá en unos segundos.',
+      requestId,
+    });
+  }
   if (err.code?.startsWith?.('P2')) {
     return res.status(400).json({ message: 'Error en los datos enviados.', requestId });
   }

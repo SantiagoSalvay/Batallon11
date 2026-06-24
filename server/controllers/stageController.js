@@ -40,6 +40,7 @@ async function getStageBySlug(req, res, next) {
       gallery = withResolvedImageUrlList(gallery);
     } catch (err) {
       console.warn('[stages] No se pudieron leer posts/galería de la etapa:', err.message);
+      return next(err);
     }
 
     res.json({ ...stage, posts, gallery });

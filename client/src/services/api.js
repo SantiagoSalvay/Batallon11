@@ -1,18 +1,28 @@
 import axios from 'axios';
 import { CSRF_COOKIE } from './securityConstants.js';
 
-const baseURL = import.meta.env.VITE_API_URL || '';
+const isDev = import.meta.env.DEV;
+const configuredApi = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+/**
+ * En desarrollo usamos rutas relativas (/api, /uploads) para que el proxy de Vite
+ * funcione desde el celular vía IP de la red local, no solo desde localhost.
+ */
+const apiOrigin = isDev ? '' : configuredApi;
+const assetsOrigin = isDev ? '' : configuredApi;
 
 export const api = axios.create({
-  baseURL: `${baseURL}/api`,
+  baseURL: apiOrigin ? `${apiOrigin}/api` : '/api',
   withCredentials: true,
 });
 
-const ASSETS_BASE = baseURL || '';
 export const asset = (path) => {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
-  return `${ASSETS_BASE}${path}`;
+  if (path.startsWith('/')) {
+    return assetsOrigin ? `${assetsOrigin}${path}` : path;
+  }
+  return assetsOrigin ? `${assetsOrigin}/${path}` : `/${path}`;
 };
 
 function getCookie(name) {

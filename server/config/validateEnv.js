@@ -67,6 +67,15 @@ function validateEnv() {
     }
     if (!process.env.DATABASE_URL) {
       warnings.push('DATABASE_URL no está definida.');
+    } else if (
+      process.env.DATABASE_URL.includes('supabase.co') &&
+      !process.env.DATABASE_URL.includes(':6543') &&
+      !process.env.DATABASE_URL.includes('pgbouncer=true')
+    ) {
+      warnings.push(
+        'DATABASE_URL apunta a Supabase sin pooler (puerto 6543). ' +
+          'Usá la URL de Transaction pooler para evitar agotar conexiones.'
+      );
     }
   }
 
