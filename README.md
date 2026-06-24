@@ -11,7 +11,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Exploradores-Don_Bosco-1e3a8a?style=for-the-badge" alt="Exploradores Don Bosco" />
   <img src="https://img.shields.io/badge/Licencia-MIT-22c55e?style=for-the-badge" alt="MIT" />
-  <img src="https://img.shields.io/badge/Sitio-web-activo-f97316?style=for-the-badge" alt="Sitio activo" />
+  <img src="https://img.shields.io/badge/Web-activo-f97316?style=for-the-badge" alt="Sitio activo" />
 </p>
 
 <p align="center">
