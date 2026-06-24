@@ -59,11 +59,13 @@ async function processUploadedImages(req, res, next) {
     if (req.file) {
       req.file = await processOneMulterFile(req.file);
     }
-    if (req.files && typeof req.files === 'object') {
+    if (Array.isArray(req.files)) {
+      req.files = await Promise.all(req.files.map((file) => processOneMulterFile(file)));
+    } else if (req.files && typeof req.files === 'object') {
       for (const key of Object.keys(req.files)) {
         const arr = req.files[key];
         if (!Array.isArray(arr)) continue;
-        req.files[key] = await Promise.all(arr.map((f) => processOneMulterFile(f)));
+        req.files[key] = await Promise.all(arr.map((file) => processOneMulterFile(file)));
       }
     }
     next();

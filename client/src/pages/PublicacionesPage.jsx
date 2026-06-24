@@ -1,32 +1,32 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api.js';
-import PostsList from '../components/PostsList.jsx';
+import ListaPublicaciones from '../components/ListaPublicaciones.jsx';
 
-export default function PublicationsPage() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function PublicacionesPage() {
+  const [publicaciones, setPublicaciones] = useState([]);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelado = false;
     api
-      .get('/posts', { params: { limit: 100 } })
-      .then((r) => {
-        if (!cancelled) setPosts(r.data);
+      .get('/publicaciones', { params: { etapa: 'general', limite: 100 } })
+      .then((respuesta) => {
+        if (!cancelado) setPublicaciones(respuesta.data);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelado) setCargando(false);
       });
     return () => {
-      cancelled = true;
+      cancelado = true;
     };
   }, []);
 
-  if (loading) {
+  if (cargando) {
     return (
       <div className="grid min-h-[60vh] place-items-center bg-stone-50 pt-24 text-slate-500">
         Cargando...
@@ -41,10 +41,10 @@ export default function PublicationsPage() {
           {'<-'} Volver al inicio
         </Link>
       </div>
-      <PostsList
-        title="Todas las publicaciones"
-        posts={posts}
-        emptyText="Aún no hay publicaciones."
+      <ListaPublicaciones
+        titulo="Todas las publicaciones"
+        publicaciones={publicaciones}
+        textoVacio="Aun no hay publicaciones."
       />
     </div>
   );

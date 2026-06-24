@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api, asset } from '../services/api.js';
-import PostsList from '../components/PostsList.jsx';
+import ListaPublicaciones from '../components/ListaPublicaciones.jsx';
 import Gallery from '../components/Gallery.jsx';
 import StageInfoSection from '../components/StageInfoSection.jsx';
 import StageContactSection from '../components/StageContactSection.jsx';
@@ -35,7 +35,7 @@ export default function StagePage() {
       .catch((err) => {
         const local = localStageBySlug(slug);
         if (local) {
-          setStage({ ...local, posts: [], gallery: [] });
+          setStage({ ...local, publicaciones: [], gallery: [] });
         } else {
           setError(err.response?.data?.message || err.message);
         }
@@ -129,14 +129,14 @@ export default function StagePage() {
 
       <StageInfoSection stage={stage} />
 
-      <PostsList
-        title={`Publicaciones de ${stage.name}`}
-        posts={stage.posts || []}
-        emptyText="Aún no hay publicaciones en esta etapa."
+      <ListaPublicaciones
+        titulo={`Publicaciones de ${stage.name}`}
+        publicaciones={stage.publicaciones || []}
+        textoVacio="Aun no hay publicaciones en esta etapa."
       />
 
       <Gallery
-        title={`Galería de ${stage.name}`}
+        title={`GalerÃ­a de ${stage.name}`}
         images={stage.gallery || []}
       />
 

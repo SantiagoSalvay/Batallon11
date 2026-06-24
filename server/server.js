@@ -19,8 +19,7 @@ const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/auth');
 const stageRoutes = require('./routes/stages');
-const postRoutes = require('./routes/posts');
-const stagePostRoutes = require('./routes/stagePosts');
+const publicacionesRoutes = require('./routes/publicaciones');
 const galleryRoutes = require('./routes/gallery');
 const stageGalleryRoutes = require('./routes/stageGallery');
 const eventRoutes = require('./routes/events');
@@ -144,9 +143,8 @@ app.get('/api/health', async (_req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
-app.use('/api/stages', stageRoutes);
-app.use('/api/posts', postRoutes);
-app.use('/api/stage-posts', stagePostRoutes);
+app.use('/api/etapas', stageRoutes);
+app.use('/api/publicaciones', publicacionesRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/stage-gallery', stageGalleryRoutes);
 app.use('/api/events', eventRoutes);
@@ -163,7 +161,7 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 const server = app.listen(PORT, HOST, () => {
   // eslint-disable-next-line no-console
-  console.log(`API Batallón 11 escuchando en http://localhost:${PORT}`);
+  console.log(`API BatallÃƒÂ³n 11 escuchando en http://localhost:${PORT}`);
   if (!isProd) {
     for (const ip of getLanIPv4Addresses()) {
       // eslint-disable-next-line no-console

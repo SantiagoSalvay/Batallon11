@@ -19,13 +19,14 @@ async function getStageBySlug(req, res, next) {
       return res.status(404).json({ message: 'Etapa no encontrada' });
     }
 
-    let posts = [];
+    let publicaciones = [];
     let gallery = [];
     try {
-      [posts, gallery] = await Promise.all([
-        prisma.stagePost.findMany({
-          where: { stageSlug: stage.slug, published: true },
-          orderBy: { createdAt: 'desc' },
+      [publicaciones, gallery] = await Promise.all([
+        prisma.publicacion.findMany({
+          where: { etapaSlug: stage.slug, publicada: true },
+          include: { imagenes: { orderBy: [{ orden: 'asc' }, { creadaEn: 'asc' }] } },
+          orderBy: { creadaEn: 'desc' },
           take: 10,
         }),
         prisma.stageGalleryImage.findMany({
@@ -34,10 +35,10 @@ async function getStageBySlug(req, res, next) {
         }),
       ]);
     } catch (err) {
-      console.warn('[stages] No se pudieron leer posts/galería de la etapa:', err.message);
+      console.warn('[stages] No se pudieron leer posts/galerÃ­a de la etapa:', err.message);
     }
 
-    res.json({ ...stage, posts, gallery });
+    res.json({ ...stage, publicaciones, gallery });
   } catch (err) {
     next(err);
   }

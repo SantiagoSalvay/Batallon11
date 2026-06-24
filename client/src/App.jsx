@@ -3,13 +3,12 @@ import { PageBackgroundProvider } from './context/PageBackgroundContext.jsx';
 import PublicLayout from './layouts/PublicLayout.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import Home from './pages/Home.jsx';
-import PublicationsPage from './pages/PublicationsPage.jsx';
+import PublicacionesPage from './pages/PublicacionesPage.jsx';
 import StagePage from './pages/StagePage.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Dashboard from './pages/admin/Dashboard.jsx';
-import PostsAdmin from './pages/admin/PostsAdmin.jsx';
-import StagePostsAdmin from './pages/admin/StagePostsAdmin.jsx';
+import PublicacionesAdmin from './pages/admin/PublicacionesAdmin.jsx';
 import GalleryAdmin from './pages/admin/GalleryAdmin.jsx';
 import StageGalleryAdmin from './pages/admin/StageGalleryAdmin.jsx';
 import EventsAdmin from './pages/admin/EventsAdmin.jsx';
@@ -23,7 +22,7 @@ export default function App() {
       <Routes>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/publicaciones" element={<PublicationsPage />} />
+        <Route path="/publicaciones" element={<PublicacionesPage />} />
         <Route path="/etapas/:slug" element={<StagePage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
@@ -39,8 +38,7 @@ export default function App() {
         }
       >
         <Route index element={<CoordinatorIndexRedirect><Dashboard /></CoordinatorIndexRedirect>} />
-        <Route path="publicaciones" element={<RoleRoute allow={['ADMIN', 'EDITOR']}><PostsAdmin /></RoleRoute>} />
-        <Route path="publicaciones-etapa" element={<StagePostsAdmin />} />
+        <Route path="publicaciones" element={<PublicacionesAdmin />} />
         <Route path="galeria" element={<RoleRoute allow={['ADMIN', 'EDITOR']}><GalleryAdmin /></RoleRoute>} />
         <Route path="galeria-etapa" element={<StageGalleryAdmin />} />
         <Route path="eventos" element={<RoleRoute allow={['ADMIN', 'EDITOR']}><EventsAdmin /></RoleRoute>} />

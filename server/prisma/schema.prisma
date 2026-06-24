@@ -53,31 +53,38 @@ model RevokedAccessJti {
   @@map("jti_acceso_revocado")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  imageUrl  String?
-  published Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Publicacion {
+  id            Int                 @id @default(autoincrement())
+  titulo        String
+  contenido     String
+  publicada     Boolean             @default(true)
+  etapaSlug     String?
+  creadaEn      DateTime            @default(now())
+  actualizadaEn DateTime            @updatedAt
+  imagenes      ImagenPublicacion[]
 
-  @@index([createdAt])
+  @@index([etapaSlug, creadaEn])
   @@map("publicaciones")
 }
 
-model StagePost {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  imageUrl  String?
-  published Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  stageSlug String
+model ImagenPublicacion {
+  id               String      @id @default(cuid())
+  publicacionId    Int
+  rutaOriginal     String?
+  rutaOptimizada   String
+  nombreOriginal   String?
+  tipoMimeOriginal String?
+  tamanoOriginal   Int?
+  tamanoOptimizado Int?
+  ancho            Int?
+  alto             Int?
+  leyenda          String?
+  orden            Int         @default(0)
+  creadaEn         DateTime    @default(now())
+  publicacion      Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
 
-  @@index([stageSlug, createdAt])
-  @@map("publicaciones_etapa")
+  @@index([publicacionId, orden])
+  @@map("imagenes_publicacion")
 }
 
 model GalleryImage {

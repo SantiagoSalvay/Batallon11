@@ -16,7 +16,7 @@ export default function StageGalleryAdmin() {
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
-    api.get('/stages').then((r) => {
+    api.get('/etapas').then((r) => {
       setStages(r.data);
       if (isCoordinator && user?.stageSlug) {
         setStageSlug(user.stageSlug);
@@ -37,7 +37,7 @@ export default function StageGalleryAdmin() {
 
   const upload = async (e) => {
     e.preventDefault();
-    if (!file) return setStatus({ type: 'err', msg: 'Seleccioná una imagen' });
+    if (!file) return setStatus({ type: 'err', msg: 'SeleccionÃ¡ una imagen' });
     setStatus(null);
     try {
       const fd = new FormData();
@@ -63,13 +63,13 @@ export default function StageGalleryAdmin() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold">Galerías por etapa</h1>
+      <h1 className="text-2xl font-extrabold">GalerÃ­as por etapa</h1>
 
       <div className="mt-6">
         <label className="label">Etapa</label>
         {isCoordinator ? (
           <div className="field max-w-sm bg-white/5 cursor-not-allowed">
-            {stages.find((s) => s.slug === stageSlug)?.name || '—'}
+            {stages.find((s) => s.slug === stageSlug)?.name || 'â€”'}
           </div>
         ) : (
           <select className="field max-w-sm" value={stageSlug} onChange={(e) => setStageSlug(e.target.value)}>
@@ -126,7 +126,7 @@ export default function StageGalleryAdmin() {
           </div>
         ))}
         {images.length === 0 && (
-          <div className="text-sm text-white/50 col-span-full">Sin imágenes en esta etapa.</div>
+          <div className="text-sm text-white/50 col-span-full">Sin imÃ¡genes en esta etapa.</div>
         )}
       </div>
     </div>

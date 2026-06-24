@@ -44,28 +44,33 @@ CREATE TABLE "jti_acceso_revocado" (
 -- CreateTable
 CREATE TABLE "publicaciones" (
     "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "imageUrl" TEXT,
-    "published" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "titulo" TEXT NOT NULL,
+    "contenido" TEXT NOT NULL,
+    "publicada" BOOLEAN NOT NULL DEFAULT true,
+    "etapaSlug" TEXT,
+    "creadaEn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "actualizadaEn" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "publicaciones_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "publicaciones_etapa" (
-    "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "imageUrl" TEXT,
-    "published" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "stageSlug" TEXT NOT NULL,
+CREATE TABLE "imagenes_publicacion" (
+    "id" TEXT NOT NULL,
+    "publicacionId" INTEGER NOT NULL,
+    "rutaOriginal" TEXT,
+    "rutaOptimizada" TEXT NOT NULL,
+    "nombreOriginal" TEXT,
+    "tipoMimeOriginal" TEXT,
+    "tamanoOriginal" INTEGER,
+    "tamanoOptimizado" INTEGER,
+    "ancho" INTEGER,
+    "alto" INTEGER,
+    "leyenda" TEXT,
+    "orden" INTEGER NOT NULL DEFAULT 0,
+    "creadaEn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "publicaciones_etapa_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "imagenes_publicacion_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -157,10 +162,10 @@ CREATE INDEX "sesiones_refresco_expiresAt_idx" ON "sesiones_refresco"("expiresAt
 CREATE INDEX "jti_acceso_revocado_expiresAt_idx" ON "jti_acceso_revocado"("expiresAt");
 
 -- CreateIndex
-CREATE INDEX "publicaciones_createdAt_idx" ON "publicaciones"("createdAt");
+CREATE INDEX "publicaciones_etapaSlug_creadaEn_idx" ON "publicaciones"("etapaSlug", "creadaEn");
 
 -- CreateIndex
-CREATE INDEX "publicaciones_etapa_stageSlug_createdAt_idx" ON "publicaciones_etapa"("stageSlug", "createdAt");
+CREATE INDEX "imagenes_publicacion_publicacionId_orden_idx" ON "imagenes_publicacion"("publicacionId", "orden");
 
 -- CreateIndex
 CREATE INDEX "imagenes_galeria_order_idx" ON "imagenes_galeria"("order");
@@ -191,6 +196,9 @@ CREATE INDEX "codigos_respaldo_totp_userId_idx" ON "codigos_respaldo_totp"("user
 
 -- AddForeignKey
 ALTER TABLE "sesiones_refresco" ADD CONSTRAINT "sesiones_refresco_userId_fkey" FOREIGN KEY ("userId") REFERENCES "usuarios"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "imagenes_publicacion" ADD CONSTRAINT "imagenes_publicacion_publicacionId_fkey" FOREIGN KEY ("publicacionId") REFERENCES "publicaciones"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "codigos_totp_usados" ADD CONSTRAINT "codigos_totp_usados_userId_fkey" FOREIGN KEY ("userId") REFERENCES "usuarios"("id") ON DELETE CASCADE ON UPDATE CASCADE;

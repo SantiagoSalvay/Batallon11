@@ -5,15 +5,14 @@ import { BRAND_LOGO } from '../lib/stageAssets.js';
 const ADMIN_NAV = [
   { to: '/admin', label: 'Resumen', end: true },
   { to: '/admin/publicaciones', label: 'Publicaciones' },
-  { to: '/admin/publicaciones-etapa', label: 'Publicaciones por etapa' },
-  { to: '/admin/galeria', label: 'Galería' },
-  { to: '/admin/galeria-etapa', label: 'Galerías por etapa' },
+  { to: '/admin/galeria', label: 'GalerÃ­a' },
+  { to: '/admin/galeria-etapa', label: 'GalerÃ­as por etapa' },
   { to: '/admin/eventos', label: 'Eventos' },
 ];
 
 const COORDINATOR_NAV = [
-  { to: '/admin/publicaciones-etapa', label: 'Publicaciones de mi etapa', end: true },
-  { to: '/admin/galeria-etapa', label: 'Galería de mi etapa' },
+  { to: '/admin/publicaciones', label: 'Publicaciones de mi etapa', end: true },
+  { to: '/admin/galeria-etapa', label: 'GalerÃ­a de mi etapa' },
 ];
 
 export default function AdminLayout() {
@@ -31,9 +30,9 @@ export default function AdminLayout() {
       <header className="border-b border-white/10 bg-ink-900/80 backdrop-blur sticky top-0 z-30">
         <div className="container-app h-16 flex items-center justify-between">
           <Link to="/admin" className="flex items-center gap-3">
-            <img src={BRAND_LOGO} alt="Batallón 11" className="h-10 w-10 object-contain" />
+            <img src={BRAND_LOGO} alt="BatallÃ³n 11" className="h-10 w-10 object-contain" />
             <div className="leading-tight">
-              <div className="font-display font-bold text-sm">Admin · Batallón 11</div>
+              <div className="font-display font-bold text-sm">Admin Â· BatallÃ³n 11</div>
               <div className="text-xs text-white/50">{user?.email}</div>
             </div>
           </Link>

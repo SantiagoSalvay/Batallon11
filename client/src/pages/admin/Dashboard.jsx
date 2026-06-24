@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { api } from '../../services/api.js';
 
 const cards = [
-  { label: 'Publicaciones generales', key: 'posts', to: '/admin/publicaciones' },
-  { label: 'Imágenes en galería', key: 'gallery', to: '/admin/galeria' },
+  { label: 'Publicaciones generales', key: 'publicaciones', to: '/admin/publicaciones' },
+  { label: 'ImÃ¡genes en galerÃ­a', key: 'gallery', to: '/admin/galeria' },
   { label: 'Eventos', key: 'events', to: '/admin/eventos' },
 ];
 
@@ -13,12 +13,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.allSettled([
-      api.get('/posts'),
+      api.get('/publicaciones', { params: { etapa: 'general', limite: 100 } }),
       api.get('/gallery'),
       api.get('/events'),
     ]).then(([p, g, e]) => {
       setStats({
-        posts: p.status === 'fulfilled' ? p.value.data.length : 0,
+        publicaciones: p.status === 'fulfilled' ? p.value.data.length : 0,
         gallery: g.status === 'fulfilled' ? g.value.data.length : 0,
         events: e.status === 'fulfilled' ? e.value.data.length : 0,
       });
@@ -35,9 +35,9 @@ export default function Dashboard() {
           <Link key={c.key} to={c.to} className="card p-5 hover:border-white/20 transition">
             <div className="text-xs uppercase tracking-wider text-white/50">{c.label}</div>
             <div className="mt-2 text-4xl font-extrabold text-gradient">
-              {stats[c.key] ?? '—'}
+              {stats[c.key] ?? 'â€”'}
             </div>
-            <div className="mt-2 text-xs text-brand-300">Administrar →</div>
+            <div className="mt-2 text-xs text-brand-300">Administrar â†’</div>
           </Link>
         ))}
       </div>
