@@ -5,7 +5,7 @@
   "description": "Sitio institucional del Batallón 11 General José María Paz - Exploradores Argentinos de Don Bosco",
   "packageManager": "pnpm@11.1.3",
   "engines": {
-    "node": ">=18",
+    "node": ">=22",
     "pnpm": ">=9"
   },
   "scripts": {

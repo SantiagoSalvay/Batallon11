@@ -1,195 +1,137 @@
 # Batallón 11 — General José María Paz
 
-Sitio institucional del **Batallón 11 General José María Paz**, perteneciente a los **Exploradores Argentinos de Don Bosco**.
-
-> Landing moderna, página por etapa, galerías, eventos y panel administrativo con autenticación JWT.
+Sitio web del **Batallón 11 General José María Paz**, grupo de los **Exploradores Argentinos de Don Bosco** (Salesianos).
 
 ---
 
-## Stack
+## ¿Qué es este proyecto?
 
-### Frontend (`/client`)
+Es la **página oficial del batallón**: un lugar en internet donde la comunidad exploradoril puede **conocer la propuesta**, **ver novedades**, **enterarse de eventos** y **acercarse a cada etapa** del camino formativo.
 
-- React + Vite
-- TailwindCSS
-- React Router DOM
-- Axios
-- Framer Motion
+Está pensado para tres grupos de personas:
 
-### Backend (`/server`)
+| Quién lo usa | Para qué sirve |
+| --- | --- |
+| **Familias y visitantes** | Ver información del batallón, ubicación, contacto, fotos y noticias sin necesidad de registrarse. |
+| **Exploradores y jóvenes** | Entrar a la página de su etapa (Pioneros y Fuegos, Rastreadores, etc.) y ver publicaciones y galerías propias de ese grupo. |
+| **Coordinadores y animadores** | Entrar al **panel de administración** para subir fotos, escribir publicaciones, cargar eventos y mantener el sitio al día. |
 
-- Node.js + Express.js
-- Prisma ORM
-- PostgreSQL
-- JWT + bcrypt
-- multer (uploads)
+En resumen: **reemplaza o complementa la cartelera física del grupo** con un espacio digital ordenado, accesible desde el celular o la computadora.
 
 ---
 
-## Arquitectura
+## ¿Qué se puede hacer en el sitio?
 
-```
-React Frontend
-      ↓
-Express API
-      ↓
-Prisma ORM
-      ↓
-PostgreSQL
-```
+### Parte pública (cualquier persona)
 
----
+- **Inicio**: presentación del batallón, quiénes somos y acceso a las etapas.
+- **Etapas**: cada grupo tiene su propia página con emblema, descripción, publicaciones y galería de fotos.
+- **Publicaciones**: novedades generales del batallón (actividades, avisos, momentos compartidos).
+- **Eventos**: próximas actividades con fecha y lugar.
+- **Ubicación y contacto**: cómo llegar y cómo comunicarse con el grupo.
 
-## Estructura del repositorio
+### Panel de administración (solo usuarios autorizados)
 
-```
-Batallon11/
-├── client/                 # Frontend React + Vite
-│   ├── src/
-│   ├── index.html
-│   └── ...
-│
-├── server/                 # Backend Express + Prisma
-│   ├── prisma/
-│   │   ├── schema.prisma
-│   │   └── seed.js
-│   ├── controllers/
-│   ├── middleware/
-│   ├── routes/
-│   ├── config/
-│   ├── utils/
-│   ├── uploads/
-│   └── server.js
-│
-├── package.json            # Scripts globales (concurrently)
-└── README.md
-```
+- Publicar y editar **noticias** del sitio general o de una etapa concreta.
+- Subir y ordenar **fotos** en las galerías.
+- Gestionar **eventos** del calendario.
+- Acceso con usuario y contraseña; algunos roles solo pueden editar su propia etapa.
 
----
-
-## Requisitos
-
-- Node.js 18+
-- PostgreSQL 14+
-- pnpm 9+ (`npm i -g pnpm` o `corepack enable`)
-
-> El repo usa **pnpm workspaces**: una sola instalación maneja `client` y `server`.
-
----
-
-## Setup inicial
-
-### 1. Instalar dependencias (monorepo)
-
-```bash
-pnpm install
-```
-
-### 2. Variables de entorno
-
-Copiar el ejemplo y completar:
-
-```bash
-cp server/.env.example server/.env
-cp client/.env.example client/.env
-```
-
-Editar `server/.env` y completar:
-
-- `DATABASE_URL` con tu conexión PostgreSQL (recomendado: **Supabase**, ver abajo)
-- `DIRECT_URL` (solo si usás un pooler como Supabase/Neon)
-- `JWT_SECRET` con una clave fuerte
-- `ADMIN_EMAIL` y `ADMIN_PASSWORD` para el seed
-
-#### Conexión con Supabase
-
-1. En tu proyecto Supabase ir a **Project Settings → Database**.
-2. En **Connection string** elegir **URI** y copiar dos versiones:
-   - **Transaction pooler** (puerto `6543`) → va en `DATABASE_URL` y se le agrega `?pgbouncer=true&connection_limit=1`.
-   - **Session pooler / Direct** (puerto `5432`) → va en `DIRECT_URL`.
-3. Reemplazar `[YOUR-PASSWORD]`, `[PROJECT-REF]` y `[REGION]` por los valores reales.
-4. Si no sabés la contraseña de la DB, en Supabase: **Database → Reset database password**.
-
-Ejemplo final en `server/.env`:
-
-```env
-DATABASE_URL="postgresql://postgres.abcd1234:MiPassword@aws-0-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
-DIRECT_URL="postgresql://postgres.abcd1234:MiPassword@aws-0-sa-east-1.pooler.supabase.com:5432/postgres"
-```
-
-> Prisma usa `DATABASE_URL` para queries (pooler) y `DIRECT_URL` para migraciones — esto ya está configurado en `schema.prisma`.
-
-### 3. Base de datos (Prisma)
-
-```bash
-pnpm prisma:migrate     # crea el esquema
-pnpm prisma:generate    # genera el cliente
-pnpm prisma:seed        # crea admin + 4 etapas iniciales
-```
-
-### 4. Desarrollo
-
-```bash
-pnpm dev
-```
-
-> Equivalentes útiles:
->
-> - `pnpm dev:server` / `pnpm dev:client`
-> - `pnpm --filter batallon11-server <script>` para ejecutar algo solo en el backend
-> - `pnpm --filter batallon11-client <script>` para el frontend
-
-- Backend: http://localhost:4000
-- Frontend: http://localhost:5173
+Las imágenes pueden guardarse en el servidor o en **Supabase Storage** (nube), según cómo esté configurado el entorno.
 
 ---
 
 ## Etapas del batallón
 
-| Etapa                       | Slug                       |
-| --------------------------- | -------------------------- |
-| Horneros y Pichones         | `horneros-pichones`        |
-| Caminantes y Chispistas     | `caminantes-chispistas`    |
-| Pioneros y Fuegos           | `pioneros-fuegos`          |
-| Rastreadores y Baquianos    | `rastreadores-baquianos`   |
+Cada etapa tiene su página en `/etapas/nombre-de-la-etapa`:
 
-Cada etapa tiene su hero propio, logo, galería y publicaciones exclusivas.
+| Etapa | Enlace |
+| --- | --- |
+| Horneros y Pichones | `/etapas/horneros-pichones` |
+| Caminantes y Chispistas | `/etapas/caminantes-chispistas` |
+| Pioneros y Fuegos | `/etapas/pioneros-fuegos` |
+| Rastreadores | `/etapas/rastreadores` |
+| Baqueanos | `/etapas/baqueanos` |
+| Soles | `/etapas/soles` |
 
----
-
-## Endpoints principales
-
-### Público
-
-- `GET  /api/hero`
-- `GET  /api/stages`
-- `GET  /api/stages/:slug`
-- `GET  /api/posts`
-- `GET  /api/stages/:slug/posts`
-- `GET  /api/gallery`
-- `GET  /api/stages/:slug/gallery`
-- `GET  /api/events`
-
-### Auth
-
-- `POST /api/auth/login`
-- `GET  /api/auth/me`
-
-### Admin (requiere JWT)
-
-- `PUT    /api/hero`
-- `POST   /api/stages`, `PUT /api/stages/:id`, `DELETE /api/stages/:id`
-- CRUD análogo para `posts`, `stage-posts`, `gallery`, `stage-gallery`, `events`
+En la página de cada etapa se muestran hasta cuatro publicaciones y una galería; si hay más contenido, aparece un botón para ver todo en una página dedicada.
 
 ---
 
-## Deploy
+## ¿Cómo está hecho por dentro? (resumen breve)
 
-- **DB**: Railway / Supabase / Neon
-- **Server**: Railway / Render
-- **Client**: Vercel / Netlify
+El proyecto se divide en dos partes que trabajan juntas:
 
-Configurar `VITE_API_URL` en el cliente y `DATABASE_URL` + `JWT_SECRET` + `CLIENT_URL` en el servidor.
+- **`client/`** — Lo que ve la gente en el navegador (diseño, menús, páginas).
+- **`server/`** — El motor que guarda y entrega datos (publicaciones, fotos, usuarios, eventos).
+
+Los datos viven en una base **PostgreSQL** (por ejemplo en Supabase). El repositorio usa **pnpm** para instalar dependencias de ambas partes a la vez.
+
+---
+
+## Puesta en marcha (para quien desarrolla o mantiene el sitio)
+
+### Requisitos
+
+- **Node.js 22** o superior
+- **pnpm** 9 o superior (`corepack enable` suele bastar)
+- Base de datos **PostgreSQL** (Supabase recomendado)
+
+### Pasos básicos
+
+```bash
+# 1. Instalar dependencias
+pnpm install
+
+# 2. Configurar variables de entorno
+#    Crear server/.env y client/.env con las claves necesarias
+#    (base de datos, JWT, correo del admin, URLs de mapas, etc.)
+
+# 3. Preparar la base de datos
+pnpm prisma:migrate
+pnpm prisma:generate
+pnpm prisma:seed
+
+# 4. Arrancar en modo desarrollo
+pnpm dev
+```
+
+- Sitio web: http://localhost:5173  
+- API del servidor: http://localhost:4000  
+
+Para probar desde el **celular en la misma red Wi‑Fi**, abrí en el teléfono `http://<IP-de-tu-PC>:5173` (la IP la muestra Vite al iniciar).
+
+### Base de datos con Supabase
+
+1. En Supabase → **Project Settings → Database**.
+2. Copiá la URL del **Transaction pooler** (puerto `6543`) para `DATABASE_URL`.
+3. Copiá la URL **Direct** (puerto `5432`) para `DIRECT_URL`.
+4. Agregá `?pgbouncer=true&sslmode=require` en la URL del pooler si no viene incluido.
+
+---
+
+## Scripts útiles
+
+| Comando | Qué hace |
+| --- | --- |
+| `pnpm dev` | Levanta frontend y backend a la vez |
+| `pnpm dev:client` | Solo el sitio web |
+| `pnpm dev:server` | Solo la API |
+| `pnpm build` | Genera la versión de producción del frontend |
+| `pnpm start` | Inicia el servidor en producción |
+| `pnpm prisma:studio` | Abre un visor visual de la base de datos |
+
+---
+
+## Despliegue
+
+En producción suele usarse:
+
+- **Frontend** → Vercel, Netlify u otro hosting estático.
+- **Backend** → Railway, Render u otro servicio Node.
+- **Base de datos** → Supabase, Neon o Railway.
+
+Variables importantes en producción: `DATABASE_URL`, `JWT_SECRET`, `CLIENT_URL` en el servidor y `VITE_API_URL` en el cliente apuntando a la API publicada.
 
 ---
 
