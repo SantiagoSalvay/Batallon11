@@ -1,91 +1,132 @@
-# Batallón 11 — General José María Paz
+<p align="center">
+  <img src="client/public/LogoBatallon11.png" alt="Batallón 11 General José María Paz" width="140" />
+</p>
 
-Sitio web del **Batallón 11 General José María Paz**, grupo de los **Exploradores Argentinos de Don Bosco** (Salesianos).
+<h1 align="center">Batallón 11 — General José María Paz</h1>
+
+<p align="center">
+  Sitio web del grupo de los <strong>Exploradores Argentinos de Don Bosco</strong> (Salesianos)
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Exploradores-Don_Bosco-1e3a8a?style=for-the-badge" alt="Exploradores Don Bosco" />
+  <img src="https://img.shields.io/badge/Licencia-MIT-22c55e?style=for-the-badge" alt="MIT" />
+  <img src="https://img.shields.io/badge/Sitio-web-activo-f97316?style=for-the-badge" alt="Sitio activo" />
+</p>
+
+<p align="center">
+  <img src="client/public/Emblema-Mes.png" alt="Emblema del mes" width="72" />
+</p>
 
 ---
 
-## ¿Qué es este proyecto?
+## 🏕️ ¿Qué es este proyecto?
 
 Es la **página oficial del batallón**: un lugar en internet donde la comunidad exploradoril puede **conocer la propuesta**, **ver novedades**, **enterarse de eventos** y **acercarse a cada etapa** del camino formativo.
 
-Está pensado para tres grupos de personas:
+```mermaid
+flowchart TB
+  subgraph publico["👀 Cualquier visitante"]
+    A[Inicio y quiénes somos]
+    B[Etapas del batallón]
+    C[Publicaciones y eventos]
+    D[Ubicación y contacto]
+  end
+  subgraph equipo["🔐 Equipo del batallón"]
+    E[Panel de administración]
+    F[Subir fotos y noticias]
+  end
+  E --> B
+  E --> C
+  F --> B
+```
 
-| Quién lo usa | Para qué sirve |
+### 👥 ¿Para quién está pensado?
+
+| | Quién lo usa | Para qué sirve |
+| --- | --- | --- |
+| 👨‍👩‍👧 | **Familias y visitantes** | Ver información del batallón, ubicación, contacto, fotos y noticias sin registrarse. |
+| 🧭 | **Exploradores y jóvenes** | Entrar a la página de su etapa y ver publicaciones y galerías de su grupo. |
+| 📋 | **Coordinadores y animadores** | Mantener el sitio al día desde el panel de administración. |
+
+> 💡 **En pocas palabras:** reemplaza o complementa la cartelera física del grupo con un espacio digital ordenado, accesible desde el **celular** o la **computadora**.
+
+---
+
+## 🌐 ¿Qué se puede hacer en el sitio?
+
+### 👀 Parte pública (cualquier persona)
+
+| Sección | Qué encontrás |
 | --- | --- |
-| **Familias y visitantes** | Ver información del batallón, ubicación, contacto, fotos y noticias sin necesidad de registrarse. |
-| **Exploradores y jóvenes** | Entrar a la página de su etapa (Pioneros y Fuegos, Rastreadores, etc.) y ver publicaciones y galerías propias de ese grupo. |
-| **Coordinadores y animadores** | Entrar al **panel de administración** para subir fotos, escribir publicaciones, cargar eventos y mantener el sitio al día. |
+| 🏠 **Inicio** | Presentación del batallón, quiénes somos y acceso a las etapas. |
+| 🎖️ **Etapas** | Página propia de cada grupo con emblema, descripción, publicaciones y fotos. |
+| 📰 **Publicaciones** | Novedades generales: actividades, avisos y momentos compartidos. |
+| 📅 **Eventos** | Próximas actividades con fecha y lugar. |
+| 📍 **Ubicación y contacto** | Cómo llegar y cómo comunicarse con el grupo. |
 
-En resumen: **reemplaza o complementa la cartelera física del grupo** con un espacio digital ordenado, accesible desde el celular o la computadora.
+### 🔐 Panel de administración (solo usuarios autorizados)
 
----
+- ✏️ Publicar y editar **noticias** del sitio general o de una etapa concreta.
+- 🖼️ Subir y ordenar **fotos** en las galerías.
+- 📆 Gestionar **eventos** del calendario.
+- 🔑 Acceso con usuario y contraseña; algunos roles solo editan su propia etapa.
 
-## ¿Qué se puede hacer en el sitio?
-
-### Parte pública (cualquier persona)
-
-- **Inicio**: presentación del batallón, quiénes somos y acceso a las etapas.
-- **Etapas**: cada grupo tiene su propia página con emblema, descripción, publicaciones y galería de fotos.
-- **Publicaciones**: novedades generales del batallón (actividades, avisos, momentos compartidos).
-- **Eventos**: próximas actividades con fecha y lugar.
-- **Ubicación y contacto**: cómo llegar y cómo comunicarse con el grupo.
-
-### Panel de administración (solo usuarios autorizados)
-
-- Publicar y editar **noticias** del sitio general o de una etapa concreta.
-- Subir y ordenar **fotos** en las galerías.
-- Gestionar **eventos** del calendario.
-- Acceso con usuario y contraseña; algunos roles solo pueden editar su propia etapa.
-
-Las imágenes pueden guardarse en el servidor o en **Supabase Storage** (nube), según cómo esté configurado el entorno.
+☁️ Las imágenes pueden guardarse en el servidor o en **Supabase Storage** (nube), según la configuración.
 
 ---
 
-## Etapas del batallón
+## 🎖️ Etapas del batallón
 
-Cada etapa tiene su página en `/etapas/nombre-de-la-etapa`:
+Cada etapa tiene su propia página. Desde el celular se ven publicaciones compactas y galería en carrusel; en computadora, el diseño es más amplio.
 
-| Etapa | Enlace |
+| | Etapa | Página |
+| ---: | --- | --- |
+| <img src="client/public/Logo_Honeros_Pichones.jpg" width="52" alt="Horneros y Pichones" /> | **Horneros y Pichones** | `/etapas/horneros-pichones` |
+| <img src="client/public/Logo_Caminantes_y_Chispistas.png" width="52" alt="Caminantes y Chispistas" /> | **Caminantes y Chispistas** | `/etapas/caminantes-chispistas` |
+| <img src="client/public/Logo_Pioneros_y_Fuegos.png" width="52" alt="Pioneros y Fuegos" /> | **Pioneros y Fuegos** | `/etapas/pioneros-fuegos` |
+| <img src="client/public/Logo_Rastradores.png" width="52" alt="Rastreadores" /> | **Rastreadores** | `/etapas/rastreadores` |
+| <img src="client/public/Logo_Baqueanos.png" width="52" alt="Baqueanos" /> | **Baqueanos** | `/etapas/baqueanos` |
+| <img src="client/public/Logo_Soles.png" width="52" alt="Soles" /> | **Soles** | `/etapas/soles` |
+
+📌 En cada etapa se muestran hasta **4 publicaciones** y una **galería**; si hay más contenido, aparece un botón **“Ver más”**.
+
+---
+
+## ⚙️ ¿Cómo está hecho por dentro?
+
+El proyecto tiene dos partes que trabajan juntas:
+
+| Parte | Carpeta | Rol |
+| --- | --- | --- |
+| 🖥️ **Sitio visible** | `client/` | Lo que ve la gente: diseño, menús y páginas. |
+| ⚡ **Motor de datos** | `server/` | Guarda y entrega publicaciones, fotos, usuarios y eventos. |
+
+Los datos viven en **PostgreSQL** (por ejemplo Supabase). El repositorio usa **pnpm** para instalar todo de una sola vez.
+
+---
+
+## 🚀 Puesta en marcha
+
+> 🛠️ Esta sección es para quien **desarrolla o mantiene** el sitio.
+
+### ✅ Requisitos
+
+| Herramienta | Versión |
 | --- | --- |
-| Horneros y Pichones | `/etapas/horneros-pichones` |
-| Caminantes y Chispistas | `/etapas/caminantes-chispistas` |
-| Pioneros y Fuegos | `/etapas/pioneros-fuegos` |
-| Rastreadores | `/etapas/rastreadores` |
-| Baqueanos | `/etapas/baqueanos` |
-| Soles | `/etapas/soles` |
+| 🟢 **Node.js** | 22 o superior |
+| 📦 **pnpm** | 9 o superior |
+| 🗄️ **PostgreSQL** | Supabase recomendado |
 
-En la página de cada etapa se muestran hasta cuatro publicaciones y una galería; si hay más contenido, aparece un botón para ver todo en una página dedicada.
-
----
-
-## ¿Cómo está hecho por dentro? (resumen breve)
-
-El proyecto se divide en dos partes que trabajan juntas:
-
-- **`client/`** — Lo que ve la gente en el navegador (diseño, menús, páginas).
-- **`server/`** — El motor que guarda y entrega datos (publicaciones, fotos, usuarios, eventos).
-
-Los datos viven en una base **PostgreSQL** (por ejemplo en Supabase). El repositorio usa **pnpm** para instalar dependencias de ambas partes a la vez.
-
----
-
-## Puesta en marcha (para quien desarrolla o mantiene el sitio)
-
-### Requisitos
-
-- **Node.js 22** o superior
-- **pnpm** 9 o superior (`corepack enable` suele bastar)
-- Base de datos **PostgreSQL** (Supabase recomendado)
-
-### Pasos básicos
+### 📋 Pasos básicos
 
 ```bash
 # 1. Instalar dependencias
 pnpm install
 
 # 2. Configurar variables de entorno
-#    Crear server/.env y client/.env con las claves necesarias
-#    (base de datos, JWT, correo del admin, URLs de mapas, etc.)
+#    Crear server/.env y client/.env
+#    (base de datos, JWT, admin, mapas, etc.)
 
 # 3. Preparar la base de datos
 pnpm prisma:migrate
@@ -96,45 +137,51 @@ pnpm prisma:seed
 pnpm dev
 ```
 
-- Sitio web: http://localhost:5173  
-- API del servidor: http://localhost:4000  
+| Dónde | URL |
+| --- | --- |
+| 🌐 Sitio web | http://localhost:5173 |
+| 🔌 API | http://localhost:4000 |
 
-Para probar desde el **celular en la misma red Wi‑Fi**, abrí en el teléfono `http://<IP-de-tu-PC>:5173` (la IP la muestra Vite al iniciar).
+📱 **Probar desde el celular (misma Wi‑Fi):** abrí `http://<IP-de-tu-PC>:5173` — la IP la muestra Vite al iniciar.
 
-### Base de datos con Supabase
+### 🗄️ Base de datos con Supabase
 
-1. En Supabase → **Project Settings → Database**.
-2. Copiá la URL del **Transaction pooler** (puerto `6543`) para `DATABASE_URL`.
-3. Copiá la URL **Direct** (puerto `5432`) para `DIRECT_URL`.
-4. Agregá `?pgbouncer=true&sslmode=require` en la URL del pooler si no viene incluido.
+1. Supabase → **Project Settings → Database**
+2. **Transaction pooler** (puerto `6543`) → `DATABASE_URL`
+3. **Direct** (puerto `5432`) → `DIRECT_URL`
+4. Agregá `?pgbouncer=true&sslmode=require` en el pooler si falta
 
 ---
 
-## Scripts útiles
+## 📜 Scripts útiles
 
 | Comando | Qué hace |
 | --- | --- |
-| `pnpm dev` | Levanta frontend y backend a la vez |
-| `pnpm dev:client` | Solo el sitio web |
-| `pnpm dev:server` | Solo la API |
-| `pnpm build` | Genera la versión de producción del frontend |
-| `pnpm start` | Inicia el servidor en producción |
-| `pnpm prisma:studio` | Abre un visor visual de la base de datos |
+| `pnpm dev` | 🚀 Frontend + backend juntos |
+| `pnpm dev:client` | 🖥️ Solo el sitio web |
+| `pnpm dev:server` | ⚡ Solo la API |
+| `pnpm build` | 📦 Versión de producción del frontend |
+| `pnpm start` | ▶️ Servidor en producción |
+| `pnpm prisma:studio` | 🔍 Visor visual de la base de datos |
 
 ---
 
-## Despliegue
+## ☁️ Despliegue
 
-En producción suele usarse:
+| Componente | Opciones habituales |
+| --- | --- |
+| 🖥️ Frontend | Vercel, Netlify |
+| ⚡ Backend | Railway, Render |
+| 🗄️ Base de datos | Supabase, Neon, Railway |
 
-- **Frontend** → Vercel, Netlify u otro hosting estático.
-- **Backend** → Railway, Render u otro servicio Node.
-- **Base de datos** → Supabase, Neon o Railway.
-
-Variables importantes en producción: `DATABASE_URL`, `JWT_SECRET`, `CLIENT_URL` en el servidor y `VITE_API_URL` en el cliente apuntando a la API publicada.
+Variables clave en producción: `DATABASE_URL`, `JWT_SECRET`, `CLIENT_URL` (servidor) y `VITE_API_URL` (cliente).
 
 ---
 
-## Licencia
+## 📄 Licencia
 
 MIT — ver [LICENSE](./LICENSE).
+
+<p align="center">
+  <sub>⛺ Batallón 11 Gral. José María Paz · Exploradores Argentinos de Don Bosco</sub>
+</p>
