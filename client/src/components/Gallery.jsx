@@ -2,20 +2,20 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 
-export default function Gallery({ title = 'Galeria', images = [] }) {
+export default function Gallery({ title = 'Galería', images = [] }) {
   const [active, setActive] = useState(null);
 
   return (
     <section id="galeria" className="public-band py-16 sm:py-24">
       <div className="container-app">
         <div className="max-w-2xl">
-          <span className="public-eyebrow">Galeria</span>
+          <span className="public-eyebrow">Galería</span>
           <h2 className="public-title mt-3">{title}</h2>
         </div>
 
         {images.length === 0 ? (
           <div className="mt-8 rounded-md border border-dashed border-slate-300 bg-stone-50 px-5 py-8 text-sm text-slate-500">
-            Proximamente imagenes.
+            Próximamente imágenes.
           </div>
         ) : (
           <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

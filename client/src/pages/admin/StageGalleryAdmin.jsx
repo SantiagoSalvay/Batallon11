@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import AdminStatus from '../../components/AdminStatus.jsx';
+import ConfirmDeleteButton from '../../components/ConfirmDeleteButton.jsx';
 
 export default function StageGalleryAdmin() {
   const { user } = useAuth();
@@ -25,8 +27,8 @@ export default function StageGalleryAdmin() {
   }, []); // eslint-disable-line
 
   const load = (slug) => {
-    if (!slug) return;
-    api.get('/stage-gallery', { params: { stageSlug: slug } }).then((r) => setImages(r.data));
+    if (!slug) return Promise.resolve();
+    return api.get('/stage-gallery', { params: { stageSlug: slug } }).then((r) => setImages(r.data));
   };
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function StageGalleryAdmin() {
       setFile(null);
       setCaption('');
       setOrder(0);
-      load(stageSlug);
+      await load(stageSlug);
       setStatus({ type: 'ok', msg: 'Imagen agregada' });
     } catch (err) {
       setStatus({ type: 'err', msg: err.response?.data?.message || 'Error al subir' });
@@ -55,9 +57,8 @@ export default function StageGalleryAdmin() {
   };
 
   const remove = async (img) => {
-    if (!confirm('Eliminar imagen?')) return;
     await api.delete(`/stage-gallery/${img.id}`);
-    load(stageSlug);
+    await load(stageSlug);
   };
 
   return (
@@ -67,7 +68,6 @@ export default function StageGalleryAdmin() {
       <div className="mt-6">
         <label className="label">Etapa</label>
         {isCoordinator ? (
-          
           <div className="field max-w-sm bg-white/5 cursor-not-allowed">
             {stages.find((s) => s.slug === stageSlug)?.name || '—'}
           </div>
@@ -82,17 +82,7 @@ export default function StageGalleryAdmin() {
         )}
       </div>
 
-      {status && (
-        <div
-          className={`mt-4 rounded-lg px-3 py-2 text-sm ${
-            status.type === 'ok'
-              ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30'
-              : 'bg-red-500/10 text-red-200 border border-red-500/30'
-          }`}
-        >
-          {status.msg}
-        </div>
-      )}
+      <AdminStatus status={status} />
 
       <form onSubmit={upload} className="card p-6 mt-6 space-y-4 max-w-2xl">
         <div>
@@ -118,7 +108,6 @@ export default function StageGalleryAdmin() {
               value={order}
               onChange={(e) => setOrder(Number(e.target.value))}
             />
-          
           </div>
         </div>
         <button className="btn-primary">Subir imagen</button>
@@ -129,9 +118,7 @@ export default function StageGalleryAdmin() {
           <div key={img.id} className="card overflow-hidden group relative">
             <img src={asset(img.imageUrl)} alt="" className="aspect-square w-full object-cover" />
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-              <button onClick={() => remove(img)} className="text-sm text-red-200 hover:text-red-100">
-                Eliminar
-              </button>
+              <ConfirmDeleteButton message="Eliminar imagen?" onConfirm={() => remove(img)} className="text-sm text-red-200 hover:text-red-100" />
             </div>
             {img.caption && (
               <div className="px-3 py-2 text-xs text-white/70 truncate">{img.caption}</div>

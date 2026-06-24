@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
+import AdminStatus from '../../components/AdminStatus.jsx';
+import ConfirmDeleteButton from '../../components/ConfirmDeleteButton.jsx';
 
 const EMPTY = { id: null, title: '', content: '', published: true };
 
@@ -38,7 +40,6 @@ export default function PostsAdmin() {
   };
 
   const remove = async (p) => {
-    if (!confirm(`Eliminar la publicación "${p.title}"?`)) return;
     await api.delete(`/posts/${p.id}`);
     await load();
   };
@@ -47,11 +48,7 @@ export default function PostsAdmin() {
     <div>
       <h1 className="text-2xl font-extrabold">Publicaciones generales</h1>
 
-      {status && (
-        <div className={`mt-4 rounded-lg px-3 py-2 text-sm ${status.type === 'ok' ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30' : 'bg-red-500/10 text-red-200 border border-red-500/30'}`}>
-          {status.msg}
-        </div>
-      )}
+      <AdminStatus status={status} />
 
       <form onSubmit={submit} className="card p-6 mt-6 space-y-4 max-w-3xl">
         <div className="flex items-center justify-between">
@@ -95,7 +92,7 @@ export default function PostsAdmin() {
               <div className="text-xs text-white/50">{new Date(p.createdAt).toLocaleString('es-AR')}</div>
             </div>
             <button onClick={() => setEditing(p)} className="btn-ghost text-sm">Editar</button>
-            <button onClick={() => remove(p)} className="text-sm text-red-300 hover:text-red-200 px-3 py-2">Eliminar</button>
+            <ConfirmDeleteButton message={`Eliminar la publicación "${p.title}"?`} onConfirm={() => remove(p)} />
           </div>
         ))}
       </div>

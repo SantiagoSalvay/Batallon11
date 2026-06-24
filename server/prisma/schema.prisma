@@ -21,9 +21,11 @@ model User {
   totpSecret      String?
   stageSlug       String?
   refreshSessions RefreshSession[]
+  backupCodes     TotpBackupCode[]
+  usedTotpCodes   UsedTotpCode[]
 
   @@index([stageSlug])
-  @@map("users")
+  @@map("usuarios")
 }
 
 model RefreshSession {
@@ -40,7 +42,7 @@ model RefreshSession {
 
   @@index([userId])
   @@index([expiresAt])
-  @@map("refresh_sessions")
+  @@map("sesiones_refresco")
 }
 
 model RevokedAccessJti {
@@ -48,7 +50,7 @@ model RevokedAccessJti {
   expiresAt DateTime
 
   @@index([expiresAt])
-  @@map("revoked_access_jti")
+  @@map("jti_acceso_revocado")
 }
 
 model Post {
@@ -61,7 +63,7 @@ model Post {
   updatedAt DateTime @updatedAt
 
   @@index([createdAt])
-  @@map("posts")
+  @@map("publicaciones")
 }
 
 model StagePost {
@@ -75,7 +77,7 @@ model StagePost {
   stageSlug String
 
   @@index([stageSlug, createdAt])
-  @@map("stage_posts")
+  @@map("publicaciones_etapa")
 }
 
 model GalleryImage {
@@ -86,7 +88,7 @@ model GalleryImage {
   createdAt DateTime @default(now())
 
   @@index([order])
-  @@map("gallery_images")
+  @@map("imagenes_galeria")
 }
 
 model StageGalleryImage {
@@ -98,7 +100,7 @@ model StageGalleryImage {
   stageSlug String
 
   @@index([stageSlug, order])
-  @@map("stage_gallery_images")
+  @@map("imagenes_galeria_etapa")
 }
 
 model Event {
@@ -112,11 +114,49 @@ model Event {
   updatedAt   DateTime @updatedAt
 
   @@index([date])
-  @@map("events")
+  @@map("eventos")
+}
+
+model AdminAccessChallenge {
+  id        String    @id
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([expiresAt])
+  @@map("desafios_acceso_admin")
+}
+
+model UsedTotpCode {
+  id        String   @id
+  userId    Int
+  codeHash  String
+  usedAt    DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@index([userId, codeHash])
+  @@map("codigos_totp_usados")
+}
+
+model TotpBackupCode {
+  id        String    @id
+  userId    Int
+  codeHash  String    @unique
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("codigos_respaldo_totp")
 }
 
 enum Role {
   ADMIN
   EDITOR
   COORDINATOR
+
+  @@map("Rol")
 }

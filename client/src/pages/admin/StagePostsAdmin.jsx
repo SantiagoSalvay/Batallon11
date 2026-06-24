@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import AdminStatus from '../../components/AdminStatus.jsx';
+import ConfirmDeleteButton from '../../components/ConfirmDeleteButton.jsx';
 
 const EMPTY = { id: null, title: '', content: '', stageSlug: '', published: true };
 
@@ -26,8 +28,8 @@ export default function StagePostsAdmin() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const load = (stageSlug) => {
-    if (!stageSlug) return;
-    api.get('/stage-posts', { params: { stageSlug } }).then((r) => setPosts(r.data));
+    if (!stageSlug) return Promise.resolve();
+    return api.get('/stage-posts', { params: { stageSlug } }).then((r) => setPosts(r.data));
   };
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function StagePostsAdmin() {
 
       setEditing(EMPTY);
       setImage(null);
-      load(selectedStage);
+      await load(selectedStage);
       setStatus({ type: 'ok', msg: 'Publicación guardada' });
     } catch (err) {
       setStatus({ type: 'err', msg: err.response?.data?.message || 'Error al guardar' });
@@ -58,16 +60,14 @@ export default function StagePostsAdmin() {
   };
 
   const remove = async (p) => {
-    if (!confirm(`Eliminar "${p.title}"?`)) return;
     await api.delete(`/stage-posts/${p.id}`);
-    load(selectedStage);
+    await load(selectedStage);
   };
 
   return (
     <div>
       <h1 className="text-2xl font-extrabold">Publicaciones por etapa</h1>
 
-      
       <div className="mt-6">
         <label className="label">Etapa</label>
         {isCoordinator ? (
@@ -89,17 +89,7 @@ export default function StagePostsAdmin() {
         )}
       </div>
 
-      {status && (
-        <div
-          className={`mt-4 rounded-lg px-3 py-2 text-sm ${
-            status.type === 'ok'
-              ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30'
-              : 'bg-red-500/10 text-red-200 border border-red-500/30'
-          }`}
-        >
-          {status.msg}
-        </div>
-      )}
+      <AdminStatus status={status} />
 
       <form onSubmit={submit} className="card p-6 mt-6 space-y-4 max-w-3xl">
         <div className="flex items-center justify-between">
@@ -164,7 +154,6 @@ export default function StagePostsAdmin() {
 
       <div className="mt-8 space-y-3">
         {posts.map((p) => (
-          
           <div key={p.id} className="card p-4 flex items-center gap-4">
             {p.imageUrl ? (
               <img src={asset(p.imageUrl)} alt="" className="h-14 w-20 rounded-lg object-cover" />
@@ -181,9 +170,7 @@ export default function StagePostsAdmin() {
             >
               Editar
             </button>
-            <button onClick={() => remove(p)} className="text-sm text-red-300 hover:text-red-200 px-3 py-2">
-              Eliminar
-            </button>
+            <ConfirmDeleteButton message={`Eliminar "${p.title}"?`} onConfirm={() => remove(p)} />
           </div>
         ))}
         {posts.length === 0 && (

@@ -21,11 +21,11 @@ export default function EventsSection({ events = [] }) {
         <div className="grid gap-6 border-b border-slate-200 pb-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
           <div>
             <span className="public-eyebrow">Agenda</span>
-            <h2 className="public-title mt-3">Proximas actividades</h2>
+            <h2 className="public-title mt-3">Próximas actividades</h2>
           </div>
           <p className="public-copy max-w-2xl lg:ml-auto">
             Campamentos, encuentros, salidas y momentos importantes de la vida
-            del batallon.
+            del batallón.
           </p>
         </div>
 
