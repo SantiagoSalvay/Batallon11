@@ -13,6 +13,18 @@ const {
 
 const sitePostWhere = { published: true, stageSlug: null };
 
+// Copia la imagen de una publicación del home a la galería del home.
+async function mirrorImageToHomeGallery(file, caption) {
+  if (!file?.galleryFile) return;
+  await prisma.imagenGaleria.create({
+    data: {
+      imageUrl: fileToStorageReference(file.galleryFile),
+      caption: caption || null,
+      order: 0,
+    },
+  });
+}
+
 async function listPosts(req, res, next) {
   try {
     const take = Math.min(Number(req.query.limit) || 20, 100);
@@ -57,6 +69,7 @@ async function createPost(req, res, next) {
 
     if (req.file) {
       await setPostImage(post.id, fileToStorageReference(req.file));
+      await mirrorImageToHomeGallery(req.file, title);
     }
 
     const withImage = await prisma.publicacion.findUnique({
@@ -90,6 +103,7 @@ async function updatePost(req, res, next) {
       const imageUrl = fileToStorageReference(req.file);
       const previousUrl = await setPostImage(id, imageUrl);
       deleteOldFileFromUrl(fs, previousUrl, uploadDir);
+      await mirrorImageToHomeGallery(req.file, title ?? current.title);
     }
 
     const post = await prisma.publicacion.findUnique({

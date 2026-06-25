@@ -57,8 +57,6 @@ async function bufferToWebpDisk(buffer, context = {}) {
     throw err;
   }
 
-  const outName = `${crypto.randomBytes(16).toString('hex')}.webp`;
-
   const webpBuffer = await sharp(buffer, {
     animated: false,
     limitInputPixels: MAX_PIXELS,
@@ -68,36 +66,48 @@ async function bufferToWebpDisk(buffer, context = {}) {
     .withMetadata(false)
     .toBuffer();
 
-  if (isStorageConfigured()) {
-    const storageKey = buildStorageKey({
-      kind: context.kind,
+  const file = await persistWebp(webpBuffer, {
+    kind: context.kind,
+    stageSlug: context.stageSlug,
+  });
+
+  // Para publicaciones: además se genera una copia independiente en la
+  // galería (de la etapa o del home), expuesta como file.galleryFile.
+  if (context.mirrorToGallery) {
+    file.galleryFile = await persistWebp(webpBuffer, {
+      kind: 'galerias',
       stageSlug: context.stageSlug,
-      filename: outName,
     });
-    await uploadBuffer(storageKey, webpBuffer, 'image/webp');
-    return {
-      fieldname: undefined,
-      originalname: outName,
-      encoding: '7bit',
-      mimetype: 'image/webp',
-      filename: outName,
-      storageKey,
-      size: webpBuffer.length,
-    };
   }
 
-  const outPath = path.join(uploadDir, outName);
-  await fs.promises.writeFile(outPath, webpBuffer);
-  const stat = await fs.promises.stat(outPath);
-  return {
+  return file;
+}
+
+/**
+ * Guarda un buffer webp en Supabase Storage (si está configurado) o en disco,
+ * y devuelve un descriptor compatible con fileToStorageReference.
+ */
+async function persistWebp(webpBuffer, { kind, stageSlug }) {
+  const outName = `${crypto.randomBytes(16).toString('hex')}.webp`;
+  const base = {
     fieldname: undefined,
     originalname: outName,
     encoding: '7bit',
     mimetype: 'image/webp',
     filename: outName,
-    path: outPath,
-    size: stat.size,
+    size: webpBuffer.length,
   };
+
+  if (isStorageConfigured()) {
+    const storageKey = buildStorageKey({ kind, stageSlug, filename: outName });
+    await uploadBuffer(storageKey, webpBuffer, 'image/webp');
+    return { ...base, storageKey };
+  }
+
+  const outPath = path.join(uploadDir, outName);
+  await fs.promises.writeFile(outPath, webpBuffer);
+  const stat = await fs.promises.stat(outPath);
+  return { ...base, path: outPath, size: stat.size };
 }
 async function processOneMulterFile(file, context) {
   if (!file || !file.buffer) return file;
@@ -110,10 +120,12 @@ async function processOneMulterFile(file, context) {
 /**
  * Middleware que marca el tipo de contenido del upload ('publicaciones' o
  * 'galerias') para que processUploadedImages lo guarde en la carpeta correcta.
+ * Con { mirrorToGallery: true } la imagen también se copia a la galería.
  */
-function tagUploadKind(kind) {
+function tagUploadKind(kind, { mirrorToGallery = false } = {}) {
   return (req, _res, next) => {
     req.uploadKind = kind;
+    req.mirrorToGallery = mirrorToGallery;
     next();
   };
 }
@@ -123,6 +135,7 @@ async function processUploadedImages(req, res, next) {
     const context = {
       kind: req.uploadKind || 'publicaciones',
       stageSlug: req.body?.stageSlug || req.user?.stageSlug || null,
+      mirrorToGallery: Boolean(req.mirrorToGallery),
     };
     if (req.file) {
       req.file = await processOneMulterFile(req.file, context);
