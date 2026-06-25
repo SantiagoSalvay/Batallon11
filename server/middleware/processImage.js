@@ -3,7 +3,11 @@ const path = require('path');
 const crypto = require('crypto');
 const sharp = require('sharp');
 const { uploadDir } = require('./upload');
-const { isStorageConfigured, uploadBuffer } = require('../utils/supabaseStorage');
+const {
+  isStorageConfigured,
+  uploadBuffer,
+  buildStorageKey,
+} = require('../utils/supabaseStorage');
 
 let fileTypeFromBufferFn;
 async function detectMimeFromBuffer(buffer) {
@@ -18,7 +22,7 @@ const MAX_PIXELS = Number(process.env.MAX_IMAGE_PIXELS ?? 25_000_000);
 const MAX_EDGE = Number(process.env.MAX_IMAGE_EDGE_PX ?? 8192);
 const QUALITY = Number(process.env.WEBP_QUALITY ?? 86);
 
-async function bufferToWebpDisk(buffer) {
+async function bufferToWebpDisk(buffer, context = {}) {
   const type = await detectMimeFromBuffer(buffer);
   if (!type || !ALLOWED_BEFORE_WEBP.has(type.mime)) {
     const err = new Error('Tipo de imagen no permitido o archivo no reconocido');
@@ -65,8 +69,11 @@ async function bufferToWebpDisk(buffer) {
     .toBuffer();
 
   if (isStorageConfigured()) {
-    const prefix = (process.env.SUPABASE_STORAGE_PREFIX || 'uploads').replace(/\/$/, '');
-    const storageKey = `${prefix}/${outName}`;
+    const storageKey = buildStorageKey({
+      kind: context.kind,
+      stageSlug: context.stageSlug,
+      filename: outName,
+    });
     await uploadBuffer(storageKey, webpBuffer, 'image/webp');
     return {
       fieldname: undefined,
@@ -92,24 +99,39 @@ async function bufferToWebpDisk(buffer) {
     size: stat.size,
   };
 }
-async function processOneMulterFile(file) {
+async function processOneMulterFile(file, context) {
   if (!file || !file.buffer) return file;
-  const processed = await bufferToWebpDisk(file.buffer);
+  const processed = await bufferToWebpDisk(file.buffer, context);
   processed.fieldname = file.fieldname;
   processed.originalname = file.originalname;
   return processed;
 }
 
+/**
+ * Middleware que marca el tipo de contenido del upload ('publicaciones' o
+ * 'galerias') para que processUploadedImages lo guarde en la carpeta correcta.
+ */
+function tagUploadKind(kind) {
+  return (req, _res, next) => {
+    req.uploadKind = kind;
+    next();
+  };
+}
+
 async function processUploadedImages(req, res, next) {
   try {
+    const context = {
+      kind: req.uploadKind || 'publicaciones',
+      stageSlug: req.body?.stageSlug || req.user?.stageSlug || null,
+    };
     if (req.file) {
-      req.file = await processOneMulterFile(req.file);
+      req.file = await processOneMulterFile(req.file, context);
     }
     if (req.files && typeof req.files === 'object') {
       for (const key of Object.keys(req.files)) {
         const arr = req.files[key];
         if (!Array.isArray(arr)) continue;
-        req.files[key] = await Promise.all(arr.map((f) => processOneMulterFile(f)));
+        req.files[key] = await Promise.all(arr.map((f) => processOneMulterFile(f, context)));
       }
     }
     next();
@@ -118,4 +140,4 @@ async function processUploadedImages(req, res, next) {
   }
 }
 
-module.exports = { processUploadedImages, bufferToWebpDisk };
+module.exports = { processUploadedImages, bufferToWebpDisk, tagUploadKind };

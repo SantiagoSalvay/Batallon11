@@ -7,7 +7,7 @@ const {
 } = require('../controllers/stageGalleryController');
 const { authRequired, requireRole, requireStageScope } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
-const { processUploadedImages } = require('../middleware/processImage');
+const { processUploadedImages, tagUploadKind } = require('../middleware/processImage');
 const { uploadLimiter } = require('../middleware/uploadLimiter');
 const { validateBody } = require('../middleware/validateRequest');
 const { stageGalleryImageSchema } = require('../schemas/contentSchemas');
@@ -18,6 +18,7 @@ router.post(
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   uploadLimiter,
+  tagUploadKind('galerias'),
   upload.single('image'),
   processUploadedImages,
   requireStageScope,
@@ -29,6 +30,7 @@ router.put(
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   uploadLimiter,
+  tagUploadKind('galerias'),
   upload.single('image'),
   processUploadedImages,
   requireStageScope,

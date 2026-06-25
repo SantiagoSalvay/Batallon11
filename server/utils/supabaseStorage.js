@@ -36,6 +36,42 @@ function getS3Client() {
   return s3Client;
 }
 
+// Carpeta principal según el tipo de contenido.
+const KIND_FOLDER = {
+  publicaciones: 'Publicaciones',
+  galerias: 'Galerias',
+};
+
+// Subcarpeta por etapa dentro de cada carpeta principal.
+const STAGE_FOLDER = {
+  'horneros-pichones': 'HyP',
+  'caminantes-chispistas': 'Cyc',
+  'pioneros-fuegos': 'PyF',
+  rastreadores: 'RyH',
+  baqueanos: 'ByA',
+  soles: 'Sol',
+};
+
+// Contenido sin etapa (home / general) va a esta subcarpeta.
+const DEFAULT_STAGE_FOLDER = 'Home';
+
+function stageFolder(stageSlug) {
+  if (!stageSlug) return DEFAULT_STAGE_FOLDER;
+  return STAGE_FOLDER[stageSlug] || DEFAULT_STAGE_FOLDER;
+}
+
+function topFolder(kind) {
+  return KIND_FOLDER[kind] || KIND_FOLDER.publicaciones;
+}
+
+/**
+ * Arma la key del objeto en el bucket según tipo (publicaciones/galerias),
+ * etapa y nombre de archivo. Ej: "Publicaciones/HyP/abc123.webp".
+ */
+function buildStorageKey({ kind, stageSlug, filename }) {
+  return `${topFolder(kind)}/${stageFolder(stageSlug)}/${filename}`;
+}
+
 function encodeObjectKey(key) {
   return key
     .replace(/^\//, '')
@@ -111,4 +147,5 @@ module.exports = {
   resolveStorageUrl,
   uploadBuffer,
   deleteStorageObject,
+  buildStorageKey,
 };

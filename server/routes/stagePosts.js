@@ -8,7 +8,7 @@ const {
 const { authRequired, requireRole, requireStageScope } = require('../middleware/auth');
 const { attachUserOptional } = require('../middleware/attachUserOptional');
 const { upload } = require('../middleware/upload');
-const { processUploadedImages } = require('../middleware/processImage');
+const { processUploadedImages, tagUploadKind } = require('../middleware/processImage');
 const { uploadLimiter } = require('../middleware/uploadLimiter');
 const { validateBody } = require('../middleware/validateRequest');
 const {
@@ -22,6 +22,7 @@ router.post(
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   uploadLimiter,
+  tagUploadKind('publicaciones'),
   upload.single('image'),
   processUploadedImages,
   requireStageScope,
@@ -33,6 +34,7 @@ router.put(
   authRequired,
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   uploadLimiter,
+  tagUploadKind('publicaciones'),
   upload.single('image'),
   processUploadedImages,
   requireStageScope,
