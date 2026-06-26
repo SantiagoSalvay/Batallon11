@@ -1,8 +1,14 @@
 const fs = require('fs');
 const prisma = require('../config/prisma');
-const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
+const {
+  fileToStorageReference,
+  withResolvedImageUrl,
+  withResolvedImageUrlList,
+  deleteOldFileFromUrl,
+} = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
 const { isValidStageSlug } = require('../lib/stages');
+const { audit } = require('../utils/auditLog');
 
 async function listImagesBySlug(req, res, next) {
   try {
@@ -11,11 +17,11 @@ async function listImagesBySlug(req, res, next) {
       return res.status(404).json({ message: 'Etapa no encontrada' });
     }
 
-    const images = await prisma.stageGalleryImage.findMany({
+    const images = await prisma.imagenGaleriaEtapa.findMany({
       where: { stageSlug: slug },
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
-    res.json(images);
+    res.json(withResolvedImageUrlList(images));
   } catch (err) {
     next(err);
   }
@@ -29,11 +35,11 @@ async function listImagesByStageSlug(req, res, next) {
       return res.status(404).json({ message: 'Etapa no encontrada' });
     }
 
-    const images = await prisma.stageGalleryImage.findMany({
+    const images = await prisma.imagenGaleriaEtapa.findMany({
       where: { stageSlug },
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
-    res.json(images);
+    res.json(withResolvedImageUrlList(images));
   } catch (err) {
     next(err);
   }
@@ -48,15 +54,15 @@ async function createImage(req, res, next) {
       return res.status(400).json({ message: 'Etapa no válida' });
     }
 
-    const image = await prisma.stageGalleryImage.create({
+    const image = await prisma.imagenGaleriaEtapa.create({
       data: {
-        imageUrl: fileToPublicUrl(req.file),
+        imageUrl: fileToStorageReference(req.file),
         caption: caption || null,
         order: order !== undefined ? Number(order) : 0,
         stageSlug,
       },
     });
-    res.status(201).json(image);
+    res.status(201).json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
   }
@@ -65,7 +71,7 @@ async function createImage(req, res, next) {
 async function updateImage(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.stageGalleryImage.findUnique({ where: { id } });
+    const current = await prisma.imagenGaleriaEtapa.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
 
     if (req.user?.role === 'COORDINATOR' && current.stageSlug !== req.user.stageSlug) {
@@ -83,11 +89,11 @@ async function updateImage(req, res, next) {
       return res.status(400).json({ message: 'Etapa no válida' });
     }
     if (req.file) {
-      data.imageUrl = fileToPublicUrl(req.file);
+      data.imageUrl = fileToStorageReference(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
-    const image = await prisma.stageGalleryImage.update({ where: { id }, data });
-    res.json(image);
+    const image = await prisma.imagenGaleriaEtapa.update({ where: { id }, data });
+    res.json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
   }
@@ -96,13 +102,14 @@ async function updateImage(req, res, next) {
 async function deleteImage(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.stageGalleryImage.findUnique({ where: { id } });
+    const current = await prisma.imagenGaleriaEtapa.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
     if (req.user?.role === 'COORDINATOR' && current.stageSlug !== req.user.stageSlug) {
       return res.status(403).json({ message: 'No autorizado para esta etapa' });
     }
-    await prisma.stageGalleryImage.delete({ where: { id } });
+    await prisma.imagenGaleriaEtapa.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    audit(req, 'stage_gallery.delete', { imageId: id, stageSlug: current.stageSlug });
     res.json({ ok: true });
   } catch (err) {
     next(err);

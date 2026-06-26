@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { api } from '../services/api.js';
+import { getStoredGateToken, clearGateToken } from '../lib/adminAccess.js';
 
 const AuthContext = createContext(null);
 
@@ -24,14 +25,18 @@ export function AuthProvider({ children }) {
   }, [loadMe]);
 
   const login = async (email, password, totpCode, turnstileToken) => {
-    const { data } = await api.post('/auth/login', {
-      email,
-      password,
-      totpCode,
-      turnstileToken,
-    });
-    setUser(data.user);
-    return data.user;
+    const gateToken = getStoredGateToken();
+    try {
+      const { data } = await api.post(
+        '/auth/login',
+        { email, password, totpCode, turnstileToken },
+        { headers: { 'X-Admin-Gate': gateToken } }
+      );
+      setUser(data.user);
+      return data.user;
+    } finally {
+      clearGateToken();
+    }
   };
 
   const logout = async () => {

@@ -1,8 +1,14 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const sharp = require('sharp');
 const { uploadDir } = require('./upload');
+const {
+  isStorageConfigured,
+  uploadBuffer,
+  buildStorageKey,
+  publicationFolder,
+} = require('../utils/supabaseStorage');
 
 let fileTypeFromBufferFn;
 async function detectMimeFromBuffer(buffer) {
@@ -12,10 +18,12 @@ async function detectMimeFromBuffer(buffer) {
   return (await fileTypeFromBufferFn)(buffer);
 }
 
-/** Entradas permitidas antes de re-encode a WebP (sin SVG). */
 const ALLOWED_BEFORE_WEBP = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const MAX_PIXELS = Number(process.env.MAX_IMAGE_PIXELS ?? 25_000_000);
+const MAX_EDGE = Number(process.env.MAX_IMAGE_EDGE_PX ?? 8192);
+const QUALITY = Number(process.env.WEBP_QUALITY ?? 86);
 
-async function bufferToWebpDisk(buffer) {
+async function bufferToWebpDisk(buffer, context = {}) {
   const type = await detectMimeFromBuffer(buffer);
   if (!type || !ALLOWED_BEFORE_WEBP.has(type.mime)) {
     const err = new Error('Tipo de imagen no permitido o archivo no reconocido');
@@ -23,49 +31,124 @@ async function bufferToWebpDisk(buffer) {
     throw err;
   }
 
-  const outName = `${Date.now()}-${crypto.randomBytes(10).toString('hex')}.webp`;
-  const outPath = path.join(uploadDir, outName);
+  let meta;
+  try {
+    meta = await sharp(buffer, {
+      animated: false,
+      limitInputPixels: MAX_PIXELS,
+    }).metadata();
+  } catch {
+    const err = new Error('Imagen invalida o demasiado grande para leer');
+    err.status = 400;
+    throw err;
+  }
 
-  await sharp(buffer, { animated: false, limitInputPixels: 268402689 })
+  const { width = 0, height = 0 } = meta;
+  if (
+    width === 0 ||
+    height === 0 ||
+    width > MAX_EDGE ||
+    height > MAX_EDGE ||
+    width * height > MAX_PIXELS
+  ) {
+    const err = new Error(
+      `Imagen demasiado grande (max ${MAX_EDGE}px por lado, ${MAX_PIXELS} pixeles totales)`
+    );
+    err.status = 400;
+    throw err;
+  }
+
+  const webpBuffer = await sharp(buffer, {
+    animated: false,
+    limitInputPixels: MAX_PIXELS,
+  })
     .rotate()
-    .webp({ quality: 86, effort: 4 })
-    .toFile(outPath);
+    .webp({ quality: QUALITY, effort: 4 })
+    .withMetadata(false)
+    .toBuffer();
 
-  const stat = await fs.promises.stat(outPath);
-  return {
+  const file = await persistWebp(webpBuffer, {
+    kind: context.kind,
+    stageSlug: context.stageSlug,
+    folder: context.folder,
+  });
+
+  // Para publicaciones: tambien se genera una copia independiente en galeria.
+  if (context.mirrorToGallery) {
+    file.galleryFile = await persistWebp(webpBuffer, {
+      kind: 'galerias',
+      stageSlug: context.stageSlug,
+    });
+  }
+
+  return file;
+}
+
+/**
+ * Guarda un buffer webp en Supabase Storage (si esta configurado) o en disco,
+ * y devuelve un descriptor compatible con fileToStorageReference.
+ */
+async function persistWebp(webpBuffer, { kind, stageSlug, folder }) {
+  const outName = `${crypto.randomBytes(16).toString('hex')}.webp`;
+  const base = {
     fieldname: undefined,
     originalname: outName,
     encoding: '7bit',
     mimetype: 'image/webp',
     filename: outName,
-    path: outPath,
-    size: stat.size,
+    size: webpBuffer.length,
   };
+
+  if (isStorageConfigured()) {
+    const storageKey = buildStorageKey({ kind, stageSlug, folder, filename: outName });
+    await uploadBuffer(storageKey, webpBuffer, 'image/webp');
+    return { ...base, storageKey };
+  }
+
+  const outPath = path.join(uploadDir, outName);
+  await fs.promises.writeFile(outPath, webpBuffer);
+  const stat = await fs.promises.stat(outPath);
+  return { ...base, path: outPath, size: stat.size };
 }
 
-async function processOneMulterFile(file) {
+async function processOneMulterFile(file, context) {
   if (!file || !file.buffer) return file;
-  const processed = await bufferToWebpDisk(file.buffer);
+  const processed = await bufferToWebpDisk(file.buffer, context);
   processed.fieldname = file.fieldname;
   processed.originalname = file.originalname;
   return processed;
 }
 
 /**
- * Tras multer: convierte req.file / req.files a WebP en disco.
+ * Middleware que marca el tipo de contenido del upload ('publicaciones' o
+ * 'galerias') para que processUploadedImages lo guarde en la carpeta correcta.
+ * Con { mirrorToGallery: true } la imagen tambien se copia a la galeria.
  */
+function tagUploadKind(kind, { groupByPublication = false, mirrorToGallery = false } = {}) {
+  return (req, _res, next) => {
+    req.uploadKind = kind;
+    req.groupUploadByPublication = groupByPublication;
+    req.mirrorToGallery = mirrorToGallery;
+    next();
+  };
+}
+
 async function processUploadedImages(req, res, next) {
   try {
+    const context = {
+      kind: req.uploadKind || 'publicaciones',
+      stageSlug: req.body?.stageSlug || req.user?.stageSlug || null,
+      folder: req.groupUploadByPublication ? publicationFolder(req.body?.title) : null,
+      mirrorToGallery: Boolean(req.mirrorToGallery),
+    };
     if (req.file) {
-      req.file = await processOneMulterFile(req.file);
+      req.file = await processOneMulterFile(req.file, context);
     }
-    if (Array.isArray(req.files)) {
-      req.files = await Promise.all(req.files.map((file) => processOneMulterFile(file)));
-    } else if (req.files && typeof req.files === 'object') {
+    if (req.files && typeof req.files === 'object') {
       for (const key of Object.keys(req.files)) {
         const arr = req.files[key];
         if (!Array.isArray(arr)) continue;
-        req.files[key] = await Promise.all(arr.map((file) => processOneMulterFile(file)));
+        req.files[key] = await Promise.all(arr.map((f) => processOneMulterFile(f, context)));
       }
     }
     next();
@@ -74,4 +157,4 @@ async function processUploadedImages(req, res, next) {
   }
 }
 
-module.exports = { processUploadedImages, bufferToWebpDisk };
+module.exports = { processUploadedImages, bufferToWebpDisk, tagUploadKind };

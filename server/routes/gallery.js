@@ -7,26 +7,32 @@ const {
 } = require('../controllers/galleryController');
 const { authRequired, requireRole } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
-const { processUploadedImages } = require('../middleware/processImage');
+const { processUploadedImages, tagUploadKind } = require('../middleware/processImage');
 const { uploadLimiter } = require('../middleware/uploadLimiter');
+const { validateBody } = require('../middleware/validateRequest');
+const { galleryImageSchema } = require('../schemas/contentSchemas');
 
 router.get('/', listImages);
 router.post(
   '/',
-  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR'),
+  uploadLimiter,
+  tagUploadKind('galerias'),
   upload.single('image'),
   processUploadedImages,
+  validateBody(galleryImageSchema),
   createImage
 );
 router.put(
   '/:id',
-  uploadLimiter,
   authRequired,
   requireRole('ADMIN', 'EDITOR'),
+  uploadLimiter,
+  tagUploadKind('galerias'),
   upload.single('image'),
   processUploadedImages,
+  validateBody(galleryImageSchema.partial()),
   updateImage
 );
 router.delete('/:id', authRequired, requireRole('ADMIN', 'EDITOR'), deleteImage);

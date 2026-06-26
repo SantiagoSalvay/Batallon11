@@ -7,9 +7,9 @@ const MOBILE_BREAKPOINT = 768;
 
 const INFO_LINKS = [
   { target: 'top', label: 'Inicio' },
-  { target: 'quienes-somos', label: 'Quiénes somos' },
+  { target: 'quienes-somos', label: 'Quienes somos' },
   { target: 'etapas', label: 'Etapas' },
-  { target: 'conocenos', label: 'Visitarnos' },
+  { target: 'conocenos', label: 'Ubicación' },
   { target: 'eventos', label: 'Eventos' },
   { target: 'contacto', label: 'Contacto' },
 ];
@@ -65,18 +65,18 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <img
               src={BRAND_LOGO}
-              alt="Batallón 11"
+              alt="Batallon 11"
               className="h-14 w-14 object-contain"
             />
             <div>
-              <div className="font-display text-lg font-extrabold">Batallón 11</div>
+              <div className="font-display text-lg font-extrabold">Batallon 11</div>
               <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                Gral. José María Paz
+                Gral. Jose Maria Paz
               </div>
             </div>
           </div>
           <p className="mt-4 max-w-md text-sm leading-6 text-slate-600">
-            Exploradores Argentinos de Don Bosco. Comunidad, formación,
+            Exploradores Argentinos de Don Bosco. Comunidad, formacion,
             aventura y servicio.
           </p>
           <img
@@ -89,7 +89,7 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-display font-extrabold">Información</h4>
+          <h4 className="font-display font-extrabold">Informacion</h4>
           <ul className="mt-4 space-y-2 text-sm">
             {INFO_LINKS.map((l) => (
               <li key={l.target}>
@@ -200,7 +200,7 @@ export default function Footer() {
 
       <div className="hidden border-t border-slate-200 md:block">
         <div className="container-app py-4 text-center text-xs text-slate-500">
-          {new Date().getFullYear()} Batallón 11 - Exploradores Argentinos de
+          {new Date().getFullYear()} Batallon 11 - Exploradores Argentinos de
           Don Bosco.
         </div>
       </div>

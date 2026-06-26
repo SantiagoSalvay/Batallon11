@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
-import AdminStatus from '../../components/AdminStatus.jsx';
-import ConfirmDeleteButton from '../../components/ConfirmDeleteButton.jsx';
 
 export default function GalleryAdmin() {
   const [images, setImages] = useState([]);
@@ -37,6 +35,7 @@ export default function GalleryAdmin() {
   };
 
   const remove = async (img) => {
+    if (!confirm('Eliminar imagen?')) return;
     await api.delete(`/gallery/${img.id}`);
     await load();
   };
@@ -45,7 +44,11 @@ export default function GalleryAdmin() {
     <div>
       <h1 className="text-2xl font-extrabold">Galería general</h1>
 
-      <AdminStatus status={status} />
+      {status && (
+        <div className={`mt-4 rounded-lg px-3 py-2 text-sm ${status.type === 'ok' ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30' : 'bg-red-500/10 text-red-200 border border-red-500/30'}`}>
+          {status.msg}
+        </div>
+      )}
 
       <form onSubmit={upload} className="card p-6 mt-6 space-y-4 max-w-2xl">
         <div>
@@ -70,7 +73,7 @@ export default function GalleryAdmin() {
           <div key={img.id} className="card overflow-hidden group relative">
             <img src={asset(img.imageUrl)} alt="" className="aspect-square w-full object-cover" />
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-              <ConfirmDeleteButton message="Eliminar imagen?" onConfirm={() => remove(img)} className="text-sm text-red-200 hover:text-red-100" />
+              <button onClick={() => remove(img)} className="text-sm text-red-200 hover:text-red-100">Eliminar</button>
             </div>
             {img.caption && <div className="px-3 py-2 text-xs text-white/70 truncate">{img.caption}</div>}
           </div>

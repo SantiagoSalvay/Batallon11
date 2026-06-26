@@ -7,6 +7,13 @@ function generateCsrfValue() {
   return crypto.randomBytes(32).toString('hex');
 }
 
+function safeCompare(a, b) {
+  const bufA = Buffer.from(String(a ?? ''));
+  const bufB = Buffer.from(String(b ?? ''));
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 function ensureCsrfCookie(req, res) {
   let token = req.cookies?.[COOKIE_CSRF];
   if (!token || typeof token !== 'string' || token.length < 32) {
@@ -16,9 +23,6 @@ function ensureCsrfCookie(req, res) {
   return token;
 }
 
-/**
- * Double-submit: valor en cookie legible por el cliente + header X-CSRF-Token.
- */
 function requireCsrf(req, res, next) {
   if (SAFE_METHODS.has(req.method)) {
     return next();
@@ -28,7 +32,8 @@ function requireCsrf(req, res, next) {
   if (
     pathOnly.endsWith('/auth/login') ||
     pathOnly.endsWith('/auth/refresh') ||
-    pathOnly.endsWith('/auth/prepare')
+    pathOnly.endsWith('/auth/prepare') ||
+    pathOnly.endsWith('/auth/gate')
   ) {
     return next();
   }
@@ -36,10 +41,10 @@ function requireCsrf(req, res, next) {
   const cookieVal = req.cookies?.[COOKIE_CSRF];
   const headerVal = req.get('x-csrf-token');
 
-  if (!cookieVal || !headerVal || cookieVal !== headerVal) {
+  if (!cookieVal || !headerVal || !safeCompare(cookieVal, headerVal)) {
     return res.status(403).json({ message: 'CSRF token inválido o ausente.' });
   }
   next();
 }
 
-module.exports = { ensureCsrfCookie, requireCsrf };
+module.exports = { ensureCsrfCookie, requireCsrf, generateCsrfValue, safeCompare };

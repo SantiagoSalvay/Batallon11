@@ -24,7 +24,7 @@ export default function StagesGrid({ stages = [] }) {
           </div>
           <p className="public-copy max-w-2xl lg:ml-auto">
             Cada etapa tiene su identidad, sus actividades y su forma de
-            acompañar el crecimiento dentro del batallón.
+            acompanar el crecimiento dentro del batallon.
           </p>
         </div>
 

@@ -3,6 +3,8 @@ const {
   listStagesMerged,
   getStageMergedBySlug,
 } = require('../lib/stages');
+const { postInclude, toPostApiList } = require('../utils/publicacionApi');
+const { withResolvedImageUrlList } = require('../utils/fileUrl');
 
 async function listStages(_req, res, next) {
   try {
@@ -19,26 +21,29 @@ async function getStageBySlug(req, res, next) {
       return res.status(404).json({ message: 'Etapa no encontrada' });
     }
 
-    let publicaciones = [];
+    let posts = [];
     let gallery = [];
     try {
-      [publicaciones, gallery] = await Promise.all([
+      [posts, gallery] = await Promise.all([
         prisma.publicacion.findMany({
-          where: { etapaSlug: stage.slug, publicada: true },
-          include: { imagenes: { orderBy: [{ orden: 'asc' }, { creadaEn: 'asc' }] } },
-          orderBy: { creadaEn: 'desc' },
+          where: { stageSlug: stage.slug, published: true },
+          include: postInclude,
+          orderBy: { createdAt: 'desc' },
           take: 10,
         }),
-        prisma.stageGalleryImage.findMany({
+        prisma.imagenGaleriaEtapa.findMany({
           where: { stageSlug: stage.slug },
           orderBy: { order: 'asc' },
         }),
       ]);
+      posts = toPostApiList(posts);
+      gallery = withResolvedImageUrlList(gallery);
     } catch (err) {
-      console.warn('[stages] No se pudieron leer posts/galerÃ­a de la etapa:', err.message);
+      console.warn('[stages] No se pudieron leer posts/galería de la etapa:', err.message);
+      return next(err);
     }
 
-    res.json({ ...stage, publicaciones, gallery });
+    res.json({ ...stage, posts, gallery });
   } catch (err) {
     next(err);
   }

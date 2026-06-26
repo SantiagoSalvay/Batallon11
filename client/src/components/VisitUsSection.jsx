@@ -52,7 +52,7 @@ export default function VisitUsSection() {
           transition={{ duration: 0.5 }}
           className="split-layout__left-pad py-16 sm:py-24"
         >
-          <span className="public-eyebrow">Visitarnos</span>
+          <span className="public-eyebrow">Ubicación</span>
           <h2 className="public-title mt-3">Veni a conocer el batallon</h2>
           <p className="public-copy mt-4">
             Si queres acercarte, escribirnos o ubicar nuestra sede, aca tenes

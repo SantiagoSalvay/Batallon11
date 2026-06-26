@@ -6,8 +6,8 @@ const VALUES = [
     text: 'Los chicos aprenden compartiendo actividades, juegos, campamentos y responsabilidades concretas.',
   },
   {
-    title: 'Formación',
-    text: 'Cada etapa acompaña el crecimiento personal, comunitario y cristiano con el estilo de Don Bosco.',
+    title: 'Formacion',
+    text: 'Cada etapa acompana el crecimiento personal, comunitario y cristiano con el estilo de Don Bosco.',
   },
   {
     title: 'Servicio',
@@ -26,9 +26,9 @@ export default function AboutSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.55 }}
           >
-            <span className="public-eyebrow">Quiénes somos</span>
+            <span className="public-eyebrow">Quienes somos</span>
             <h2 className="public-title mt-3">
-              Un batallón hecho de comunidad, camino y servicio.
+              Un batallon hecho de comunidad, camino y servicio.
             </h2>
           </motion.div>
 
@@ -40,14 +40,14 @@ export default function AboutSection() {
             className="space-y-5"
           >
             <p className="public-copy">
-              El Batallón 11 General José María Paz forma parte de los
-              Exploradores Argentinos de Don Bosco. Es un espacio donde niños,
-              adolescentes y jóvenes encuentran pertenencia, amistad, aventura y
+              El Batallon 11 General Jose Maria Paz forma parte de los
+              Exploradores Argentinos de Don Bosco. Es un espacio donde ninos,
+              adolescentes y jovenes encuentran pertenencia, amistad, aventura y
               una propuesta de crecimiento con valores.
             </p>
             <p className="public-copy">
-              La vida del batallón se construye semana a semana: encuentros,
-              juegos, celebraciones, caminatas, campamentos, proyectos y pequeños
+              La vida del batallon se construye semana a semana: encuentros,
+              juegos, celebraciones, caminatas, campamentos, proyectos y pequenos
               gestos de servicio que ayudan a crecer en grupo.
             </p>
           </motion.div>

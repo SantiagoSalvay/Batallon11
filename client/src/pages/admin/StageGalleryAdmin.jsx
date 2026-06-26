@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
-import AdminStatus from '../../components/AdminStatus.jsx';
-import ConfirmDeleteButton from '../../components/ConfirmDeleteButton.jsx';
 
 export default function StageGalleryAdmin() {
   const { user } = useAuth();
@@ -16,7 +14,7 @@ export default function StageGalleryAdmin() {
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
-    api.get('/etapas').then((r) => {
+    api.get('/stages').then((r) => {
       setStages(r.data);
       if (isCoordinator && user?.stageSlug) {
         setStageSlug(user.stageSlug);
@@ -27,8 +25,8 @@ export default function StageGalleryAdmin() {
   }, []); // eslint-disable-line
 
   const load = (slug) => {
-    if (!slug) return Promise.resolve();
-    return api.get('/stage-gallery', { params: { stageSlug: slug } }).then((r) => setImages(r.data));
+    if (!slug) return;
+    api.get('/stage-gallery', { params: { stageSlug: slug } }).then((r) => setImages(r.data));
   };
 
   useEffect(() => {
@@ -37,7 +35,7 @@ export default function StageGalleryAdmin() {
 
   const upload = async (e) => {
     e.preventDefault();
-    if (!file) return setStatus({ type: 'err', msg: 'SeleccionÃ¡ una imagen' });
+    if (!file) return setStatus({ type: 'err', msg: 'Seleccioná una imagen' });
     setStatus(null);
     try {
       const fd = new FormData();
@@ -49,7 +47,7 @@ export default function StageGalleryAdmin() {
       setFile(null);
       setCaption('');
       setOrder(0);
-      await load(stageSlug);
+      load(stageSlug);
       setStatus({ type: 'ok', msg: 'Imagen agregada' });
     } catch (err) {
       setStatus({ type: 'err', msg: err.response?.data?.message || 'Error al subir' });
@@ -57,19 +55,21 @@ export default function StageGalleryAdmin() {
   };
 
   const remove = async (img) => {
+    if (!confirm('Eliminar imagen?')) return;
     await api.delete(`/stage-gallery/${img.id}`);
-    await load(stageSlug);
+    load(stageSlug);
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold">GalerÃ­as por etapa</h1>
+      <h1 className="text-2xl font-extrabold">Galerías por etapa</h1>
 
       <div className="mt-6">
         <label className="label">Etapa</label>
         {isCoordinator ? (
+          
           <div className="field max-w-sm bg-white/5 cursor-not-allowed">
-            {stages.find((s) => s.slug === stageSlug)?.name || 'â€”'}
+            {stages.find((s) => s.slug === stageSlug)?.name || '—'}
           </div>
         ) : (
           <select className="field max-w-sm" value={stageSlug} onChange={(e) => setStageSlug(e.target.value)}>
@@ -82,7 +82,17 @@ export default function StageGalleryAdmin() {
         )}
       </div>
 
-      <AdminStatus status={status} />
+      {status && (
+        <div
+          className={`mt-4 rounded-lg px-3 py-2 text-sm ${
+            status.type === 'ok'
+              ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30'
+              : 'bg-red-500/10 text-red-200 border border-red-500/30'
+          }`}
+        >
+          {status.msg}
+        </div>
+      )}
 
       <form onSubmit={upload} className="card p-6 mt-6 space-y-4 max-w-2xl">
         <div>
@@ -108,6 +118,7 @@ export default function StageGalleryAdmin() {
               value={order}
               onChange={(e) => setOrder(Number(e.target.value))}
             />
+          
           </div>
         </div>
         <button className="btn-primary">Subir imagen</button>
@@ -118,7 +129,9 @@ export default function StageGalleryAdmin() {
           <div key={img.id} className="card overflow-hidden group relative">
             <img src={asset(img.imageUrl)} alt="" className="aspect-square w-full object-cover" />
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-              <ConfirmDeleteButton message="Eliminar imagen?" onConfirm={() => remove(img)} className="text-sm text-red-200 hover:text-red-100" />
+              <button onClick={() => remove(img)} className="text-sm text-red-200 hover:text-red-100">
+                Eliminar
+              </button>
             </div>
             {img.caption && (
               <div className="px-3 py-2 text-xs text-white/70 truncate">{img.caption}</div>
@@ -126,7 +139,7 @@ export default function StageGalleryAdmin() {
           </div>
         ))}
         {images.length === 0 && (
-          <div className="text-sm text-white/50 col-span-full">Sin imÃ¡genes en esta etapa.</div>
+          <div className="text-sm text-white/50 col-span-full">Sin imágenes en esta etapa.</div>
         )}
       </div>
     </div>

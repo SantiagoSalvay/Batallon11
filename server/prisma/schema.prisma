@@ -8,27 +8,27 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id              Int              @id @default(autoincrement())
-  email           String           @unique
-  password        String
-  name            String?
-  role            Role             @default(ADMIN)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  tokenVersion    Int              @default(0)
-  totpEnabled     Boolean          @default(false)
-  totpSecret      String?
-  stageSlug       String?
-  refreshSessions RefreshSession[]
-  backupCodes     TotpBackupCode[]
-  usedTotpCodes   UsedTotpCode[]
+model Usuario {
+  id                Int                  @id @default(autoincrement())
+  email             String               @unique
+  password          String
+  name              String?
+  role              Rol                  @default(ADMIN)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  tokenVersion      Int                  @default(0)
+  totpEnabled       Boolean              @default(false)
+  totpSecret        String?
+  stageSlug         String?
+  codigosRespaldo   CodigoRespaldoTotp[]
+  codigosTotpUsados CodigoTotpUsado[]
+  sesionesRefresco  SesionRefresco[]
 
   @@index([stageSlug])
   @@map("usuarios")
 }
 
-model RefreshSession {
+model SesionRefresco {
   id        String    @id @default(cuid())
   userId    Int
   tokenHash String
@@ -38,14 +38,14 @@ model RefreshSession {
   revokedAt DateTime?
   ip        String?
   userAgent String?
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usuario   Usuario   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
   @@map("sesiones_refresco")
 }
 
-model RevokedAccessJti {
+model JtiAccesoRevocado {
   jti       String   @id
   expiresAt DateTime
 
@@ -54,21 +54,21 @@ model RevokedAccessJti {
 }
 
 model Publicacion {
-  id            Int                 @id @default(autoincrement())
-  titulo        String
-  contenido     String
-  publicada     Boolean             @default(true)
-  etapaSlug     String?
-  creadaEn      DateTime            @default(now())
-  actualizadaEn DateTime            @updatedAt
-  imagenes      ImagenPublicacion[]
+  id        Int                 @id @default(autoincrement())
+  title     String              @map("titulo")
+  content   String              @map("contenido")
+  published Boolean             @default(true) @map("publicada")
+  createdAt DateTime            @default(now()) @map("creadaEn")
+  updatedAt DateTime            @updatedAt @map("actualizadaEn")
+  stageSlug String?             @map("etapaSlug")
+  imagenes  ImagenPublicacion[]
 
-  @@index([etapaSlug, creadaEn])
+  @@index([stageSlug, createdAt])
   @@map("publicaciones")
 }
 
 model ImagenPublicacion {
-  id               String      @id @default(cuid())
+  id               String      @id
   publicacionId    Int
   rutaOriginal     String?
   rutaOptimizada   String
@@ -78,16 +78,16 @@ model ImagenPublicacion {
   tamanoOptimizado Int?
   ancho            Int?
   alto             Int?
-  leyenda          String?
-  orden            Int         @default(0)
-  creadaEn         DateTime    @default(now())
+  caption          String?     @map("leyenda")
+  order            Int         @default(0) @map("orden")
+  createdAt        DateTime    @default(now()) @map("creadaEn")
   publicacion      Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
 
-  @@index([publicacionId, orden])
+  @@index([publicacionId, order])
   @@map("imagenes_publicacion")
 }
 
-model GalleryImage {
+model ImagenGaleria {
   id        Int      @id @default(autoincrement())
   imageUrl  String
   caption   String?
@@ -98,7 +98,7 @@ model GalleryImage {
   @@map("imagenes_galeria")
 }
 
-model StageGalleryImage {
+model ImagenGaleriaEtapa {
   id        Int      @id @default(autoincrement())
   imageUrl  String
   caption   String?
@@ -110,7 +110,7 @@ model StageGalleryImage {
   @@map("imagenes_galeria_etapa")
 }
 
-model Event {
+model Evento {
   id          Int      @id @default(autoincrement())
   title       String
   description String
@@ -124,8 +124,8 @@ model Event {
   @@map("eventos")
 }
 
-model AdminAccessChallenge {
-  id        String    @id
+model DesafioAccesoAdmin {
+  id        String    @id @default(cuid())
   tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
@@ -135,35 +135,33 @@ model AdminAccessChallenge {
   @@map("desafios_acceso_admin")
 }
 
-model UsedTotpCode {
-  id        String   @id
+model CodigoTotpUsado {
+  id        String   @id @default(cuid())
   userId    Int
   codeHash  String
   usedAt    DateTime @default(now())
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usuario   Usuario  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([expiresAt])
   @@index([userId, codeHash])
+  @@index([expiresAt])
   @@map("codigos_totp_usados")
 }
 
-model TotpBackupCode {
-  id        String    @id
+model CodigoRespaldoTotp {
+  id        String    @id @default(cuid())
   userId    Int
   codeHash  String    @unique
   usedAt    DateTime?
   createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usuario   Usuario   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("codigos_respaldo_totp")
 }
 
-enum Role {
+enum Rol {
   ADMIN
   EDITOR
   COORDINATOR
-
-  @@map("Rol")
 }

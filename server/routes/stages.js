@@ -3,12 +3,12 @@ const {
   listStages,
   getStageBySlug,
 } = require('../controllers/stageController');
-const { listarPublicacionesDeEtapa } = require('../controllers/publicacionController');
+const { listStagePostsBySlug } = require('../controllers/stagePostController');
 const { listImagesBySlug } = require('../controllers/stageGalleryController');
 
 router.get('/', listStages);
 router.get('/:slug', getStageBySlug);
-router.get('/:slug/publicaciones', listarPublicacionesDeEtapa);
+router.get('/:slug/posts', listStagePostsBySlug);
 router.get('/:slug/gallery', listImagesBySlug);
 
 module.exports = router;

@@ -9,12 +9,12 @@ async function attachUserOptional(req, res, next) {
 
     const payload = verifyAccessToken(token);
 
-    const revoked = await prisma.revokedAccessJti.findUnique({
+    const revoked = await prisma.jtiAccesoRevocado.findUnique({
       where: { jti: payload.jti },
     });
     if (revoked) return next();
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.usuario.findUnique({
       where: { id: payload.sub },
       select: { id: true, email: true, role: true, name: true, stageSlug: true, tokenVersion: true },
     });

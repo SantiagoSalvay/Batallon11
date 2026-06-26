@@ -12,7 +12,7 @@ function baseCookieOptions() {
   const isProd = process.env.NODE_ENV === 'production';
   return {
     secure: process.env.COOKIE_SECURE === 'true' || (process.env.COOKIE_SECURE !== 'false' && isProd),
-    sameSite: parseSameSite(process.env.COOKIE_SAME_SITE),
+    sameSite: isProd ? 'strict' : parseSameSite(process.env.COOKIE_SAME_SITE),
     path: '/',
   };
 }

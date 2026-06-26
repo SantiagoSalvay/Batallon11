@@ -1,17 +1,23 @@
 const fs = require('fs');
 const prisma = require('../config/prisma');
-const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
+const {
+  fileToStorageReference,
+  withResolvedImageUrl,
+  withResolvedImageUrlList,
+  deleteOldFileFromUrl,
+} = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
+const { audit } = require('../utils/auditLog');
 
 async function listEvents(req, res, next) {
   try {
     const onlyUpcoming = req.query.upcoming === 'true';
     const where = onlyUpcoming ? { date: { gte: new Date() } } : {};
-    const events = await prisma.event.findMany({
+    const events = await prisma.evento.findMany({
       where,
       orderBy: { date: 'asc' },
     });
-    res.json(events);
+    res.json(withResolvedImageUrlList(events));
   } catch (err) {
     next(err);
   }
@@ -19,11 +25,11 @@ async function listEvents(req, res, next) {
 
 async function getEvent(req, res, next) {
   try {
-    const event = await prisma.event.findUnique({
+    const event = await prisma.evento.findUnique({
       where: { id: Number(req.params.id) },
     });
     if (!event) return res.status(404).json({ message: 'Evento no encontrado' });
-    res.json(event);
+    res.json(withResolvedImageUrl(event));
   } catch (err) {
     next(err);
   }
@@ -32,21 +38,17 @@ async function getEvent(req, res, next) {
 async function createEvent(req, res, next) {
   try {
     const { title, description, date, location } = req.body;
-    if (!title || !description || !date) {
-      return res
-        .status(400)
-        .json({ message: 'title, description y date son requeridos' });
-    }
     const data = {
       title,
       description,
       date: new Date(date),
       location: location || null,
     };
-    if (req.file) data.imageUrl = fileToPublicUrl(req.file);
+    if (req.file) data.imageUrl = fileToStorageReference(req.file);
 
-    const event = await prisma.event.create({ data });
-    res.status(201).json(event);
+    const event = await prisma.evento.create({ data });
+    audit(req, 'event.create', { eventId: event.id });
+    res.status(201).json(withResolvedImageUrl(event));
   } catch (err) {
     next(err);
   }
@@ -55,7 +57,7 @@ async function createEvent(req, res, next) {
 async function updateEvent(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.event.findUnique({ where: { id } });
+    const current = await prisma.evento.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Evento no encontrado' });
 
     const { title, description, date, location } = req.body;
@@ -66,11 +68,11 @@ async function updateEvent(req, res, next) {
       ...(location !== undefined && { location }),
     };
     if (req.file) {
-      data.imageUrl = fileToPublicUrl(req.file);
+      data.imageUrl = fileToStorageReference(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
-    const event = await prisma.event.update({ where: { id }, data });
-    res.json(event);
+    const event = await prisma.evento.update({ where: { id }, data });
+    res.json(withResolvedImageUrl(event));
   } catch (err) {
     next(err);
   }
@@ -79,10 +81,11 @@ async function updateEvent(req, res, next) {
 async function deleteEvent(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.event.findUnique({ where: { id } });
+    const current = await prisma.evento.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Evento no encontrado' });
-    await prisma.event.delete({ where: { id } });
+    await prisma.evento.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    audit(req, 'event.delete', { eventId: id });
     res.json({ ok: true });
   } catch (err) {
     next(err);

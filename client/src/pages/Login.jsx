@@ -3,14 +3,15 @@ import { Link, useLocation, useNavigate, useParams, Navigate } from 'react-route
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext.jsx';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
-import { isValidAdminToken, consumeAdminToken } from '../lib/adminAccess.js';
+import { isValidAdminRouteToken } from '../lib/adminAccess.js';
+import { safeInternalPath } from '../lib/safeRedirect.js';
 
 export default function Login() {
   const { token } = useParams();
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/admin';
+  const from = safeInternalPath(location.state?.from?.pathname, '/admin');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +20,7 @@ export default function Login() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  if (!isValidAdminToken(token)) {
+  if (!isValidAdminRouteToken(token)) {
     return <Navigate to="/" replace />;
   }
 
@@ -29,19 +30,13 @@ export default function Login() {
     setLoading(true);
     try {
       const code = needTotp ? totpCode.trim() : undefined;
-      await login(
-        email,
-        password,
-        code || undefined,
-        undefined
-      );
-      consumeAdminToken();
+      await login(email, password, code || undefined, undefined);
       navigate(from, { replace: true });
     } catch (err) {
       const data = err.response?.data;
-      if (data?.code === 'TOTP_REQUIRED') {
+      if (data?.code === 'MFA_REQUIRED') {
         setNeedTotp(true);
-        setError(data?.message || 'Ingresá el código de tu app de autenticación.');
+        setError('Ingresá el código de tu app de autenticación.');
       } else {
         setError(data?.message || 'No se pudo iniciar sesión');
       }

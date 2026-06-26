@@ -1,14 +1,20 @@
 const fs = require('fs');
 const prisma = require('../config/prisma');
-const { fileToPublicUrl, deleteOldFileFromUrl } = require('../utils/fileUrl');
+const {
+  fileToStorageReference,
+  withResolvedImageUrl,
+  withResolvedImageUrlList,
+  deleteOldFileFromUrl,
+} = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
+const { audit } = require('../utils/auditLog');
 
 async function listImages(_req, res, next) {
   try {
-    const images = await prisma.galleryImage.findMany({
+    const images = await prisma.imagenGaleria.findMany({
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
-    res.json(images);
+    res.json(withResolvedImageUrlList(images));
   } catch (err) {
     next(err);
   }
@@ -18,14 +24,14 @@ async function createImage(req, res, next) {
   try {
     if (!req.file) return res.status(400).json({ message: 'imagen requerida' });
     const { caption, order } = req.body;
-    const image = await prisma.galleryImage.create({
+    const image = await prisma.imagenGaleria.create({
       data: {
-        imageUrl: fileToPublicUrl(req.file),
+        imageUrl: fileToStorageReference(req.file),
         caption: caption || null,
         order: order !== undefined ? Number(order) : 0,
       },
     });
-    res.status(201).json(image);
+    res.status(201).json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
   }
@@ -34,7 +40,7 @@ async function createImage(req, res, next) {
 async function updateImage(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.galleryImage.findUnique({ where: { id } });
+    const current = await prisma.imagenGaleria.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
 
     const { caption, order } = req.body;
@@ -43,11 +49,11 @@ async function updateImage(req, res, next) {
       ...(order !== undefined && { order: Number(order) }),
     };
     if (req.file) {
-      data.imageUrl = fileToPublicUrl(req.file);
+      data.imageUrl = fileToStorageReference(req.file);
       deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
-    const image = await prisma.galleryImage.update({ where: { id }, data });
-    res.json(image);
+    const image = await prisma.imagenGaleria.update({ where: { id }, data });
+    res.json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
   }
@@ -56,10 +62,11 @@ async function updateImage(req, res, next) {
 async function deleteImage(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const current = await prisma.galleryImage.findUnique({ where: { id } });
+    const current = await prisma.imagenGaleria.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
-    await prisma.galleryImage.delete({ where: { id } });
+    await prisma.imagenGaleria.delete({ where: { id } });
     deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    audit(req, 'gallery.delete', { imageId: id });
     res.json({ ok: true });
   } catch (err) {
     next(err);

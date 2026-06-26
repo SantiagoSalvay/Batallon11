@@ -1,38 +1,31 @@
-// Acceso oculto al panel admin.
-//
-// La URL de login es dinámica: cada vez que se solicita acceso (Ctrl+Shift+L
-// o el easter-egg del footer), se genera un token aleatorio que se guarda en
-// sessionStorage y se usa como ruta. Solo es válido durante esa sesión y
-// solo para el path generado.
+import { api } from '../services/api.js';
 
 const TOKEN_KEY = 'b11:admin-access-token';
+const ROUTE_KEY = 'b11:admin-route-token';
 
-function generateToken() {
-  if (window.crypto?.getRandomValues) {
-    const arr = new Uint8Array(24);
-    window.crypto.getRandomValues(arr);
-    return Array.from(arr)
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
+export async function requestAdminAccess(navigate) {
+  try {
+    const { data } = await api.post('/auth/gate');
+    sessionStorage.setItem(TOKEN_KEY, data.gateToken);
+    sessionStorage.setItem(ROUTE_KEY, data.gateToken.slice(0, 16));
+    navigate(`/p/${data.gateToken.slice(0, 16)}`, { replace: true });
+  } catch {
+    navigate('/', { replace: true });
   }
-  return (
-    Math.random().toString(36).slice(2) +
-    Math.random().toString(36).slice(2) +
-    Date.now().toString(36)
-  );
 }
 
-export function requestAdminAccess(navigate) {
-  const token = generateToken();
-  sessionStorage.setItem(TOKEN_KEY, token);
-  navigate(`/p/${token}`, { replace: true });
+export function getStoredGateToken() {
+  return sessionStorage.getItem(TOKEN_KEY) || '';
 }
 
-export function isValidAdminToken(token) {
-  if (!token) return false;
-  return sessionStorage.getItem(TOKEN_KEY) === token;
+export function isValidAdminRouteToken(routeToken) {
+  if (!routeToken) return false;
+  const stored = sessionStorage.getItem(ROUTE_KEY);
+  const gate = sessionStorage.getItem(TOKEN_KEY);
+  return stored === routeToken && Boolean(gate);
 }
 
-export function consumeAdminToken() {
+export function clearGateToken() {
   sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(ROUTE_KEY);
 }

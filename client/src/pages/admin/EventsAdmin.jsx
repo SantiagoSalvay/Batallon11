@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
-import AdminStatus from '../../components/AdminStatus.jsx';
-import ConfirmDeleteButton from '../../components/ConfirmDeleteButton.jsx';
 
 const EMPTY = { id: null, title: '', description: '', date: '', location: '' };
 
@@ -48,6 +46,7 @@ export default function EventsAdmin() {
   };
 
   const remove = async (ev) => {
+    if (!confirm(`Eliminar "${ev.title}"?`)) return;
     await api.delete(`/events/${ev.id}`);
     await load();
   };
@@ -56,7 +55,11 @@ export default function EventsAdmin() {
     <div>
       <h1 className="text-2xl font-extrabold">Eventos</h1>
 
-      <AdminStatus status={status} />
+      {status && (
+        <div className={`mt-4 rounded-lg px-3 py-2 text-sm ${status.type === 'ok' ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30' : 'bg-red-500/10 text-red-200 border border-red-500/30'}`}>
+          {status.msg}
+        </div>
+      )}
 
       <form onSubmit={submit} className="card p-6 mt-6 space-y-4 max-w-2xl">
         <div className="flex items-center justify-between">
@@ -102,7 +105,7 @@ export default function EventsAdmin() {
               <div className="text-xs text-white/50">{new Date(ev.date).toLocaleString('es-AR')}{ev.location ? ` · ${ev.location}` : ''}</div>
             </div>
             <button onClick={() => setEditing(ev)} className="btn-ghost text-sm">Editar</button>
-            <ConfirmDeleteButton message={`Eliminar "${ev.title}"?`} onConfirm={() => remove(ev)} />
+            <button onClick={() => remove(ev)} className="text-sm text-red-300 hover:text-red-200 px-3 py-2">Eliminar</button>
           </div>
         ))}
       </div>
