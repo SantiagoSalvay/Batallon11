@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
+import FilePicker from '../../components/FilePicker.jsx';
 
 const EMPTY = { id: null, title: '', content: '', published: true };
 
@@ -75,8 +76,8 @@ export default function PostsAdmin() {
           <label htmlFor="published" className="text-sm text-white/80">Publicada</label>
         </div>
         <div>
-          <label className="label">Imagenes (maximo 6)</label>
-          <input type="file" accept="image/*" multiple onChange={(e) => setImages(Array.from(e.target.files || []).slice(0, 6))} className="block text-sm text-white/70" />
+          <label className="label">Imágenes (máximo 6)</label>
+          <FilePicker id="post-images" label="Elegir imágenes" multiple files={images} onChange={(e) => setImages(Array.from(e.target.files || []).slice(0, 6))} />
           {editing.imageUrl && <img src={asset(editing.imageUrl)} alt="" className="mt-2 h-32 rounded-lg object-cover" />}
         </div>
         <button className="btn-primary">{editing.id ? 'Actualizar' : 'Crear'}</button>

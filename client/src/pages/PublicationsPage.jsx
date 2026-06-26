@@ -44,7 +44,7 @@ export default function PublicationsPage() {
       <PostsList
         title="Todas las publicaciones"
         posts={posts}
-        emptyText="Aun no hay publicaciones."
+        emptyText="Aún no hay publicaciones."
       />
     </div>
   );

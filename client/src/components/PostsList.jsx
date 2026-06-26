@@ -30,7 +30,7 @@ function formatDateShort(d) {
 export default function PostsList({
   title,
   posts = [],
-  emptyText = 'Proximamente publicaciones.',
+  emptyText = 'Próximamente publicaciones.',
   showViewAll = false,
   compact = false,
   maxItems,
@@ -52,7 +52,7 @@ export default function PostsList({
         <div className="flex flex-col gap-5 border-b border-slate-200 pb-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <span className="public-eyebrow">Cartelera</span>
-            <h2 className="public-title mt-3">{title || 'Ultimas novedades'}</h2>
+            <h2 className="public-title mt-3">{title || 'Últimas novedades'}</h2>
           </div>
 
           {(showViewAll && posts.length >= 3) || showMoreLink ? (

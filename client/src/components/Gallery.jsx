@@ -40,7 +40,7 @@ function GalleryGrid({ images, animate, onSelect }) {
 }
 
 export default function Gallery({
-  title = 'Galeria',
+  title = 'Galería',
   images = [],
   carousel = false,
   maxItems,
@@ -58,7 +58,7 @@ export default function Gallery({
       <div className="container-app">
         <div className="flex flex-col gap-5 border-b border-slate-200 pb-8 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
-            <span className="public-eyebrow">Galeria</span>
+            <span className="public-eyebrow">Galería</span>
             <h2 className="public-title mt-3">{title}</h2>
           </div>
 
@@ -76,7 +76,7 @@ export default function Gallery({
 
         {visibleImages.length === 0 ? (
           <div className="mt-8 rounded-md border border-dashed border-slate-300 bg-stone-50 px-5 py-8 text-sm text-slate-500">
-            Proximamente imagenes.
+            Próximamente imágenes.
           </div>
         ) : carousel ? (
           <>

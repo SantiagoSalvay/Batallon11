@@ -56,7 +56,7 @@ export default function Home() {
       <Hero />
       <AboutSection />
       <StagesGrid stages={LOCAL_STAGES} />
-      <PostsList posts={posts} title="Ultimas novedades" showViewAll={hasMorePosts} />
+      <PostsList posts={posts} title="Últimas novedades" showViewAll={hasMorePosts} />
       <EventsSection events={events} />
       <VisitUsSection />
       <ContactSection />

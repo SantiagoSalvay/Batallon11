@@ -131,7 +131,7 @@ export default function StagePage() {
       <PostsList
         title={`Publicaciones de ${stage.name}`}
         posts={stage.posts || []}
-        emptyText="Aun no hay publicaciones en esta etapa."
+        emptyText="Aún no hay publicaciones en esta etapa."
         compact
         maxItems={4}
         viewAllLink={`/etapas/${slug}/publicaciones`}
@@ -141,7 +141,7 @@ export default function StagePage() {
       />
 
       <Gallery
-        title={`Galeria de ${stage.name}`}
+        title={`Galería de ${stage.name}`}
         images={stage.gallery || []}
         carousel
         viewAllLink={`/etapas/${slug}/galeria`}

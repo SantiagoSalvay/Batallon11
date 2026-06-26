@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import FilePicker from '../../components/FilePicker.jsx';
 
 const EMPTY = { id: null, title: '', content: '', stageSlug: '', published: true };
 
@@ -72,7 +73,7 @@ export default function StagePostsAdmin() {
         <label className="label">Etapa</label>
         {isCoordinator ? (
           <div className="field max-w-sm bg-white/5 cursor-not-allowed">
-            {stages.find((s) => s.slug === selectedStage)?.name || '—'}
+            {stages.find((s) => s.slug === selectedStage)?.name || '-'}
           </div>
         ) : (
           <select
@@ -148,14 +149,8 @@ export default function StagePostsAdmin() {
           </label>
         </div>
         <div>
-          <label className="label">Imagenes (maximo 6)</label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => setImages(Array.from(e.target.files || []).slice(0, 6))}
-            className="block text-sm text-white/70"
-          />
+          <label className="label">Imágenes (máximo 6)</label>
+          <FilePicker id="stage-post-images" label="Elegir imágenes" multiple files={images} onChange={(e) => setImages(Array.from(e.target.files || []).slice(0, 6))} />
           {editing.imageUrl && (
             <img src={asset(editing.imageUrl)} alt="" className="mt-2 h-32 rounded-lg object-cover" />
           )}

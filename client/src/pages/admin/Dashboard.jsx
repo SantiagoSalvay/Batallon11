@@ -35,7 +35,7 @@ export default function Dashboard() {
           <Link key={c.key} to={c.to} className="card p-5 hover:border-white/20 transition">
             <div className="text-xs uppercase tracking-wider text-white/50">{c.label}</div>
             <div className="mt-2 text-4xl font-extrabold text-gradient">
-              {stats[c.key] ?? '—'}
+              {stats[c.key] ?? '-'}
             </div>
             <div className="mt-2 text-xs text-brand-300">Administrar →</div>
           </Link>

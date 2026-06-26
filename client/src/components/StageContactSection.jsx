@@ -18,7 +18,7 @@ export const STAGE_COORDINATORS = {
     { name: 'Nicolas Estigarribia', phone: '' },
   ],
   baqueanos: [
-    { name: 'Tomas Marino', phone: '' },
+    { name: 'Tomás Marino', phone: '' },
     { name: 'Mateo Junco', phone: '' },
   ],
 };
@@ -70,7 +70,7 @@ export default function StageContactSection({ stage }) {
             const Tag = url ? motion.a : motion.span;
             const linkProps = url
               ? { href: url, target: '_blank', rel: 'noopener noreferrer' }
-              : { 'aria-disabled': 'true', title: 'Proximamente' };
+              : { 'aria-disabled': 'true', title: 'Próximamente' };
 
             return (
               <Tag
