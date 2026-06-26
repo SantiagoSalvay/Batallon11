@@ -8,7 +8,9 @@ import PostsList from '../components/PostsList.jsx';
 import VisitUsSection from '../components/VisitUsSection.jsx';
 import EventsSection from '../components/EventsSection.jsx';
 import ContactSection from '../components/ContactSection.jsx';
+import Seo from '../components/Seo.jsx';
 import { LOCAL_STAGES } from '../lib/stages.js';
+import { organizationLd, websiteLd, DEFAULT_DESCRIPTION } from '../lib/seo.js';
 
 export default function Home() {
   const location = useLocation();
@@ -53,6 +55,12 @@ export default function Home() {
 
   return (
     <>
+      <Seo
+        description={DEFAULT_DESCRIPTION}
+        path="/"
+        type="website"
+        jsonLd={[organizationLd(), websiteLd()]}
+      />
       <Hero />
       <AboutSection />
       <StagesGrid stages={LOCAL_STAGES} />

@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
 import { usePageBackground } from '../context/PageBackgroundContext.jsx';
+import Seo from '../components/Seo.jsx';
 
 export default function NotFound() {
   const { darkMode } = usePageBackground();
@@ -9,6 +10,7 @@ export default function NotFound() {
 
   return (
     <section className="public-section relative flex flex-1 items-center overflow-hidden py-16 sm:py-24">
+      <Seo title="Página no encontrada" description="La dirección que buscás no existe o ya no está disponible." noindex />
       <div
         className={`pointer-events-none absolute inset-0 ${
           darkMode

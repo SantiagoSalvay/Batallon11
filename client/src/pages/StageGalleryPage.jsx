@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../services/api.js';
 import Gallery from '../components/Gallery.jsx';
+import Seo from '../components/Seo.jsx';
 import { localStageBySlug } from '../lib/stages.js';
+import { breadcrumbLd } from '../lib/seo.js';
 
 export default function StageGalleryPage() {
   const { slug } = useParams();
@@ -48,9 +50,23 @@ export default function StageGalleryPage() {
     );
   }
 
+  const seo = (
+    <Seo
+      title={`Galería de ${stage.name}`}
+      description={`Galería de fotos de la etapa ${stage.name} del Batallón 11 General José María Paz: actividades, campamentos y momentos compartidos.`}
+      path={`/etapas/${slug}/galeria`}
+      jsonLd={breadcrumbLd([
+        { name: 'Inicio', path: '/' },
+        { name: stage.name, path: `/etapas/${slug}` },
+        { name: 'Galería', path: `/etapas/${slug}/galeria` },
+      ])}
+    />
+  );
+
   if (loading) {
     return (
       <div className="grid min-h-[60vh] place-items-center bg-stone-50 pt-24 text-slate-500">
+        {seo}
         Cargando...
       </div>
     );
@@ -58,6 +74,7 @@ export default function StageGalleryPage() {
 
   return (
     <div className="bg-stone-50 pt-16">
+      {seo}
       <div className="container-app pb-2 pt-8">
         <Link
           to={`/etapas/${slug}`}

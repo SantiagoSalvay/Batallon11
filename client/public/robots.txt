@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /p/
+
+Sitemap: https://batallon11.com/sitemap.xml

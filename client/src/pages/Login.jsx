@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
 import { isValidAdminRouteToken } from '../lib/adminAccess.js';
 import { safeInternalPath } from '../lib/safeRedirect.js';
+import Seo from '../components/Seo.jsx';
 
 export default function Login() {
   const { token } = useParams();
@@ -47,6 +48,7 @@ export default function Login() {
 
   return (
     <section className="min-h-screen grid place-items-center px-4 py-24 grain relative overflow-hidden">
+      <Seo title="Acceso administrador" noindex />
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-ink-900 via-ink-800 to-brand-900 opacity-80" />
       <motion.form
         initial={{ y: 20, opacity: 0 }}

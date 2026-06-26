@@ -1,6 +1,7 @@
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
+import Seo from '../components/Seo.jsx';
 
 const ADMIN_NAV = [
   { to: '/admin', label: 'Resumen', end: true },
@@ -28,6 +29,7 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-ink-900 text-white">
+      <Seo title="Administración" noindex />
       <header className="border-b border-white/10 bg-ink-900/80 backdrop-blur sticky top-0 z-30">
         <div className="container-app h-16 flex items-center justify-between">
           <Link to="/admin" className="flex items-center gap-3">

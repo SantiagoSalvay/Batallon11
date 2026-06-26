@@ -6,8 +6,16 @@ import PostsList from '../components/PostsList.jsx';
 import Gallery from '../components/Gallery.jsx';
 import StageInfoSection from '../components/StageInfoSection.jsx';
 import StageContactSection from '../components/StageContactSection.jsx';
+import Seo from '../components/Seo.jsx';
 import { logoForStage } from '../lib/stageAssets.js';
 import { localStageBySlug } from '../lib/stages.js';
+import { breadcrumbLd, absoluteUrl } from '../lib/seo.js';
+
+function metaDescription(stage) {
+  const base = [stage.name, stage.motto].filter(Boolean).join(' — ');
+  const full = `${base}. ${stage.description || ''}`.trim();
+  return full.length > 160 ? `${full.slice(0, 157).trimEnd()}…` : full;
+}
 
 function resolveLogo(path) {
   if (!path) return null;
@@ -71,9 +79,21 @@ export default function StagePage() {
 
   const color = stage.color || '#172554';
   const logo = resolveLogo(logoForStage(stage));
+  const stageLogo = logoForStage(stage);
 
   return (
     <>
+      <Seo
+        title={stage.name}
+        description={metaDescription(stage)}
+        path={`/etapas/${slug}`}
+        image={stageLogo ? absoluteUrl(stageLogo) : undefined}
+        type="article"
+        jsonLd={breadcrumbLd([
+          { name: 'Inicio', path: '/' },
+          { name: stage.name, path: `/etapas/${slug}` },
+        ])}
+      />
       <section className="bg-stone-50 pt-24 text-slate-950">
         <div className="container-app pb-8 pt-4 sm:pb-16 sm:pt-6">
           <Link

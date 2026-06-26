@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../services/api.js';
 import PostsList from '../components/PostsList.jsx';
+import Seo from '../components/Seo.jsx';
 import { localStageBySlug } from '../lib/stages.js';
+import { breadcrumbLd } from '../lib/seo.js';
 
 export default function StagePublicationsPage() {
   const { slug } = useParams();
@@ -48,9 +50,23 @@ export default function StagePublicationsPage() {
     );
   }
 
+  const seo = (
+    <Seo
+      title={`Publicaciones de ${stage.name}`}
+      description={`Publicaciones y novedades de la etapa ${stage.name} del Batallón 11 General José María Paz.`}
+      path={`/etapas/${slug}/publicaciones`}
+      jsonLd={breadcrumbLd([
+        { name: 'Inicio', path: '/' },
+        { name: stage.name, path: `/etapas/${slug}` },
+        { name: 'Publicaciones', path: `/etapas/${slug}/publicaciones` },
+      ])}
+    />
+  );
+
   if (loading) {
     return (
       <div className="grid min-h-[60vh] place-items-center bg-stone-50 pt-24 text-slate-500">
+        {seo}
         Cargando...
       </div>
     );
@@ -58,6 +74,7 @@ export default function StagePublicationsPage() {
 
   return (
     <div className="bg-stone-50 pt-16">
+      {seo}
       <div className="container-app pb-2 pt-8">
         <Link
           to={`/etapas/${slug}`}
