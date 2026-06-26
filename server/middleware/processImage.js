@@ -67,21 +67,11 @@ async function bufferToWebpDisk(buffer, context = {}) {
     .withMetadata(false)
     .toBuffer();
 
-  const file = await persistWebp(webpBuffer, {
+  return persistWebp(webpBuffer, {
     kind: context.kind,
     stageSlug: context.stageSlug,
     folder: context.folder,
   });
-
-  // Para publicaciones: tambien se genera una copia independiente en galeria.
-  if (context.mirrorToGallery) {
-    file.galleryFile = await persistWebp(webpBuffer, {
-      kind: 'galerias',
-      stageSlug: context.stageSlug,
-    });
-  }
-
-  return file;
 }
 
 /**
@@ -122,13 +112,11 @@ async function processOneMulterFile(file, context) {
 /**
  * Middleware que marca el tipo de contenido del upload ('publicaciones' o
  * 'galerias') para que processUploadedImages lo guarde en la carpeta correcta.
- * Con { mirrorToGallery: true } la imagen tambien se copia a la galeria.
  */
-function tagUploadKind(kind, { groupByPublication = false, mirrorToGallery = false } = {}) {
+function tagUploadKind(kind, { groupByPublication = false } = {}) {
   return (req, _res, next) => {
     req.uploadKind = kind;
     req.groupUploadByPublication = groupByPublication;
-    req.mirrorToGallery = mirrorToGallery;
     next();
   };
 }
@@ -139,7 +127,6 @@ async function processUploadedImages(req, res, next) {
       kind: req.uploadKind || 'publicaciones',
       stageSlug: req.body?.stageSlug || req.user?.stageSlug || null,
       folder: req.groupUploadByPublication ? publicationFolder(req.body?.title) : null,
-      mirrorToGallery: Boolean(req.mirrorToGallery),
     };
     if (req.file) {
       req.file = await processOneMulterFile(req.file, context);

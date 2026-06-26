@@ -18,19 +18,6 @@ function uploadedFiles(req) {
   return Object.values(req.files).flat();
 }
 
-// Copia las imagenes de una publicacion de etapa a la galeria de esa etapa.
-async function mirrorImageToStageGallery(file, caption, stageSlug) {
-  if (!file?.galleryFile) return;
-  await prisma.imagenGaleriaEtapa.create({
-    data: {
-      imageUrl: fileToStorageReference(file.galleryFile),
-      caption: caption || null,
-      order: 0,
-      stageSlug,
-    },
-  });
-}
-
 async function listStagePostsBySlug(req, res, next) {
   try {
     const { slug } = req.params;
@@ -86,7 +73,6 @@ async function createStagePost(req, res, next) {
 
     const files = uploadedFiles(req);
     await addPostImages(post.id, files.map(fileToStorageReference));
-    await Promise.all(files.map((file) => mirrorImageToStageGallery(file, title, stageSlug)));
 
     const withImage = await prisma.publicacion.findUnique({
       where: { id: post.id },
@@ -127,11 +113,7 @@ async function updateStagePost(req, res, next) {
     await prisma.publicacion.update({ where: { id }, data });
 
     const files = uploadedFiles(req);
-    const effectiveStageSlug = data.stageSlug ?? current.stageSlug;
     await addPostImages(id, files.map(fileToStorageReference));
-    await Promise.all(
-      files.map((file) => mirrorImageToStageGallery(file, title ?? current.title, effectiveStageSlug))
-    );
 
     const post = await prisma.publicacion.findUnique({
       where: { id },

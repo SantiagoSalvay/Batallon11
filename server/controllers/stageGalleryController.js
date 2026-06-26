@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const prisma = require('../config/prisma');
 const {
   fileToStorageReference,
@@ -9,6 +9,7 @@ const {
 const { uploadDir } = require('../middleware/upload');
 const { isValidStageSlug } = require('../lib/stages');
 const { audit } = require('../utils/auditLog');
+const { listCombinedStageGallery } = require('../utils/galleryApi');
 
 async function listImagesBySlug(req, res, next) {
   try {
@@ -17,11 +18,8 @@ async function listImagesBySlug(req, res, next) {
       return res.status(404).json({ message: 'Etapa no encontrada' });
     }
 
-    const images = await prisma.imagenGaleriaEtapa.findMany({
-      where: { stageSlug: slug },
-      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
-    });
-    res.json(withResolvedImageUrlList(images));
+    const images = await listCombinedStageGallery(slug);
+    res.json(images);
   } catch (err) {
     next(err);
   }
@@ -51,7 +49,7 @@ async function createImage(req, res, next) {
     const { caption, order, stageSlug } = req.body;
     if (!stageSlug) return res.status(400).json({ message: 'stageSlug requerido' });
     if (!isValidStageSlug(stageSlug)) {
-      return res.status(400).json({ message: 'Etapa no válida' });
+      return res.status(400).json({ message: 'Etapa no valida' });
     }
 
     const image = await prisma.imagenGaleriaEtapa.create({
@@ -86,7 +84,7 @@ async function updateImage(req, res, next) {
         req.user?.role !== 'COORDINATOR' && { stageSlug }),
     };
     if (stageSlug !== undefined && !isValidStageSlug(stageSlug)) {
-      return res.status(400).json({ message: 'Etapa no válida' });
+      return res.status(400).json({ message: 'Etapa no valida' });
     }
     if (req.file) {
       data.imageUrl = fileToStorageReference(req.file);

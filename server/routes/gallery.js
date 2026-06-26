@@ -1,6 +1,7 @@
-const router = require('express').Router();
+﻿const router = require('express').Router();
 const {
   listImages,
+  listPublicImages,
   createImage,
   updateImage,
   deleteImage,
@@ -12,6 +13,7 @@ const { uploadLimiter } = require('../middleware/uploadLimiter');
 const { validateBody } = require('../middleware/validateRequest');
 const { galleryImageSchema } = require('../schemas/contentSchemas');
 
+router.get('/public', listPublicImages);
 router.get('/', listImages);
 router.post(
   '/',

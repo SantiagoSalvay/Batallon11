@@ -19,18 +19,6 @@ function uploadedFiles(req) {
   return Object.values(req.files).flat();
 }
 
-// Copia las imagenes de una publicacion del home a la galeria del home.
-async function mirrorImageToHomeGallery(file, caption) {
-  if (!file?.galleryFile) return;
-  await prisma.imagenGaleria.create({
-    data: {
-      imageUrl: fileToStorageReference(file.galleryFile),
-      caption: caption || null,
-      order: 0,
-    },
-  });
-}
-
 async function listPosts(req, res, next) {
   try {
     const take = Math.min(Number(req.query.limit) || 20, 100);
@@ -75,7 +63,6 @@ async function createPost(req, res, next) {
 
     const files = uploadedFiles(req);
     await addPostImages(post.id, files.map(fileToStorageReference));
-    await Promise.all(files.map((file) => mirrorImageToHomeGallery(file, title)));
 
     const withImage = await prisma.publicacion.findUnique({
       where: { id: post.id },
@@ -106,7 +93,6 @@ async function updatePost(req, res, next) {
 
     const files = uploadedFiles(req);
     await addPostImages(id, files.map(fileToStorageReference));
-    await Promise.all(files.map((file) => mirrorImageToHomeGallery(file, title ?? current.title)));
 
     const post = await prisma.publicacion.findUnique({
       where: { id },

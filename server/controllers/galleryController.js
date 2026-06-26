@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const prisma = require('../config/prisma');
 const {
   fileToStorageReference,
@@ -8,6 +8,7 @@ const {
 } = require('../utils/fileUrl');
 const { uploadDir } = require('../middleware/upload');
 const { audit } = require('../utils/auditLog');
+const { listCombinedHomeGallery } = require('../utils/galleryApi');
 
 async function listImages(_req, res, next) {
   try {
@@ -15,6 +16,15 @@ async function listImages(_req, res, next) {
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
     res.json(withResolvedImageUrlList(images));
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function listPublicImages(_req, res, next) {
+  try {
+    const images = await listCombinedHomeGallery();
+    res.json(images);
   } catch (err) {
     next(err);
   }
@@ -73,4 +83,4 @@ async function deleteImage(req, res, next) {
   }
 }
 
-module.exports = { listImages, createImage, updateImage, deleteImage };
+module.exports = { listImages, listPublicImages, createImage, updateImage, deleteImage };

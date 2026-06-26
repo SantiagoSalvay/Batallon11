@@ -1,10 +1,10 @@
-const prisma = require('../config/prisma');
+﻿const prisma = require('../config/prisma');
 const {
   listStagesMerged,
   getStageMergedBySlug,
 } = require('../lib/stages');
 const { postInclude, toPostApiList } = require('../utils/publicacionApi');
-const { withResolvedImageUrlList } = require('../utils/fileUrl');
+const { listCombinedStageGallery } = require('../utils/galleryApi');
 
 async function listStages(_req, res, next) {
   try {
@@ -31,15 +31,11 @@ async function getStageBySlug(req, res, next) {
           orderBy: { createdAt: 'desc' },
           take: 10,
         }),
-        prisma.imagenGaleriaEtapa.findMany({
-          where: { stageSlug: stage.slug },
-          orderBy: { order: 'asc' },
-        }),
+        listCombinedStageGallery(stage.slug),
       ]);
       posts = toPostApiList(posts);
-      gallery = withResolvedImageUrlList(gallery);
     } catch (err) {
-      console.warn('[stages] No se pudieron leer posts/galería de la etapa:', err.message);
+      console.warn('[stages] No se pudieron leer posts/galeria de la etapa:', err.message);
       return next(err);
     }
 
