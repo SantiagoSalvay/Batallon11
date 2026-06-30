@@ -47,6 +47,7 @@ export default function PostsList({
 }) {
   const [activePost, setActivePost] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [previewImageIndexes, setPreviewImageIndexes] = useState({});
   const visiblePosts = maxItems != null ? posts.slice(0, maxItems) : posts;
   const showMoreLink = viewAllLink && posts.length > viewAllThreshold;
   const activeImages = activePost ? postImages(activePost) : [];
@@ -54,7 +55,7 @@ export default function PostsList({
 
   const openPost = (post) => {
     setActivePost(post);
-    setActiveImageIndex(0);
+    setActiveImageIndex(previewImageIndexes[post.id] || 0);
   };
 
   const closePost = () => {
@@ -66,6 +67,15 @@ export default function PostsList({
     setActiveImageIndex((current) => {
       if (activeImages.length === 0) return 0;
       return (current + direction + activeImages.length) % activeImages.length;
+    });
+  };
+
+  const movePreviewImage = (event, postId, total, direction) => {
+    event.stopPropagation();
+    if (total <= 1) return;
+    setPreviewImageIndexes((current) => {
+      const nextIndex = ((current[postId] || 0) + direction + total) % total;
+      return { ...current, [postId]: nextIndex };
     });
   };
 
@@ -111,6 +121,9 @@ export default function PostsList({
                   }
                 : {};
               const images = postImages(p);
+              const previewImageIndex = previewImageIndexes[p.id] || 0;
+              const previewImage = images[previewImageIndex] || images[0];
+              const previewImageUrl = previewImage?.imageUrl || p.imageUrl;
 
               return (
                 <Card
@@ -120,29 +133,51 @@ export default function PostsList({
                     compact ? 'flex flex-col lg:block' : ''
                   }`}
                 >
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => openPost(p)}
-                    className="block h-full w-full text-left"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') openPost(p);
+                    }}
+                    className="block h-full w-full cursor-pointer text-left"
                   >
-                    {p.imageUrl ? (
+                    {previewImageUrl ? (
                       <div
                         className={`relative ${
                           compact
-                            ? 'aspect-[4/3] overflow-hidden bg-slate-100 lg:aspect-[16/9]'
-                            : 'aspect-[16/9] overflow-hidden bg-slate-100'
+                            ? 'aspect-[4/3] overflow-hidden bg-slate-950 lg:aspect-[16/9]'
+                            : 'aspect-[16/9] overflow-hidden bg-slate-950'
                         }`}
                       >
                         <img
-                          src={asset(p.imageUrl)}
+                          src={asset(previewImageUrl)}
                           alt={safeText(p.title)}
-                          className="h-full w-full object-cover transition hover:scale-105"
+                          className="h-full w-full object-cover object-center transition hover:scale-105"
                           loading="lazy"
                         />
                         {images.length > 1 && (
-                          <span className="absolute right-3 top-3 rounded-full bg-slate-950/80 px-2.5 py-1 text-xs font-bold text-white">
-                            {images.length} fotos
-                          </span>
+                          <>
+                            <span className="absolute right-3 top-3 rounded-full bg-slate-950/80 px-2.5 py-1 text-xs font-bold text-white">
+                              {previewImageIndex + 1}/{images.length}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => movePreviewImage(e, p.id, images.length, -1)}
+                              className="absolute left-0 top-1/2 grid h-10 w-8 -translate-y-1/2 place-items-center text-white/70 drop-shadow transition hover:text-white focus:outline-none"
+                              aria-label="Foto anterior"
+                            >
+                              <span className="h-0 w-0 border-y-[8px] border-r-[12px] border-y-transparent border-r-current" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => movePreviewImage(e, p.id, images.length, 1)}
+                              className="absolute right-0 top-1/2 grid h-10 w-8 -translate-y-1/2 place-items-center text-white/70 drop-shadow transition hover:text-white focus:outline-none"
+                              aria-label="Foto siguiente"
+                            >
+                              <span className="h-0 w-0 border-y-[8px] border-l-[12px] border-y-transparent border-l-current" />
+                            </button>
+                          </>
                         )}
                       </div>
                     ) : compact ? (
@@ -180,7 +215,7 @@ export default function PostsList({
                         </>
                       )}
                     </div>
-                  </button>
+                  </div>
                 </Card>
               );
             })}
