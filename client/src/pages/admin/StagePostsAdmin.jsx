@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import AdminFileInput from '../../components/admin/AdminFileInput.jsx';
 
 const EMPTY = { id: null, title: '', content: '', stageSlug: '', published: true };
 
@@ -148,12 +149,11 @@ export default function StagePostsAdmin() {
           </label>
         </div>
         <div>
-          <label className="label">Imagen</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files?.[0] || null)}
-            className="block text-sm text-white/70"
+          <AdminFileInput
+            id="stage-post-image"
+            file={image}
+            currentImageUrl={editing.imageUrl}
+            onChange={setImage}
           />
           {editing.imageUrl && (
             <img src={asset(editing.imageUrl)} alt="" className="mt-2 h-32 rounded-lg object-cover" />
