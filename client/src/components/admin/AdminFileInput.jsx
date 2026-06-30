@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 export default function AdminFileInput({
   id,
   label = 'Imagen',
@@ -9,10 +11,14 @@ export default function AdminFileInput({
   maxFiles = 1,
   onChange,
 }) {
+  const inputRef = useRef(null);
   const selectedFiles = files ?? (Array.isArray(file) ? file : file ? [file] : []);
-  const inputKey = selectedFiles.length
-    ? selectedFiles.map((item) => `${item.name}-${item.lastModified}`).join('|')
-    : currentImageUrl || 'empty';
+
+  useEffect(() => {
+    if (selectedFiles.length === 0 && inputRef.current) {
+      inputRef.current.value = '';
+    }
+  }, [selectedFiles.length]);
 
   const fileName = (() => {
     if (selectedFiles.length === 1) return selectedFiles[0].name;
@@ -40,7 +46,7 @@ export default function AdminFileInput({
         <div className="mt-1 text-xs text-white/45">Hasta {maxFiles} archivos</div>
       )}
       <input
-        key={inputKey}
+        ref={inputRef}
         id={id}
         type="file"
         accept="image/*"
