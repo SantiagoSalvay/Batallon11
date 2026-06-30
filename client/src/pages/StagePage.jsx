@@ -77,9 +77,10 @@ export default function StagePage() {
     );
   }
 
-  const color = stage.color || '#172554';
-  const logo = resolveLogo(logoForStage(stage));
-  const stageLogo = logoForStage(stage);
+  const localStage = localStageBySlug(slug);
+  const color = localStage?.color || stage.color || '#172554';
+  const displayStage = { ...stage, color };
+  const logo = resolveLogo(logoForStage(displayStage));
 
   return (
     <>
@@ -146,10 +147,10 @@ export default function StagePage() {
         </div>
       </section>
 
-      <StageInfoSection stage={stage} />
+      <StageInfoSection stage={displayStage} />
 
       <PostsList
-        title={`Publicaciones de ${stage.name}`}
+        title={`Publicaciones de ${displayStage.name}`}
         posts={stage.posts || []}
         emptyText="Aun no hay publicaciones en esta etapa."
         compact
@@ -161,7 +162,7 @@ export default function StagePage() {
       />
 
       <Gallery
-        title={`Galeria de ${stage.name}`}
+        title={`Galeria de ${displayStage.name}`}
         images={stage.gallery || []}
         carousel
         viewAllLink={`/etapas/${slug}/galeria`}
@@ -170,7 +171,7 @@ export default function StagePage() {
         animate={false}
       />
 
-      <StageContactSection stage={stage} />
+      <StageContactSection stage={displayStage} />
     </>
   );
 }

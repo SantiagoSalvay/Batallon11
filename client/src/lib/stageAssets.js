@@ -16,7 +16,7 @@ export const STAGE_GLOW_COLORS = {
   'caminantes-chispistas': '#65A30D',
   'pioneros-fuegos': '#F97316',
   rastreadores: '#DC2626',
-  baqueanos: '#4F46E5',
+  baqueanos: '#3a4c93',
 };
 
 // Factor de escala por etapa, para que TODOS los logos se vean del mismo tamaño

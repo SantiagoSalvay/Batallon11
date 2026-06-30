@@ -81,6 +81,17 @@
   .label {
     @apply block text-sm font-medium text-white/70 mb-1;
   }
+  .admin-date-field {
+    color-scheme: dark;
+  }
+  .admin-date-field::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.8;
+    filter: invert(1);
+  }
+  .admin-date-field::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
   .badge {
     @apply inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white/80;
   }

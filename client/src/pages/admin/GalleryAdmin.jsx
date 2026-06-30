@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
+import AdminFileInput from '../../components/admin/AdminFileInput.jsx';
 
 export default function GalleryAdmin() {
   const [images, setImages] = useState([]);
   const [file, setFile] = useState(null);
   const [caption, setCaption] = useState('');
-  const [order, setOrder] = useState(0);
   const [status, setStatus] = useState(null);
 
   const load = () => api.get('/gallery').then((r) => setImages(r.data));
@@ -22,11 +22,9 @@ export default function GalleryAdmin() {
       const fd = new FormData();
       fd.append('image', file);
       fd.append('caption', caption);
-      fd.append('order', String(order));
       await api.post('/gallery', fd);
       setFile(null);
       setCaption('');
-      setOrder(0);
       await load();
       setStatus({ type: 'ok', msg: 'Imagen agregada' });
     } catch (err) {
@@ -51,19 +49,10 @@ export default function GalleryAdmin() {
       )}
 
       <form onSubmit={upload} className="card p-6 mt-6 space-y-4 max-w-2xl">
+        <AdminFileInput id="gallery-image" file={file} required onChange={setFile} />
         <div>
-          <label className="label">Imagen</label>
-          <input type="file" accept="image/*" required onChange={(e) => setFile(e.target.files?.[0] || null)} className="block text-sm text-white/70" />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="label">Caption</label>
-            <input className="field" value={caption} onChange={(e) => setCaption(e.target.value)} />
-          </div>
-          <div>
-            <label className="label">Orden</label>
-            <input type="number" className="field" value={order} onChange={(e) => setOrder(Number(e.target.value))} />
-          </div>
+          <label className="label">Titulo</label>
+          <input className="field" value={caption} onChange={(e) => setCaption(e.target.value)} />
         </div>
         <button className="btn-primary">Subir imagen</button>
       </form>
