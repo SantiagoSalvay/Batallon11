@@ -88,7 +88,7 @@ export default function StagePage() {
         title={stage.name}
         description={metaDescription(stage)}
         path={`/etapas/${slug}`}
-        image={stageLogo ? absoluteUrl(stageLogo) : undefined}
+        image={logo ? absoluteUrl(logo) : undefined}
         type="article"
         jsonLd={breadcrumbLd([
           { name: 'Inicio', path: '/' },
