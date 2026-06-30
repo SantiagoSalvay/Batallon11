@@ -7,13 +7,17 @@ const {
   postInclude,
   toPostApi,
   toPostApiList,
-  setPostImage,
-  getPostImageUrl,
+  setPostImages,
+  getPostImageUrls,
 } = require('../utils/publicacionApi');
 
 const sitePostWhere = { published: true, stageSlug: null };
 
-// Copia la imagen de una publicación del home a la galería del home.
+function uploadedPostFiles(req) {
+  if (Array.isArray(req.files)) return req.files;
+  return req.file ? [req.file] : [];
+}
+
 async function mirrorImageToHomeGallery(file, caption) {
   if (!file?.galleryFile) return;
   await prisma.imagenGaleria.create({
@@ -23,6 +27,14 @@ async function mirrorImageToHomeGallery(file, caption) {
       order: 0,
     },
   });
+}
+
+async function mirrorImagesToHomeGallery(files, caption) {
+  await Promise.all(files.map((file) => mirrorImageToHomeGallery(file, caption)));
+}
+
+function deleteImageUrls(urls) {
+  urls.forEach((url) => deleteOldFileFromUrl(fs, url, uploadDir));
 }
 
 async function listPosts(req, res, next) {
@@ -67,9 +79,10 @@ async function createPost(req, res, next) {
       include: postInclude,
     });
 
-    if (req.file) {
-      await setPostImage(post.id, fileToStorageReference(req.file));
-      await mirrorImageToHomeGallery(req.file, title);
+    const files = uploadedPostFiles(req);
+    if (files.length) {
+      await setPostImages(post.id, files.map(fileToStorageReference));
+      await mirrorImagesToHomeGallery(files, title);
     }
 
     const withImage = await prisma.publicacion.findUnique({
@@ -99,11 +112,11 @@ async function updatePost(req, res, next) {
 
     await prisma.publicacion.update({ where: { id }, data });
 
-    if (req.file) {
-      const imageUrl = fileToStorageReference(req.file);
-      const previousUrl = await setPostImage(id, imageUrl);
-      deleteOldFileFromUrl(fs, previousUrl, uploadDir);
-      await mirrorImageToHomeGallery(req.file, title ?? current.title);
+    const files = uploadedPostFiles(req);
+    if (files.length) {
+      const previousUrls = await setPostImages(id, files.map(fileToStorageReference));
+      deleteImageUrls(previousUrls);
+      await mirrorImagesToHomeGallery(files, title ?? current.title);
     }
 
     const post = await prisma.publicacion.findUnique({
@@ -122,9 +135,9 @@ async function deletePost(req, res, next) {
     const current = await prisma.publicacion.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Post no encontrado' });
 
-    const imageUrl = await getPostImageUrl(id);
+    const imageUrls = await getPostImageUrls(id);
     await prisma.publicacion.delete({ where: { id } });
-    deleteOldFileFromUrl(fs, imageUrl, uploadDir);
+    deleteImageUrls(imageUrls);
     audit(req, 'post.delete', { postId: id });
     res.json({ ok: true });
   } catch (err) {

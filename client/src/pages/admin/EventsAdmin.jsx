@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
+import AdminFileInput from '../../components/admin/AdminFileInput.jsx';
+import AdminDateTimeField from '../../components/admin/AdminDateTimeField.jsx';
 
 const EMPTY = { id: null, title: '', description: '', date: '', location: '' };
 
@@ -26,6 +28,10 @@ export default function EventsAdmin() {
     e.preventDefault();
     setStatus(null);
     try {
+      if (!editing.date) {
+        setStatus({ type: 'err', msg: 'Selecciona una fecha y hora' });
+        return;
+      }
       const fd = new FormData();
       fd.append('title', editing.title);
       fd.append('description', editing.description);
@@ -61,7 +67,7 @@ export default function EventsAdmin() {
         </div>
       )}
 
-      <form onSubmit={submit} className="card p-6 mt-6 space-y-4 max-w-2xl">
+      <form onSubmit={submit} className="card relative z-20 overflow-visible p-6 mt-6 space-y-4 max-w-2xl">
         <div className="flex items-center justify-between">
           <h2 className="font-bold">{editing.id ? 'Editar evento' : 'Nuevo evento'}</h2>
           {editing.id && (
@@ -81,7 +87,7 @@ export default function EventsAdmin() {
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="label">Fecha y hora</label>
-            <input type="datetime-local" className="field" required value={editing.date ? toDatetimeLocal(editing.date) : ''} onChange={(e) => setEditing({ ...editing, date: e.target.value })} />
+            <AdminDateTimeField id="event-date" value={editing.date ? toDatetimeLocal(editing.date) : ''} onChange={(date) => setEditing({ ...editing, date })} />
           </div>
           <div>
             <label className="label">Lugar</label>
@@ -89,14 +95,18 @@ export default function EventsAdmin() {
           </div>
         </div>
         <div>
-          <label className="label">Imagen</label>
-          <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] || null)} className="block text-sm text-white/70" />
+          <AdminFileInput
+            id="event-image"
+            file={image}
+            currentImageUrl={editing.imageUrl}
+            onChange={setImage}
+          />
           {editing.imageUrl && <img src={asset(editing.imageUrl)} alt="" className="mt-2 h-32 rounded-lg object-cover" />}
         </div>
         <button className="btn-primary">{editing.id ? 'Actualizar' : 'Crear'}</button>
       </form>
 
-      <div className="mt-8 space-y-3">
+      <div className="relative z-0 mt-8 space-y-3">
         {events.map((ev) => (
           <div key={ev.id} className="card p-4 flex items-center gap-4">
             {ev.imageUrl ? <img src={asset(ev.imageUrl)} alt="" className="h-14 w-20 rounded-lg object-cover" /> : <div className="h-14 w-20 rounded-lg bg-white/5" />}
