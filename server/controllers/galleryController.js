@@ -1,12 +1,10 @@
-const fs = require('fs');
 const prisma = require('../config/prisma');
 const {
   fileToStorageReference,
   withResolvedImageUrl,
   withResolvedImageUrlList,
-  deleteOldFileFromUrl,
 } = require('../utils/fileUrl');
-const { uploadDir } = require('../middleware/upload');
+const { deleteImageIfUnused } = require('../utils/imageRefs');
 const { audit } = require('../utils/auditLog');
 
 async function listImages(_req, res, next) {
@@ -50,9 +48,11 @@ async function updateImage(req, res, next) {
     };
     if (req.file) {
       data.imageUrl = fileToStorageReference(req.file);
-      deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
     const image = await prisma.imagenGaleria.update({ where: { id }, data });
+    if (req.file && data.imageUrl !== current.imageUrl) {
+      await deleteImageIfUnused(current.imageUrl);
+    }
     res.json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
@@ -65,7 +65,7 @@ async function deleteImage(req, res, next) {
     const current = await prisma.imagenGaleria.findUnique({ where: { id } });
     if (!current) return res.status(404).json({ message: 'Imagen no encontrada' });
     await prisma.imagenGaleria.delete({ where: { id } });
-    deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    await deleteImageIfUnused(current.imageUrl);
     audit(req, 'gallery.delete', { imageId: id });
     res.json({ ok: true });
   } catch (err) {

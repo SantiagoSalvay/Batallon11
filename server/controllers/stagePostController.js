@@ -1,7 +1,6 @@
-const fs = require('fs');
 const prisma = require('../config/prisma');
-const { fileToStorageReference, deleteOldFileFromUrl } = require('../utils/fileUrl');
-const { uploadDir } = require('../middleware/upload');
+const { fileToStorageReference } = require('../utils/fileUrl');
+const { deleteImagesIfUnused } = require('../utils/imageRefs');
 const { isValidStageSlug } = require('../lib/stages');
 const { audit } = require('../utils/auditLog');
 const {
@@ -33,8 +32,8 @@ async function mirrorImagesToStageGallery(files, caption, stageSlug) {
   await Promise.all(files.map((file) => mirrorImageToStageGallery(file, caption, stageSlug)));
 }
 
-function deleteImageUrls(urls) {
-  urls.forEach((url) => deleteOldFileFromUrl(fs, url, uploadDir));
+async function deleteImageUrls(urls) {
+  await deleteImagesIfUnused(urls);
 }
 
 async function listStagePostsBySlug(req, res, next) {
@@ -137,7 +136,7 @@ async function updateStagePost(req, res, next) {
     const files = uploadedPostFiles(req);
     if (files.length) {
       const previousUrls = await setPostImages(id, files.map(fileToStorageReference));
-      deleteImageUrls(previousUrls);
+      await deleteImageUrls(previousUrls);
       const effectiveStageSlug = data.stageSlug ?? current.stageSlug;
       await mirrorImagesToStageGallery(files, title ?? current.title, effectiveStageSlug);
     }
@@ -165,7 +164,7 @@ async function deleteStagePost(req, res, next) {
 
     const imageUrls = await getPostImageUrls(id);
     await prisma.publicacion.delete({ where: { id } });
-    deleteImageUrls(imageUrls);
+    await deleteImageUrls(imageUrls);
     audit(req, 'stage_post.delete', { postId: id, stageSlug: current.stageSlug });
     res.json({ ok: true });
   } catch (err) {

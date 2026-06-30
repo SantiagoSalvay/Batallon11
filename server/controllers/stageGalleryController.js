@@ -1,12 +1,10 @@
-const fs = require('fs');
 const prisma = require('../config/prisma');
 const {
   fileToStorageReference,
   withResolvedImageUrl,
   withResolvedImageUrlList,
-  deleteOldFileFromUrl,
 } = require('../utils/fileUrl');
-const { uploadDir } = require('../middleware/upload');
+const { deleteImageIfUnused } = require('../utils/imageRefs');
 const { isValidStageSlug } = require('../lib/stages');
 const { audit } = require('../utils/auditLog');
 
@@ -90,9 +88,11 @@ async function updateImage(req, res, next) {
     }
     if (req.file) {
       data.imageUrl = fileToStorageReference(req.file);
-      deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
     }
     const image = await prisma.imagenGaleriaEtapa.update({ where: { id }, data });
+    if (req.file && data.imageUrl !== current.imageUrl) {
+      await deleteImageIfUnused(current.imageUrl);
+    }
     res.json(withResolvedImageUrl(image));
   } catch (err) {
     next(err);
@@ -108,7 +108,7 @@ async function deleteImage(req, res, next) {
       return res.status(403).json({ message: 'No autorizado para esta etapa' });
     }
     await prisma.imagenGaleriaEtapa.delete({ where: { id } });
-    deleteOldFileFromUrl(fs, current.imageUrl, uploadDir);
+    await deleteImageIfUnused(current.imageUrl);
     audit(req, 'stage_gallery.delete', { imageId: id, stageSlug: current.stageSlug });
     res.json({ ok: true });
   } catch (err) {

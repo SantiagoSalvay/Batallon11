@@ -1,7 +1,6 @@
-const fs = require('fs');
 const prisma = require('../config/prisma');
-const { fileToStorageReference, deleteOldFileFromUrl } = require('../utils/fileUrl');
-const { uploadDir } = require('../middleware/upload');
+const { fileToStorageReference } = require('../utils/fileUrl');
+const { deleteImagesIfUnused } = require('../utils/imageRefs');
 const { audit } = require('../utils/auditLog');
 const {
   postInclude,
@@ -33,8 +32,8 @@ async function mirrorImagesToHomeGallery(files, caption) {
   await Promise.all(files.map((file) => mirrorImageToHomeGallery(file, caption)));
 }
 
-function deleteImageUrls(urls) {
-  urls.forEach((url) => deleteOldFileFromUrl(fs, url, uploadDir));
+async function deleteImageUrls(urls) {
+  await deleteImagesIfUnused(urls);
 }
 
 async function listPosts(req, res, next) {
@@ -115,7 +114,7 @@ async function updatePost(req, res, next) {
     const files = uploadedPostFiles(req);
     if (files.length) {
       const previousUrls = await setPostImages(id, files.map(fileToStorageReference));
-      deleteImageUrls(previousUrls);
+      await deleteImageUrls(previousUrls);
       await mirrorImagesToHomeGallery(files, title ?? current.title);
     }
 
@@ -137,7 +136,7 @@ async function deletePost(req, res, next) {
 
     const imageUrls = await getPostImageUrls(id);
     await prisma.publicacion.delete({ where: { id } });
-    deleteImageUrls(imageUrls);
+    await deleteImageUrls(imageUrls);
     audit(req, 'post.delete', { postId: id });
     res.json({ ok: true });
   } catch (err) {
