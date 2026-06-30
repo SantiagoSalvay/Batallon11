@@ -13,6 +13,7 @@ const { processUploadedImages, tagUploadKind } = require('../middleware/processI
 const { uploadLimiter } = require('../middleware/uploadLimiter');
 const { validateBody } = require('../middleware/validateRequest');
 const { postBodySchema, postBodyUpdateSchema } = require('../schemas/contentSchemas');
+const { MAX_POST_IMAGES } = require('../utils/publicacionApi');
 
 router.get('/', listPosts);
 router.get('/:id', attachUserOptional, getPost);
@@ -23,7 +24,7 @@ router.post(
   requireRole('ADMIN', 'EDITOR'),
   uploadLimiter,
   tagUploadKind('publicaciones', { mirrorToGallery: true }),
-  upload.single('image'),
+  upload.array('image', MAX_POST_IMAGES),
   processUploadedImages,
   validateBody(postBodySchema),
   createPost
@@ -34,7 +35,7 @@ router.put(
   requireRole('ADMIN', 'EDITOR'),
   uploadLimiter,
   tagUploadKind('publicaciones', { mirrorToGallery: true }),
-  upload.single('image'),
+  upload.array('image', MAX_POST_IMAGES),
   processUploadedImages,
   validateBody(postBodyUpdateSchema),
   updatePost

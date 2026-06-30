@@ -12,7 +12,7 @@ export default function StagePostsAdmin() {
   const [selectedStage, setSelectedStage] = useState('');
   const [posts, setPosts] = useState([]);
   const [editing, setEditing] = useState(EMPTY);
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
@@ -44,13 +44,13 @@ export default function StagePostsAdmin() {
       fd.append('content', editing.content);
       fd.append('stageSlug', editing.stageSlug || selectedStage);
       fd.append('published', String(editing.published));
-      if (image) fd.append('image', image);
+      images.forEach((item) => fd.append('image', item));
 
       if (editing.id) await api.put(`/stage-posts/${editing.id}`, fd);
       else await api.post('/stage-posts', fd);
 
       setEditing(EMPTY);
-      setImage(null);
+      setImages([]);
       load(selectedStage);
       setStatus({ type: 'ok', msg: 'Publicación guardada' });
     } catch (err) {
@@ -110,7 +110,7 @@ export default function StagePostsAdmin() {
               type="button"
               onClick={() => {
                 setEditing(EMPTY);
-                setImage(null);
+                setImages([]);
               }}
               className="text-sm text-white/60"
             >
@@ -151,9 +151,11 @@ export default function StagePostsAdmin() {
         <div>
           <AdminFileInput
             id="stage-post-image"
-            file={image}
+            files={images}
             currentImageUrl={editing.imageUrl}
-            onChange={setImage}
+            multiple
+            maxFiles={6}
+            onChange={setImages}
           />
           {editing.imageUrl && (
             <img src={asset(editing.imageUrl)} alt="" className="mt-2 h-32 rounded-lg object-cover" />

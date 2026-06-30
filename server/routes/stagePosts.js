@@ -15,6 +15,7 @@ const {
   stagePostBodySchema,
   stagePostBodyUpdateSchema,
 } = require('../schemas/contentSchemas');
+const { MAX_POST_IMAGES } = require('../utils/publicacionApi');
 
 router.get('/', attachUserOptional, listStagePostsByStageSlug);
 router.post(
@@ -23,7 +24,7 @@ router.post(
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   uploadLimiter,
   tagUploadKind('publicaciones', { mirrorToGallery: true }),
-  upload.single('image'),
+  upload.array('image', MAX_POST_IMAGES),
   processUploadedImages,
   requireStageScope,
   validateBody(stagePostBodySchema),
@@ -35,7 +36,7 @@ router.put(
   requireRole('ADMIN', 'EDITOR', 'COORDINATOR'),
   uploadLimiter,
   tagUploadKind('publicaciones', { mirrorToGallery: true }),
-  upload.single('image'),
+  upload.array('image', MAX_POST_IMAGES),
   processUploadedImages,
   requireStageScope,
   validateBody(stagePostBodyUpdateSchema),

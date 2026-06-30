@@ -7,7 +7,7 @@ const EMPTY = { id: null, title: '', content: '', published: true };
 export default function PostsAdmin() {
   const [posts, setPosts] = useState([]);
   const [editing, setEditing] = useState(EMPTY);
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
   const [status, setStatus] = useState(null);
 
   const load = () => api.get('/posts', { params: { limit: 100 } }).then((r) => setPosts(r.data));
@@ -24,13 +24,13 @@ export default function PostsAdmin() {
       fd.append('title', editing.title);
       fd.append('content', editing.content);
       fd.append('published', String(editing.published));
-      if (image) fd.append('image', image);
+      images.forEach((item) => fd.append('image', item));
 
       if (editing.id) await api.put(`/posts/${editing.id}`, fd);
       else await api.post('/posts', fd);
 
       setEditing(EMPTY);
-      setImage(null);
+      setImages([]);
       await load();
       setStatus({ type: 'ok', msg: 'Publicación guardada' });
     } catch (err) {
@@ -58,7 +58,7 @@ export default function PostsAdmin() {
         <div className="flex items-center justify-between">
           <h2 className="font-bold">{editing.id ? 'Editar publicación' : 'Nueva publicación'}</h2>
           {editing.id && (
-            <button type="button" onClick={() => { setEditing(EMPTY); setImage(null); }} className="text-sm text-white/60">
+            <button type="button" onClick={() => { setEditing(EMPTY); setImages([]); }} className="text-sm text-white/60">
               Cancelar
             </button>
           )}
@@ -78,9 +78,11 @@ export default function PostsAdmin() {
         <div>
           <AdminFileInput
             id="post-image"
-            file={image}
+            files={images}
             currentImageUrl={editing.imageUrl}
-            onChange={setImage}
+            multiple
+            maxFiles={6}
+            onChange={setImages}
           />
           {editing.imageUrl && <img src={asset(editing.imageUrl)} alt="" className="mt-2 h-32 rounded-lg object-cover" />}
         </div>

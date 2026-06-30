@@ -2,12 +2,28 @@ export default function AdminFileInput({
   id,
   label = 'Imagen',
   file,
+  files,
   currentImageUrl,
   required = false,
+  multiple = false,
+  maxFiles = 1,
   onChange,
 }) {
-  const inputKey = file ? `${file.name}-${file.lastModified}` : currentImageUrl || 'empty';
-  const fileName = file?.name || (currentImageUrl ? 'Imagen actual cargada' : 'Sin archivo seleccionado');
+  const selectedFiles = files ?? (Array.isArray(file) ? file : file ? [file] : []);
+  const inputKey = selectedFiles.length
+    ? selectedFiles.map((item) => `${item.name}-${item.lastModified}`).join('|')
+    : currentImageUrl || 'empty';
+
+  const fileName = (() => {
+    if (selectedFiles.length === 1) return selectedFiles[0].name;
+    if (selectedFiles.length > 1) return `${selectedFiles.length} archivos seleccionados`;
+    return currentImageUrl ? 'Imagen actual cargada' : 'Sin archivo seleccionado';
+  })();
+
+  const handleChange = (e) => {
+    const nextFiles = Array.from(e.target.files || []).slice(0, maxFiles);
+    onChange(multiple ? nextFiles : nextFiles[0] || null);
+  };
 
   return (
     <div>
@@ -20,13 +36,17 @@ export default function AdminFileInput({
         </label>
         <span className="min-w-0 truncate text-sm text-white/60">{fileName}</span>
       </div>
+      {multiple && (
+        <div className="mt-1 text-xs text-white/45">Hasta {maxFiles} archivos</div>
+      )}
       <input
         key={inputKey}
         id={id}
         type="file"
         accept="image/*"
         required={required}
-        onChange={(e) => onChange(e.target.files?.[0] || null)}
+        multiple={multiple}
+        onChange={handleChange}
         className="sr-only"
       />
     </div>

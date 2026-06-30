@@ -8,11 +8,15 @@ const {
   postInclude,
   toPostApi,
   toPostApiList,
-  setPostImage,
-  getPostImageUrl,
+  setPostImages,
+  getPostImageUrls,
 } = require('../utils/publicacionApi');
 
-// Copia la imagen de una publicación de etapa a la galería de esa etapa.
+function uploadedPostFiles(req) {
+  if (Array.isArray(req.files)) return req.files;
+  return req.file ? [req.file] : [];
+}
+
 async function mirrorImageToStageGallery(file, caption, stageSlug) {
   if (!file?.galleryFile) return;
   await prisma.imagenGaleriaEtapa.create({
@@ -23,6 +27,14 @@ async function mirrorImageToStageGallery(file, caption, stageSlug) {
       stageSlug,
     },
   });
+}
+
+async function mirrorImagesToStageGallery(files, caption, stageSlug) {
+  await Promise.all(files.map((file) => mirrorImageToStageGallery(file, caption, stageSlug)));
+}
+
+function deleteImageUrls(urls) {
+  urls.forEach((url) => deleteOldFileFromUrl(fs, url, uploadDir));
 }
 
 async function listStagePostsBySlug(req, res, next) {
@@ -71,16 +83,17 @@ async function createStagePost(req, res, next) {
   try {
     const { title, content, stageSlug, published = true } = req.body;
     if (!isValidStageSlug(stageSlug)) {
-      return res.status(400).json({ message: 'Etapa no válida' });
+      return res.status(400).json({ message: 'Etapa no valida' });
     }
 
     const post = await prisma.publicacion.create({
       data: { title, content, stageSlug, published },
     });
 
-    if (req.file) {
-      await setPostImage(post.id, fileToStorageReference(req.file));
-      await mirrorImageToStageGallery(req.file, title, stageSlug);
+    const files = uploadedPostFiles(req);
+    if (files.length) {
+      await setPostImages(post.id, files.map(fileToStorageReference));
+      await mirrorImagesToStageGallery(files, title, stageSlug);
     }
 
     const withImage = await prisma.publicacion.findUnique({
@@ -116,17 +129,17 @@ async function updateStagePost(req, res, next) {
       ...(published !== undefined && { published }),
     };
     if (stageSlug !== undefined && !isValidStageSlug(stageSlug)) {
-      return res.status(400).json({ message: 'Etapa no válida' });
+      return res.status(400).json({ message: 'Etapa no valida' });
     }
 
     await prisma.publicacion.update({ where: { id }, data });
 
-    if (req.file) {
-      const imageUrl = fileToStorageReference(req.file);
-      const previousUrl = await setPostImage(id, imageUrl);
-      deleteOldFileFromUrl(fs, previousUrl, uploadDir);
+    const files = uploadedPostFiles(req);
+    if (files.length) {
+      const previousUrls = await setPostImages(id, files.map(fileToStorageReference));
+      deleteImageUrls(previousUrls);
       const effectiveStageSlug = data.stageSlug ?? current.stageSlug;
-      await mirrorImageToStageGallery(req.file, title ?? current.title, effectiveStageSlug);
+      await mirrorImagesToStageGallery(files, title ?? current.title, effectiveStageSlug);
     }
 
     const post = await prisma.publicacion.findUnique({
@@ -150,9 +163,9 @@ async function deleteStagePost(req, res, next) {
       return res.status(403).json({ message: 'No autorizado para esta etapa' });
     }
 
-    const imageUrl = await getPostImageUrl(id);
+    const imageUrls = await getPostImageUrls(id);
     await prisma.publicacion.delete({ where: { id } });
-    deleteOldFileFromUrl(fs, imageUrl, uploadDir);
+    deleteImageUrls(imageUrls);
     audit(req, 'stage_post.delete', { postId: id, stageSlug: current.stageSlug });
     res.json({ ok: true });
   } catch (err) {
