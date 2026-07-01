@@ -7,6 +7,31 @@ const {
 const { deleteImageIfUnused } = require('../utils/imageRefs');
 const { isValidStageSlug } = require('../lib/stages');
 const { audit } = require('../utils/auditLog');
+const { dailySeed, dailyShuffle } = require('../utils/dailyShuffle');
+
+function parseLimit(value, fallback = 12, max = 48) {
+  const limit = Number(value);
+  if (!Number.isFinite(limit) || limit <= 0) return fallback;
+  return Math.min(Math.trunc(limit), max);
+}
+
+async function listMixedImages(req, res, next) {
+  try {
+    const limit = parseLimit(req.query.limit);
+    const seed = dailySeed();
+    const images = await prisma.imagenGaleriaEtapa.findMany({
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    });
+    const mixed = dailyShuffle(images, {
+      seed,
+      identity: (img) => `${img.stageSlug}:${img.id}:${img.imageUrl}`,
+    }).slice(0, limit);
+
+    res.json(withResolvedImageUrlList(mixed));
+  } catch (err) {
+    next(err);
+  }
+}
 
 async function listImagesBySlug(req, res, next) {
   try {
@@ -117,6 +142,7 @@ async function deleteImage(req, res, next) {
 }
 
 module.exports = {
+  listMixedImages,
   listImagesBySlug,
   listImagesByStageSlug,
   createImage,

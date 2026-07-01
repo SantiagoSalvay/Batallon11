@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const {
+  listMixedImages,
   listImagesByStageSlug,
   createImage,
   updateImage,
@@ -12,6 +13,7 @@ const { uploadLimiter } = require('../middleware/uploadLimiter');
 const { validateBody } = require('../middleware/validateRequest');
 const { stageGalleryImageSchema } = require('../schemas/contentSchemas');
 
+router.get('/mixed', listMixedImages);
 router.get('/', listImagesByStageSlug);
 router.post(
   '/',
