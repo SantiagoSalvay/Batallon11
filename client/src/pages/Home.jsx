@@ -4,7 +4,7 @@ import { api } from '../services/api.js';
 import Hero from '../components/Hero.jsx';
 import AboutSection from '../components/AboutSection.jsx';
 import StagesGrid from '../components/StagesGrid.jsx';
-import PostsList from '../components/PostsList.jsx';
+import Gallery from '../components/Gallery.jsx';
 import VisitUsSection from '../components/VisitUsSection.jsx';
 import EventsSection from '../components/EventsSection.jsx';
 import ContactSection from '../components/ContactSection.jsx';
@@ -14,9 +14,8 @@ import { organizationLd, websiteLd, DEFAULT_DESCRIPTION } from '../lib/seo.js';
 
 export default function Home() {
   const location = useLocation();
-  const [posts, setPosts] = useState([]);
-  const [hasMorePosts, setHasMorePosts] = useState(false);
   const [events, setEvents] = useState([]);
+  const [stageGalleryImages, setStageGalleryImages] = useState([]);
 
   useEffect(() => {
     const target = location.state?.scrollTo;
@@ -36,17 +35,13 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false;
     Promise.allSettled([
-      api.get('/posts', { params: { limit: 4 } }),
       api.get('/events', { params: { upcoming: true } }),
+      api.get('/stage-gallery/mixed', { params: { limit: 8 } }),
     ]).then((results) => {
       if (cancelled) return;
-      const [p, e] = results;
-      if (p.status === 'fulfilled') {
-        const all = p.value.data;
-        setHasMorePosts(all.length > 3);
-        setPosts(all.slice(0, 3));
-      }
+      const [e, g] = results;
       if (e.status === 'fulfilled') setEvents(e.value.data);
+      if (g.status === 'fulfilled') setStageGalleryImages(g.value.data);
     });
     return () => {
       cancelled = true;
@@ -64,8 +59,8 @@ export default function Home() {
       <Hero />
       <AboutSection />
       <StagesGrid stages={LOCAL_STAGES} />
-      <PostsList posts={posts} title="Ultimas novedades" showViewAll={hasMorePosts} />
       <EventsSection events={events} />
+      <Gallery title="Galeria de Nuestro Batallon" images={stageGalleryImages} maxItems={8} layout="carousel" />
       <VisitUsSection />
       <ContactSection />
     </>
