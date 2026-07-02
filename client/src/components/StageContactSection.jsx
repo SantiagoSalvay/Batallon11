@@ -2,33 +2,36 @@ import { motion } from 'framer-motion';
 
 export const STAGE_COORDINATORS = {
   'horneros-pichones': [
-    { name: 'Nicolas Murua', phone: '' },
-    { name: 'Juana Pinedo', phone: '' },
+    { name: 'Nicolas Murua', phone: '+54 9 3513 71-6359' },
+    { name: 'Juana Pinedo', phone: '+54 9 3518 10-3147' },
   ],
   'caminantes-chispistas': [
-    { name: 'Jose Fuentes', phone: '' },
-    { name: 'Melina Pezzolo', phone: '' },
+    { name: 'Jose Fuentes', phone: '+54 9 3518 11-3684' },
+    { name: 'Melina Pezzolo', phone: '+54 9 3512 63-6580' },
   ],
   'pioneros-fuegos': [
-    { name: 'Santiago Salvay', phone: '' },
-    { name: 'Natalia Rivadero', phone: '' },
+    { name: 'Santiago Salvay', phone: '+54 9 3518 57-9473' },
+    { name: 'Natalia Rivadero', phone: '+54 9 3517 31-6024' },
   ],
   rastreadores: [
-    { name: 'Ismael Varela', phone: '' },
-    { name: 'Nicolas Estigarribia', phone: '' },
+    { name: 'Ismael Varela', phone: '+54 9 3512 09-8166' },
+    { name: 'Nicolas Estigarribia', phone: '+54 9 3516 74-7369' },
   ],
   baqueanos: [
-    { name: 'Tomas Marino', phone: '' },
-    { name: 'Mateo Junco', phone: '' },
+    { name: 'Tomas Marino', phone: '+54 9 3513 27-3568' },
+    { name: 'Mateo Junco', phone: '+54 9 3512 63-0605' },
   ],
 };
 
-const WHATSAPP_MESSAGE = 'Hola, tengo una consulta sobre la etapa.';
+function buildWhatsAppMessage(personName, stageName) {
+  const firstName = (personName || '').trim().split(/\s+/)[0] || '';
+  return `Hola ${firstName}, quisiera consultar para inscribir a mi hijo/a a la etapa ${stageName}.`;
+}
 
-function buildWhatsAppUrl(phone) {
+function buildWhatsAppUrl(phone, message) {
   const digits = (phone || '').replace(/\D/g, '');
   if (!digits) return null;
-  const text = encodeURIComponent(WHATSAPP_MESSAGE);
+  const text = encodeURIComponent(message || '');
   return `https://wa.me/${digits}?text=${text}`;
 }
 
@@ -66,7 +69,8 @@ export default function StageContactSection({ stage }) {
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:max-w-3xl">
           {coordinators.map((person, idx) => {
-            const url = buildWhatsAppUrl(person.phone);
+            const message = buildWhatsAppMessage(person.name, stage.name);
+            const url = buildWhatsAppUrl(person.phone, message);
             const Tag = url ? motion.a : motion.span;
             const linkProps = url
               ? { href: url, target: '_blank', rel: 'noopener noreferrer' }
