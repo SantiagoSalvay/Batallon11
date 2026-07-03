@@ -26,6 +26,7 @@ export default function ZoomableImage({
   const containerRef = useRef(null);
   const imageRef = useRef(null);
   const [imageBox, setImageBox] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const downloadName = imageDownloadName(src);
 
   const measureImage = () => {
@@ -66,6 +67,32 @@ export default function ZoomableImage({
         width: `${imageBox.width}px`,
       }
     : { left: 0, right: 0, top: 0 };
+
+  const handleDownload = async (event) => {
+    event.stopPropagation();
+    if (isDownloading) return;
+
+    setIsDownloading(true);
+    try {
+      const response = await fetch(src);
+      if (!response.ok) throw new Error('No se pudo descargar la imagen');
+
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = downloadName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch {
+      const separator = src.includes('?') ? '&' : '?';
+      window.location.href = `${src}${separator}download=${encodeURIComponent(downloadName)}`;
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const captionStyle = imageBox
     ? {
@@ -142,16 +169,16 @@ export default function ZoomableImage({
                 >
                   <Plus className="h-5 w-5" strokeWidth={2.1} />
                 </button>
-                <a
-                  href={src}
-                  download={downloadName}
-                  className={toolbarButtonClass}
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  disabled={isDownloading}
+                  className={`${toolbarButtonClass} disabled:cursor-wait disabled:opacity-60`}
                   title="Descargar"
                   aria-label="Descargar imagen"
-                  onClick={(event) => event.stopPropagation()}
                 >
                   <Download className="h-5 w-5" strokeWidth={2.1} />
-                </a>
+                </button>
               </div>
             </div>
 
