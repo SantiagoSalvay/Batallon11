@@ -5,13 +5,36 @@ import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 const toolbarButtonClass =
   'grid h-10 w-10 place-items-center rounded-md text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] transition hover:bg-black/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60';
 
-function imageDownloadName(src) {
+function imageFileName(src) {
   try {
     const url = new URL(src, window.location.href);
     return url.pathname.split('/').filter(Boolean).pop() || 'imagen-batallon-11';
   } catch {
     return 'imagen-batallon-11';
   }
+}
+
+function fileExtension(fileName) {
+  const cleanName = fileName.split('?')[0].split('#')[0];
+  const dotIndex = cleanName.lastIndexOf('.');
+  return dotIndex >= 0 ? cleanName.slice(dotIndex) : '';
+}
+
+function slugifyFileName(value) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+function imageDownloadName(src, caption) {
+  const originalName = imageFileName(src);
+  const extension = fileExtension(originalName);
+  const captionName = caption ? slugifyFileName(caption) : '';
+  return captionName ? `${captionName}${extension}` : originalName;
 }
 
 export default function ZoomableImage({
@@ -27,7 +50,7 @@ export default function ZoomableImage({
   const imageRef = useRef(null);
   const [imageBox, setImageBox] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const downloadName = imageDownloadName(src);
+  const downloadName = imageDownloadName(src, caption);
 
   const measureImage = () => {
     const container = containerRef.current;
