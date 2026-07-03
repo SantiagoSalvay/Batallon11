@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 import { safeText } from '../lib/safeText.js';
@@ -52,13 +53,7 @@ function GalleryCarouselArrow({ direction, onClick }) {
       } top-1/2 z-10 grid h-14 w-10 -translate-y-1/2 place-items-center text-white/80 drop-shadow transition hover:text-white focus:outline-none`}
       aria-label={isPrev ? 'Foto anterior' : 'Foto siguiente'}
     >
-      <span
-        className={
-          isPrev
-            ? 'h-0 w-0 border-y-[10px] border-r-[15px] border-y-transparent border-r-current'
-            : 'h-0 w-0 border-y-[10px] border-l-[15px] border-y-transparent border-l-current'
-        }
-      />
+      {isPrev ? <ChevronLeft className="h-7 w-7" strokeWidth={2.2} /> : <ChevronRight className="h-7 w-7" strokeWidth={2.2} />}
     </button>
   );
 }
@@ -170,7 +165,7 @@ export default function Gallery({
   layout = 'grid',
   maxItems,
   viewAllLink,
-  viewAllLabel = 'Ver más fotos',
+  viewAllLabel = 'Ver mÃ¡s fotos',
   viewAllThreshold = 4,
   animate = true,
 }) {
@@ -260,31 +255,18 @@ export default function Gallery({
               key={active.id}
               initial={{ scale: 0.98 }}
               animate={{ scale: 1 }}
-              className="relative flex max-h-[90vh] w-[92vw] max-w-6xl flex-col gap-3"
+              className="relative h-[86vh] w-[94vw] max-w-6xl"
               onClick={(event) => event.stopPropagation()}
             >
-              <button
-                type="button"
-                onClick={() => setActive(null)}
-                className="absolute left-3 top-3 z-20 grid h-9 w-9 place-items-center rounded-md border border-white/15 bg-black/70 text-sm font-bold text-white shadow-lg transition hover:bg-white hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-white/70"
-                aria-label="Cerrar imagen"
-                title="Cerrar"
-              >
-                x
-              </button>
               <ZoomableImage
                 src={asset(active.imageUrl)}
                 alt={safeText(active.caption) || ''}
                 imageKey={active.id}
-                className="h-[78vh] rounded-md shadow-2xl"
-                imageClassName="rounded-md"
+                className="h-full"
+                onClose={() => setActive(null)}
+                caption={safeText(active.caption)}
               />
             </motion.div>
-            {active.caption && (
-              <div className="absolute bottom-6 px-4 text-center text-sm text-white/80">
-                {safeText(active.caption)}
-              </div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>

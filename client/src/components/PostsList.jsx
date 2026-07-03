@@ -1,5 +1,6 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 import { safeText } from '../lib/safeText.js';
@@ -258,24 +259,27 @@ export default function PostsList({
                       alt={safeText(activePost.title)}
                       imageKey={activeImage.id || activeImage.imageUrl}
                       className="h-[70vh] w-full"
+                      onClose={closePost}
                     />
                     {activeImages.length > 1 && (
                       <>
                         <button
                           type="button"
                           onClick={() => moveImage(-1)}
-                          className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-2xl font-bold text-white transition hover:bg-black"
+                          className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-md bg-slate-950/80 text-white/85 shadow-lg transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
                           aria-label="Foto anterior"
+                          title="Foto anterior"
                         >
-                          {'<'}
+                          <ChevronLeft className="h-5 w-5" strokeWidth={2.2} />
                         </button>
                         <button
                           type="button"
                           onClick={() => moveImage(1)}
-                          className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-2xl font-bold text-white transition hover:bg-black"
+                          className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-md bg-slate-950/80 text-white/85 shadow-lg transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
                           aria-label="Foto siguiente"
+                          title="Foto siguiente"
                         >
-                          {'>'}
+                          <ChevronRight className="h-5 w-5" strokeWidth={2.2} />
                         </button>
                       </>
                     )}
@@ -295,9 +299,11 @@ export default function PostsList({
                     <button
                       type="button"
                       onClick={closePost}
-                      className="rounded-md border border-white/15 px-3 py-2 text-sm font-bold text-white/80 transition hover:bg-white hover:text-slate-950"
+                      className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-white/85 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+                      aria-label="Cerrar publicación"
+                      title="Cerrar"
                     >
-                      Cerrar
+                      <X className="h-4 w-4" strokeWidth={2.2} />
                     </button>
                   </div>
                   <p className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-200">
