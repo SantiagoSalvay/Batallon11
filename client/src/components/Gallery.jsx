@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 import { safeText } from '../lib/safeText.js';
+import ZoomableImage from './ZoomableImage.jsx';
 
 function GalleryGrid({ images, animate, onSelect }) {
   return (
@@ -255,14 +256,30 @@ export default function Gallery({
             className="fixed inset-0 z-50 grid place-items-center bg-black/90 p-6"
             onClick={() => setActive(null)}
           >
-            <motion.img
+            <motion.div
               key={active.id}
               initial={{ scale: 0.98 }}
               animate={{ scale: 1 }}
-              src={asset(active.imageUrl)}
-              alt={safeText(active.caption) || ''}
-              className="max-h-[85vh] max-w-[90vw] rounded-md shadow-2xl"
-            />
+              className="relative flex max-h-[90vh] w-[92vw] max-w-6xl flex-col gap-3"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setActive(null)}
+                className="absolute left-3 top-3 z-20 grid h-9 w-9 place-items-center rounded-md border border-white/15 bg-black/70 text-sm font-bold text-white shadow-lg transition hover:bg-white hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-white/70"
+                aria-label="Cerrar imagen"
+                title="Cerrar"
+              >
+                x
+              </button>
+              <ZoomableImage
+                src={asset(active.imageUrl)}
+                alt={safeText(active.caption) || ''}
+                imageKey={active.id}
+                className="h-[78vh] rounded-md shadow-2xl"
+                imageClassName="rounded-md"
+              />
+            </motion.div>
             {active.caption && (
               <div className="absolute bottom-6 px-4 text-center text-sm text-white/80">
                 {safeText(active.caption)}

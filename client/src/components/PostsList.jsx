@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 import { safeText } from '../lib/safeText.js';
+import ZoomableImage from './ZoomableImage.jsx';
 
 function formatDate(d) {
   try {
@@ -252,10 +253,11 @@ export default function PostsList({
               >
                 {activeImage && (
                   <div className="relative bg-black">
-                    <img
+                    <ZoomableImage
                       src={asset(activeImage.imageUrl)}
                       alt={safeText(activePost.title)}
-                      className="max-h-[70vh] w-full object-contain"
+                      imageKey={activeImage.id || activeImage.imageUrl}
+                      className="h-[70vh] w-full"
                     />
                     {activeImages.length > 1 && (
                       <>
