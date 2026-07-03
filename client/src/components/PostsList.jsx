@@ -169,18 +169,18 @@ export default function PostsList({
                             <button
                               type="button"
                               onClick={(e) => movePreviewImage(e, p.id, images.length, -1)}
-                              className="absolute left-0 top-1/2 grid h-10 w-8 -translate-y-1/2 place-items-center text-white/70 drop-shadow transition hover:text-white focus:outline-none"
+                              className="absolute left-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-md text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] transition hover:bg-black/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
                               aria-label="Foto anterior"
                             >
-                              <span className="h-0 w-0 border-y-[8px] border-r-[12px] border-y-transparent border-r-current" />
+                              <ChevronLeft className="h-6 w-6" strokeWidth={2.2} />
                             </button>
                             <button
                               type="button"
                               onClick={(e) => movePreviewImage(e, p.id, images.length, 1)}
-                              className="absolute right-0 top-1/2 grid h-10 w-8 -translate-y-1/2 place-items-center text-white/70 drop-shadow transition hover:text-white focus:outline-none"
+                              className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-md text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] transition hover:bg-black/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
                               aria-label="Foto siguiente"
                             >
-                              <span className="h-0 w-0 border-y-[8px] border-l-[12px] border-y-transparent border-l-current" />
+                              <ChevronRight className="h-6 w-6" strokeWidth={2.2} />
                             </button>
                           </>
                         )}
