@@ -45,6 +45,7 @@ export default function ZoomableImage({
   imageClassName = '',
   onClose,
   caption,
+  children,
 }) {
   const containerRef = useRef(null);
   const imageRef = useRef(null);
@@ -59,6 +60,8 @@ export default function ZoomableImage({
 
     const containerRect = container.getBoundingClientRect();
     const imageRect = image.getBoundingClientRect();
+    if (!imageRect.width || !imageRect.height) return;
+
     setImageBox({
       left: imageRect.left - containerRect.left,
       top: imageRect.top - containerRect.top,
@@ -67,29 +70,55 @@ export default function ZoomableImage({
     });
   };
 
-  useEffect(() => {
+  const scheduleMeasure = () => {
     measureImage();
+    window.requestAnimationFrame(() => {
+      measureImage();
+      window.requestAnimationFrame(measureImage);
+    });
+    window.setTimeout(measureImage, 120);
+  };
+
+  useEffect(() => {
+    setImageBox(null);
 
     const container = containerRef.current;
+    const image = imageRef.current;
     if (!container) return undefined;
 
-    const observer = new ResizeObserver(() => measureImage());
+    let frameOne = 0;
+    let frameTwo = 0;
+    const runMeasure = () => {
+      measureImage();
+      frameOne = window.requestAnimationFrame(() => {
+        measureImage();
+        frameTwo = window.requestAnimationFrame(measureImage);
+      });
+    };
+    const timer = window.setTimeout(runMeasure, 120);
+
+    runMeasure();
+    const observer = new ResizeObserver(runMeasure);
     observer.observe(container);
-    window.addEventListener('resize', measureImage);
+    if (image) observer.observe(image);
+    window.addEventListener('resize', runMeasure);
 
     return () => {
       observer.disconnect();
-      window.removeEventListener('resize', measureImage);
+      window.cancelAnimationFrame(frameOne);
+      window.cancelAnimationFrame(frameTwo);
+      window.clearTimeout(timer);
+      window.removeEventListener('resize', runMeasure);
     };
   }, [src]);
 
   const controlsStyle = imageBox
     ? {
-        left: `${imageBox.left}px`,
-        top: `${imageBox.top}px`,
-        width: `${imageBox.width}px`,
+        left: `${imageBox.left + 8}px`,
+        top: `${imageBox.top + 8}px`,
+        right: `calc(100% - ${imageBox.left + imageBox.width - 8}px)`,
       }
-    : { left: 0, right: 0, top: 0 };
+    : { left: 8, right: 8, top: 8 };
 
   const handleDownload = async (event) => {
     event.stopPropagation();
@@ -147,7 +176,7 @@ export default function ZoomableImage({
         {({ zoomIn, zoomOut, resetTransform }) => (
           <>
             <div
-              className="pointer-events-none absolute z-20 flex items-center justify-between py-2 pl-2 pr-0"
+              className="pointer-events-none absolute z-20 flex items-center justify-between"
               style={controlsStyle}
             >
               {onClose ? (
@@ -164,7 +193,7 @@ export default function ZoomableImage({
                 <div className="h-10 w-10" />
               )}
 
-              <div className="pointer-events-auto flex items-center gap-2">
+              <div className="pointer-events-auto flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => zoomOut(0.3)}
@@ -220,10 +249,12 @@ export default function ZoomableImage({
                 src={src}
                 alt={alt}
                 draggable={false}
-                onLoad={measureImage}
+                onLoad={scheduleMeasure}
                 className={`max-h-full max-w-full select-none object-contain ${imageClassName}`}
               />
             </TransformComponent>
+
+            {imageBox && (typeof children === 'function' ? children(imageBox) : children)}
 
             {caption && (
               <div
