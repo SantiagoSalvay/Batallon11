@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 import { safeText } from '../lib/safeText.js';
+import ZoomableImage from './ZoomableImage.jsx';
 
 function GalleryGrid({ images, animate, onSelect }) {
   return (
@@ -51,13 +53,7 @@ function GalleryCarouselArrow({ direction, onClick }) {
       } top-1/2 z-10 grid h-14 w-10 -translate-y-1/2 place-items-center text-white/80 drop-shadow transition hover:text-white focus:outline-none`}
       aria-label={isPrev ? 'Foto anterior' : 'Foto siguiente'}
     >
-      <span
-        className={
-          isPrev
-            ? 'h-0 w-0 border-y-[10px] border-r-[15px] border-y-transparent border-r-current'
-            : 'h-0 w-0 border-y-[10px] border-l-[15px] border-y-transparent border-l-current'
-        }
-      />
+      {isPrev ? <ChevronLeft className="h-7 w-7" strokeWidth={2.2} /> : <ChevronRight className="h-7 w-7" strokeWidth={2.2} />}
     </button>
   );
 }
@@ -169,7 +165,7 @@ export default function Gallery({
   layout = 'grid',
   maxItems,
   viewAllLink,
-  viewAllLabel = 'Ver más fotos',
+  viewAllLabel = 'Ver mÃ¡s fotos',
   viewAllThreshold = 4,
   animate = true,
 }) {
@@ -255,19 +251,22 @@ export default function Gallery({
             className="fixed inset-0 z-50 grid place-items-center bg-black/90 p-6"
             onClick={() => setActive(null)}
           >
-            <motion.img
+            <motion.div
               key={active.id}
               initial={{ scale: 0.98 }}
               animate={{ scale: 1 }}
-              src={asset(active.imageUrl)}
-              alt={safeText(active.caption) || ''}
-              className="max-h-[85vh] max-w-[90vw] rounded-md shadow-2xl"
-            />
-            {active.caption && (
-              <div className="absolute bottom-6 px-4 text-center text-sm text-white/80">
-                {safeText(active.caption)}
-              </div>
-            )}
+              className="relative h-[86vh] w-[94vw] max-w-6xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <ZoomableImage
+                src={asset(active.imageUrl)}
+                alt={safeText(active.caption) || ''}
+                imageKey={active.id}
+                className="h-full"
+                onClose={() => setActive(null)}
+                caption={safeText(active.caption)}
+              />
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
