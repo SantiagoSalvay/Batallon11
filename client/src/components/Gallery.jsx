@@ -61,8 +61,11 @@ function GalleryCarouselArrow({ direction, onClick }) {
 function GalleryCarousel({ images, onSelect }) {
   const trackRef = useRef(null);
   const itemRef = useRef(null);
+  const dragRef = useRef({ active: false, startX: 0, moved: false });
+  const suppressClickRef = useRef(false);
   const [position, setPosition] = useState(images.length);
   const [itemStep, setItemStep] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
   const [animateTrack, setAnimateTrack] = useState(true);
   const shouldLoop = images.length > 1;
   const carouselImages = shouldLoop ? [...images, ...images, ...images] : images;
@@ -117,6 +120,47 @@ function GalleryCarousel({ images, onSelect }) {
     }
   };
 
+  const handlePointerDown = (event) => {
+    if (!shouldLoop || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    dragRef.current = { active: true, startX: event.clientX, moved: false };
+    setAnimateTrack(false);
+    trackRef.current?.setPointerCapture?.(event.pointerId);
+  };
+
+  const handlePointerMove = (event) => {
+    if (!dragRef.current.active) return;
+    const delta = event.clientX - dragRef.current.startX;
+    if (Math.abs(delta) > 6) dragRef.current.moved = true;
+    setDragOffset(delta);
+  };
+
+  const endDrag = (event) => {
+    if (!dragRef.current.active) return;
+    const delta = event.clientX - dragRef.current.startX;
+    const moved = dragRef.current.moved;
+    dragRef.current.active = false;
+    trackRef.current?.releasePointerCapture?.(event.pointerId);
+    setDragOffset(0);
+    setAnimateTrack(true);
+
+    if (itemStep && Math.abs(delta) > itemStep * 0.18) {
+      const steps = Math.max(1, Math.round(Math.abs(delta) / itemStep));
+      move(delta < 0 ? steps : -steps);
+    }
+
+    if (moved) {
+      suppressClickRef.current = true;
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 0);
+    }
+  };
+
+  const handleSelect = (img) => {
+    if (suppressClickRef.current) return;
+    onSelect(img);
+  };
+
   return (
     <div className="relative mt-8 overflow-hidden">
       {shouldLoop && (
@@ -129,11 +173,17 @@ function GalleryCarousel({ images, onSelect }) {
       <div
         ref={trackRef}
         onTransitionEnd={handleTransitionEnd}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
         className={`flex gap-3 sm:gap-4 ${
           animateTrack ? 'transition-transform duration-500 ease-out' : ''
-        }`}
+        } ${shouldLoop ? 'cursor-grab touch-pan-y select-none active:cursor-grabbing' : ''}`}
         style={{
-          transform: itemStep ? `translate3d(${-position * itemStep}px, 0, 0)` : undefined,
+          transform: itemStep
+            ? `translate3d(${-position * itemStep + dragOffset}px, 0, 0)`
+            : undefined,
           willChange: 'transform',
         }}
       >
@@ -142,13 +192,15 @@ function GalleryCarousel({ images, onSelect }) {
             key={`${Math.floor(idx / images.length)}-${img.id}-${img.imageUrl}`}
             ref={idx === 0 ? itemRef : null}
             type="button"
-            onClick={() => onSelect(img)}
+            onClick={() => handleSelect(img)}
+            draggable={false}
             className="group relative aspect-[4/3] w-[82%] shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-100 shadow-sm sm:w-[54%] lg:w-[35%] xl:w-[31%]"
           >
             <img
               src={asset(img.imageUrl)}
               alt={safeText(img.caption) || ''}
               loading="lazy"
+              draggable={false}
               className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
           </button>
@@ -184,14 +236,14 @@ export default function Gallery({
           </div>
 
           {showMoreLink && (
-            <Link
-              to={viewAllLink}
-              className={`w-fit rounded-md border border-slate-300 px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-950 hover:text-blue-950 ${
-                carousel && !showSlider ? 'hidden lg:inline-flex' : 'inline-flex'
-              }`}
-            >
-              {viewAllLabel}
-            </Link>
+          <Link
+            to={viewAllLink}
+            className={`public-button-outline ${
+              carousel && !showSlider ? 'hidden lg:inline-flex' : 'inline-flex'
+            }`}
+          >
+            {viewAllLabel}
+          </Link>
           )}
         </div>
 

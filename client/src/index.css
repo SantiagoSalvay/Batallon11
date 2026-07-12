@@ -122,6 +122,9 @@
   .public-button-secondary {
     @apply inline-flex items-center justify-center rounded-md border border-white/70 px-5 py-3 text-sm font-bold text-white transition hover:bg-white hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-slate-900;
   }
+  .public-button-outline {
+    @apply w-fit items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-950 hover:bg-blue-950 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2 focus:ring-offset-white;
+  }
   .public-maps-link {
     @apply inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-950 hover:bg-blue-950 hover:text-white;
   }
@@ -165,6 +168,14 @@
   }
   .page-dark .public-button-primary {
     @apply focus:ring-offset-slate-950;
+  }
+  .page-dark .public-button-outline {
+    @apply border-white/50 text-white focus:ring-white focus:ring-offset-slate-900;
+  }
+  .page-dark .public-button-outline:hover {
+    border-color: #fff;
+    background-color: #fff;
+    color: #020617;
   }
   .page-dark .public-maps-link {
     @apply border-white/20 bg-slate-900 text-white;
