@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { api } from '../services/api.js';
 import PostsList from '../components/PostsList.jsx';
 import Seo from '../components/Seo.jsx';

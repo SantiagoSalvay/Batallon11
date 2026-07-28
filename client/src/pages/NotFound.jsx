@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
 import { usePageBackground } from '../context/PageBackgroundContext.jsx';

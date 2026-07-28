@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { EMBLEMA } from '../lib/stageAssets.js';
 import { usePageBackground } from '../context/PageBackgroundContext.jsx';

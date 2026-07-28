@@ -1,5 +1,5 @@
-﻿import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
@@ -217,7 +217,7 @@ export default function Gallery({
   layout = 'grid',
   maxItems,
   viewAllLink,
-  viewAllLabel = 'Ver mÃ¡s fotos',
+  viewAllLabel = 'Ver más fotos',
   viewAllThreshold = 4,
   animate = true,
 }) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import { api } from '../services/api.js';
 import Gallery from '../components/Gallery.jsx';
 import Seo from '../components/Seo.jsx';

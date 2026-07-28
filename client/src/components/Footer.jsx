@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { BRAND_LOGO, EMBLEMA } from '../lib/stageAssets.js';
 import { requestAdminAccess } from '../lib/adminAccess.js';
 

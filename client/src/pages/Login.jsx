@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate, useParams, Navigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams, Navigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext.jsx';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
