@@ -7,6 +7,7 @@ import PublicationsPage from './pages/PublicationsPage.jsx';
 import StagePage from './pages/StagePage.jsx';
 import StagePublicationsPage from './pages/StagePublicationsPage.jsx';
 import StageGalleryPage from './pages/StageGalleryPage.jsx';
+import GalleryPage from './pages/GalleryPage.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Dashboard from './pages/admin/Dashboard.jsx';
@@ -26,6 +27,7 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/publicaciones" element={<PublicationsPage />} />
+        <Route path="/galeria" element={<GalleryPage />} />
         <Route path="/etapas/:slug/publicaciones" element={<StagePublicationsPage />} />
         <Route path="/etapas/:slug/galeria" element={<StageGalleryPage />} />
         <Route path="/etapas/:slug" element={<StagePage />} />
