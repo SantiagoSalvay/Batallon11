@@ -21,31 +21,61 @@ export default function Login() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  if (!isValidAdminRouteToken(token)) {
-    return <Navigate to="/" replace />;
+
+
+const submit = async (e) => {
+  e.preventDefault();
+  setError(null);
+  setLoading(true);
+
+  try {
+    const code = needTotp ? totpCode.trim() : undefined;
+
+    const user = await login(
+      email,
+      password,
+      code || undefined,
+      undefined
+    );
+
+    const role = user.role?.toUpperCase();
+
+let redirectTo = "/"; // default SIEMPRE
+
+if (role === "ADMIN") {
+  redirectTo = "/admin";
+} else if (role === "COORDINATOR") {
+  if (user.stageSlug) {
+    redirectTo = `/admin/stage/${user.stageSlug}`;
+  } else if (user.stageId) {
+    redirectTo = `/admin/stage/${user.stageId}`;
+  } else if (user.stage?.slug) {
+    redirectTo = `/admin/stage/${user.stage.slug}`;
+  } else {
+    redirectTo = "/admin";
   }
+} else if (from && from !== "/") {
+  redirectTo = from;
+}
 
-  const submit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      const code = needTotp ? totpCode.trim() : undefined;
-      await login(email, password, code || undefined, undefined);
-      navigate(from, { replace: true });
-    } catch (err) {
-      const data = err.response?.data;
-      if (data?.code === 'MFA_REQUIRED') {
-        setNeedTotp(true);
-        setError('Ingresá el código de tu app de autenticación.');
-      } else {
-        setError(data?.message || 'No se pudo iniciar sesión');
-      }
-    } finally {
-      setLoading(false);
+    navigate(redirectTo, { replace: true });
+
+  } catch (err) {
+    const data = err.response?.data;
+
+    if (data?.code === 'MFA_REQUIRED') {
+      setNeedTotp(true);
+      setError('Ingresá el código de tu app de autenticación.');
+    } else {
+      setError(data?.message || 'No se pudo iniciar sesión');
     }
-  };
 
+  } finally {
+    setLoading(false);
+  }
+};
+
+ 
   return (
     <section className="min-h-screen grid place-items-center px-4 py-24 grain relative overflow-hidden">
       <Seo title="Acceso administrador" noindex />
