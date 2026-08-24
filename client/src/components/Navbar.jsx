@@ -6,7 +6,7 @@ import { usePageBackground } from '../context/PageBackgroundContext.jsx';
 
 const links = [
   { target: 'top', label: 'Inicio' },
-  { target: 'quienes-somos', label: 'Quienes somos' },
+  { target: 'quienes-somos', label: 'Quiénes somos' },
   { target: 'etapas', label: 'Etapas' },
   { target: 'conocenos', label: 'Ubicación' },
   { target: 'contacto', label: 'Contacto' },
@@ -137,7 +137,7 @@ export default function Navbar() {
           <DarkModeToggle scrolled={scrolled} darkMode={darkMode} />
 
           <button
-            aria-label="Abrir menu"
+            aria-label="Abrir menú"
             className={`rounded-md p-2 md:hidden ${
               scrolled
                 ? darkMode

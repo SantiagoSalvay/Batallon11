@@ -89,7 +89,7 @@ export default function StagePublicationsPage() {
         <PostsList
           title={`Publicaciones de ${stage.name}`}
           posts={posts}
-          emptyText="Aun no hay publicaciones en esta etapa."
+          emptyText="Aún no hay publicaciones en esta etapa."
         />
       )}
     </div>

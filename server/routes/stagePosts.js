@@ -25,8 +25,8 @@ router.post(
   uploadLimiter,
   tagUploadKind('publicaciones', { mirrorToGallery: true }),
   upload.array('image', MAX_POST_IMAGES),
-  processUploadedImages,
   requireStageScope,
+  processUploadedImages,
   validateBody(stagePostBodySchema),
   createStagePost
 );
@@ -37,8 +37,8 @@ router.put(
   uploadLimiter,
   tagUploadKind('publicaciones', { mirrorToGallery: true }),
   upload.array('image', MAX_POST_IMAGES),
-  processUploadedImages,
   requireStageScope,
+  processUploadedImages,
   validateBody(stagePostBodyUpdateSchema),
   updateStagePost
 );

@@ -29,7 +29,7 @@ export default function NotFound() {
         >
           <img
             src={BRAND_LOGO}
-            alt="Batallon 11"
+            alt="Batallón 11"
             className="mx-auto h-20 w-20 object-contain sm:h-24 sm:w-24"
           />
 
@@ -42,11 +42,11 @@ export default function NotFound() {
           </p>
 
           <h1 className="public-title mt-4 text-2xl sm:text-3xl">
-            Pagina no encontrada
+            Página no encontrada
           </h1>
 
           <p className="public-copy mt-4">
-            La direccion que buscas no existe, fue movida o ya no esta disponible.
+            La dirección que buscás no existe, fue movida o ya no está disponible.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

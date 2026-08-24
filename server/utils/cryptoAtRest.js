@@ -1,9 +1,15 @@
 const crypto = require('crypto');
 
 function getDerivedKey() {
-  const keyMaterial = process.env.TOTP_ENCRYPTION_KEY || process.env.JWT_SECRET;
+  // No debe reusarse JWT_SECRET: son dominios de seguridad distintos (firma de
+  // sesión vs. cifrado de secretos TOTP). Si JWT_SECRET se filtrara, reusarlo
+  // aquí permitiría además descifrar los TOTP de todos los usuarios.
+  const keyMaterial = process.env.TOTP_ENCRYPTION_KEY;
   if (!keyMaterial || keyMaterial.length < 32) {
-    throw new Error('TOTP_ENCRYPTION_KEY debe tener al menos 32 caracteres');
+    throw new Error('TOTP_ENCRYPTION_KEY debe estar definida y tener al menos 32 caracteres');
+  }
+  if (process.env.JWT_SECRET && keyMaterial === process.env.JWT_SECRET) {
+    throw new Error('TOTP_ENCRYPTION_KEY no debe coincidir con JWT_SECRET');
   }
   return crypto.createHash('sha256').update(keyMaterial).digest();
 }
