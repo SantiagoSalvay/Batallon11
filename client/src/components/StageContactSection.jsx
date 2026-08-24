@@ -63,7 +63,7 @@ export default function StageContactSection({ stage }) {
           <span className="public-eyebrow">Contacto</span>
           <h2 className="public-title mt-3">Contacto de {stage.name}</h2>
           <p className="public-copy mt-4">
-            Para consultas especificas de esta etapa, estos son sus referentes.
+            Para consultas específicas de esta etapa, estos son sus referentes.
           </p>
         </motion.div>
 
@@ -74,7 +74,7 @@ export default function StageContactSection({ stage }) {
             const Tag = url ? motion.a : motion.span;
             const linkProps = url
               ? { href: url, target: '_blank', rel: 'noopener noreferrer' }
-              : { 'aria-disabled': 'true', title: 'Proximamente' };
+              : { 'aria-disabled': 'true', title: 'Próximamente' };
 
             return (
               <Tag
@@ -102,7 +102,7 @@ export default function StageContactSection({ stage }) {
                       {person.name}
                     </div>
                     <div className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                      {url ? 'WhatsApp' : 'Contacto proximamente'}
+                      {url ? 'WhatsApp' : 'Contacto próximamente'}
                     </div>
                   </div>
                 </div>

@@ -86,7 +86,7 @@ export default function StageGalleryPage() {
       {error ? (
         <div className="container-app py-8 text-sm text-red-700">{error}</div>
       ) : (
-        <Gallery title={`Galeria de ${stage.name}`} images={images} />
+        <Gallery title={`Galería de ${stage.name}`} images={images} />
       )}
     </div>
   );
