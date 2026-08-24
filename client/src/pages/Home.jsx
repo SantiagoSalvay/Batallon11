@@ -60,7 +60,7 @@ export default function Home() {
       <AboutSection />
       <StagesGrid stages={LOCAL_STAGES} />
       <EventsSection events={events} />
-      <Gallery title="Galeria de Nuestro Batallon" images={stageGalleryImages} maxItems={8} layout="carousel" />
+      <Gallery title="Galería de Nuestro Batallón" images={stageGalleryImages} maxItems={8} layout="carousel" />
       <VisitUsSection />
       <ContactSection />
     </>

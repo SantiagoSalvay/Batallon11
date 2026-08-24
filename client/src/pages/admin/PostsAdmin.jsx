@@ -39,7 +39,7 @@ export default function PostsAdmin() {
   };
 
   const remove = async (p) => {
-    if (!confirm(`Eliminar la publicación "${p.title}"?`)) return;
+    if (!confirm(`¿Eliminar la publicación "${p.title}"?`)) return;
     await api.delete(`/posts/${p.id}`);
     await load();
   };

@@ -33,7 +33,7 @@ export default function GalleryAdmin() {
   };
 
   const remove = async (img) => {
-    if (!confirm('Eliminar imagen?')) return;
+    if (!confirm('¿Eliminar imagen?')) return;
     await api.delete(`/gallery/${img.id}`);
     await load();
   };
@@ -51,7 +51,7 @@ export default function GalleryAdmin() {
       <form onSubmit={upload} className="card p-6 mt-6 space-y-4 max-w-2xl">
         <AdminFileInput id="gallery-image" file={file} required onChange={setFile} />
         <div>
-          <label className="label">Titulo</label>
+          <label className="label">Título</label>
           <input className="field" value={caption} onChange={(e) => setCaption(e.target.value)} />
         </div>
         <button className="btn-primary">Subir imagen</button>

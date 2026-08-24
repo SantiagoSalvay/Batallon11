@@ -52,7 +52,7 @@ export default function EventsAdmin() {
   };
 
   const remove = async (ev) => {
-    if (!confirm(`Eliminar "${ev.title}"?`)) return;
+    if (!confirm(`¿Eliminar "${ev.title}"?`)) return;
     await api.delete(`/events/${ev.id}`);
     await load();
   };

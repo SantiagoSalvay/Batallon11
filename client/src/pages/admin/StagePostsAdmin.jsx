@@ -59,7 +59,7 @@ export default function StagePostsAdmin() {
   };
 
   const remove = async (p) => {
-    if (!confirm(`Eliminar "${p.title}"?`)) return;
+    if (!confirm(`¿Eliminar "${p.title}"?`)) return;
     await api.delete(`/stage-posts/${p.id}`);
     load(selectedStage);
   };

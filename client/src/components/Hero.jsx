@@ -41,7 +41,7 @@ export default function Hero() {
           <div className="mb-6 flex items-center gap-4">
             <img
               src={BRAND_LOGO}
-              alt="Batallon 11"
+              alt="Batallón 11"
               className="h-16 w-16 object-contain sm:h-20 sm:w-20"
             />
             <div className="border-l border-white/35 pl-4">
@@ -49,19 +49,19 @@ export default function Hero() {
                 Exploradores Argentinos de Don Bosco
               </p>
               <p className="mt-1 text-sm font-semibold text-white/70">
-                Cordoba, Argentina
+                Córdoba, Argentina
               </p>
             </div>
           </div>
 
           <h1 className="font-display text-5xl font-extrabold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
-            Batallon 11
+            Batallón 11
           </h1>
           <p className="mt-4 text-xl font-semibold text-white/90 sm:text-2xl">
-            General Jose Maria Paz
+            General José María Paz
           </p>
           <p className="mt-6 max-w-2xl text-base leading-7 text-white/80 sm:text-lg">
-            Una comunidad de chicos, jovenes y animadores que crece entre la vida
+            Una comunidad de chicos, jóvenes y animadores que crece entre la vida
             de grupo, el servicio, la fe y las actividades al aire libre.
           </p>
 
@@ -71,7 +71,7 @@ export default function Hero() {
               onClick={() => scrollToId('quienes-somos')}
               className="public-button-primary"
             >
-              Conocer el batallon
+              Conocer el batallón
             </button>
             <button
               type="button"

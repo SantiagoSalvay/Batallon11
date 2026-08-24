@@ -2,11 +2,11 @@ import { motion } from 'framer-motion';
 
 export const STAGE_COORDINATORS = {
   'horneros-pichones': [
-    { name: 'Nicolas Murua', phone: '+54 9 3513 71-6359' },
+    { name: 'Nicolás Murua', phone: '+54 9 3513 71-6359' },
     { name: 'Juana Pinedo', phone: '+54 9 3518 10-3147' },
   ],
   'caminantes-chispistas': [
-    { name: 'Jose Fuentes', phone: '+54 9 3518 11-3684' },
+    { name: 'José Fuentes', phone: '+54 9 3518 11-3684' },
     { name: 'Melina Pezzolo', phone: '+54 9 3512 63-6580' },
   ],
   'pioneros-fuegos': [
@@ -15,10 +15,10 @@ export const STAGE_COORDINATORS = {
   ],
   rastreadores: [
     { name: 'Ismael Varela', phone: '+54 9 3512 09-8166' },
-    { name: 'Nicolas Estigarribia', phone: '+54 9 3516 74-7369' },
+    { name: 'Nicolás Estigarribia', phone: '+54 9 3516 74-7369' },
   ],
   baqueanos: [
-    { name: 'Tomas Marino', phone: '+54 9 3513 27-3568' },
+    { name: 'Tomás Marino', phone: '+54 9 3513 27-3568' },
     { name: 'Mateo Junco', phone: '+54 9 3512 63-0605' },
   ],
 };
@@ -63,7 +63,7 @@ export default function StageContactSection({ stage }) {
           <span className="public-eyebrow">Contacto</span>
           <h2 className="public-title mt-3">Contacto de {stage.name}</h2>
           <p className="public-copy mt-4">
-            Para consultas especificas de esta etapa, estos son sus referentes.
+            Para consultas específicas de esta etapa, estos son sus referentes.
           </p>
         </motion.div>
 
@@ -74,7 +74,7 @@ export default function StageContactSection({ stage }) {
             const Tag = url ? motion.a : motion.span;
             const linkProps = url
               ? { href: url, target: '_blank', rel: 'noopener noreferrer' }
-              : { 'aria-disabled': 'true', title: 'Proximamente' };
+              : { 'aria-disabled': 'true', title: 'Próximamente' };
 
             return (
               <Tag
@@ -102,7 +102,7 @@ export default function StageContactSection({ stage }) {
                       {person.name}
                     </div>
                     <div className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                      {url ? 'WhatsApp' : 'Contacto proximamente'}
+                      {url ? 'WhatsApp' : 'Contacto próximamente'}
                     </div>
                   </div>
                 </div>
