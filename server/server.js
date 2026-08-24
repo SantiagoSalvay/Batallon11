@@ -155,7 +155,7 @@ app.use('/api', (req, res, next) => {
     return next();
   }
   const pathOnly = req.originalUrl.split('?')[0];
-  if (/\/api\/auth\/(login|refresh|prepare|gate)$/.test(pathOnly)) {
+  if (/\/api\/auth\/(refresh|prepare|gate)$/.test(pathOnly)) {
     return next();
   }
   return requireCsrf(req, res, next);

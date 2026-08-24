@@ -1,3 +1,16 @@
+/**
+ * Enmascara un email para logging (evita volcar PII en texto plano en los
+ * logs de auditoría): conserva el primer carácter del usuario y el dominio.
+ * ej: "a***@batallon11.com"
+ */
+function maskEmail(email) {
+  if (!email || typeof email !== 'string') return null;
+  const [user, domain] = email.split('@');
+  if (!domain) return '***';
+  const maskedUser = user.length <= 1 ? '*' : `${user[0]}***`;
+  return `${maskedUser}@${domain}`;
+}
+
 function audit(req, action, meta = {}) {
   const entry = {
     ts: new Date().toISOString(),
@@ -13,4 +26,4 @@ function audit(req, action, meta = {}) {
   console.log(JSON.stringify(entry));
 }
 
-module.exports = { audit };
+module.exports = { audit, maskEmail };

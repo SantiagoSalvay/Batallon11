@@ -2,18 +2,18 @@ import { motion } from 'framer-motion';
 
 const LEADERS = [
   {
-    name: 'German Giron',
-    role: 'Jefe de Batallon',
+    name: 'Germán Girón',
+    role: 'Jefe de Batallón',
     phone: '5493513501850',
   },
   {
     name: 'Facundo Zamora',
-    role: 'Jefe de Batallon',
+    role: 'Jefe de Batallón',
     phone: '5493518001065',
   },
 ];
 
-const WHATSAPP_MESSAGE = 'Hola, tengo una consulta sobre el Batallon 11.';
+const WHATSAPP_MESSAGE = 'Hola, tengo una consulta sobre el Batallón 11.';
 
 function buildWhatsAppUrl(phone) {
   const digits = phone.replace(/\D/g, '');
@@ -101,8 +101,8 @@ export default function ContactSection() {
               <span className="badge mb-3">Comunicate</span>
               <h2 className="section-title">Contacto</h2>
               <p className="mt-4 text-base leading-7 text-white/80">
-                Si tenes alguna consulta, podes comunicarte directamente con los
-                jefes del batallon por WhatsApp.
+                Si tenés alguna consulta, podés comunicarte directamente con los
+                jefes del batallón por WhatsApp.
               </p>
 
               <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
@@ -122,11 +122,11 @@ export default function ContactSection() {
                 Contacto
               </span>
               <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-                Hablemos con alguien del batallon
+                Hablemos con alguien del batallón
               </h2>
               <p className="mt-3 text-base leading-7 text-white/75">
                 Para consultas sobre actividades, inscripciones o acercarte por
-                primera vez, podes escribir directamente por WhatsApp.
+                primera vez, podés escribir directamente por WhatsApp.
               </p>
 
               <div className="mt-7 grid gap-3 sm:grid-cols-2">

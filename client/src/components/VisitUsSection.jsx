@@ -53,10 +53,10 @@ export default function VisitUsSection() {
           className="split-layout__left-pad py-16 sm:py-24"
         >
           <span className="public-eyebrow">Ubicación</span>
-          <h2 className="public-title mt-3">Veni a conocer el batallon</h2>
+          <h2 className="public-title mt-3">Vení a conocer el batallón</h2>
           <p className="public-copy mt-4">
-            Si queres acercarte, escribirnos o ubicar nuestra sede, aca tenes
-            la informacion principal para dar el primer paso.
+            Si querés acercarte, escribirnos o ubicar nuestra sede, acá tenés
+            la información principal para dar el primer paso.
           </p>
 
           <div className="mt-7 rounded-md border border-slate-200 bg-white p-5">
@@ -66,9 +66,9 @@ export default function VisitUsSection() {
               </div>
               <div>
                 <p className="font-display text-lg font-extrabold text-slate-950">
-                  Batallon 11 Gral. Jose Maria Paz
+                  Batallón 11 Gral. José María Paz
                 </p>
-                <p className="mt-1 text-sm text-slate-600">Cordoba, Argentina</p>
+                <p className="mt-1 text-sm text-slate-600">Córdoba, Argentina</p>
               </div>
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function VisitUsSection() {
             <div className="h-80 lg:h-[min(28rem,calc(100vh-12rem))]">
               {BATTALION_MAP_EMBED_URL ? (
                 <iframe
-                  title="Ubicacion del Batallon 11"
+                  title="Ubicación del Batallón 11"
                   src={BATTALION_MAP_EMBED_URL}
                   className="h-full w-full border-0"
                   loading="lazy"
@@ -109,7 +109,7 @@ export default function VisitUsSection() {
                 />
               ) : (
                 <div className="flex h-full items-center justify-center px-6 text-center text-sm text-slate-500">
-                  Mapa proximamente. El link de Google Maps ya esta disponible.
+                  Mapa próximamente. El link de Google Maps ya está disponible.
                 </div>
               )}
             </div>

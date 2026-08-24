@@ -22,8 +22,8 @@ router.post(
   uploadLimiter,
   tagUploadKind('galerias'),
   upload.single('image'),
-  processUploadedImages,
   requireStageScope,
+  processUploadedImages,
   validateBody(stageGalleryImageSchema),
   createImage
 );
@@ -34,8 +34,8 @@ router.put(
   uploadLimiter,
   tagUploadKind('galerias'),
   upload.single('image'),
-  processUploadedImages,
   requireStageScope,
+  processUploadedImages,
   validateBody(stageGalleryImageSchema.partial()),
   updateImage
 );

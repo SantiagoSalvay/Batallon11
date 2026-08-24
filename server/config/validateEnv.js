@@ -21,6 +21,7 @@ function validateEnv() {
 
   const jwtSecret = process.env.JWT_SECRET;
   const cookieSecret = process.env.COOKIE_SIGNING_SECRET;
+  const totpKey = process.env.TOTP_ENCRYPTION_KEY;
 
   if (!jwtSecret) {
     push('JWT_SECRET no está definido.');
@@ -28,6 +29,16 @@ function validateEnv() {
     push('JWT_SECRET debe tener al menos 32 caracteres.');
   } else if (WEAK_VALUES.has(jwtSecret.toLowerCase())) {
     push('JWT_SECRET tiene un valor demasiado débil.');
+  }
+
+  if (!totpKey) {
+    push('TOTP_ENCRYPTION_KEY no está definido.');
+  } else if (totpKey.length < 32) {
+    push('TOTP_ENCRYPTION_KEY debe tener al menos 32 caracteres.');
+  } else if (WEAK_VALUES.has(totpKey.toLowerCase())) {
+    push('TOTP_ENCRYPTION_KEY tiene un valor demasiado débil.');
+  } else if (jwtSecret && totpKey === jwtSecret) {
+    push('TOTP_ENCRYPTION_KEY no debe coincidir con JWT_SECRET (dominios de seguridad distintos).');
   }
 
   if (isProd) {

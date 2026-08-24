@@ -22,7 +22,7 @@ export default function StageInfoSection({ stage }) {
           transition={{ duration: 0.45 }}
           className="mb-10 max-w-2xl sm:mb-12"
         >
-          <span className="public-eyebrow">Conoce la etapa</span>
+          <span className="public-eyebrow">Conocé la etapa</span>
           <h2 className="public-title mt-3">Sobre {stage.name}</h2>
         </motion.div>
 
@@ -53,7 +53,7 @@ export default function StageInfoSection({ stage }) {
               className="rounded-md border border-slate-200 bg-stone-50 p-6"
             >
               <h3 className="mb-4 font-display text-xl font-extrabold text-slate-950">
-                Explicacion del emblema
+                Explicación del emblema
               </h3>
               <div className="space-y-4">
                 <TextBlock text={stage.emblemExplanation} />

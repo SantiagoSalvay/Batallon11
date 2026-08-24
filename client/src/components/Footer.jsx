@@ -7,7 +7,7 @@ const MOBILE_BREAKPOINT = 768;
 
 const INFO_LINKS = [
   { target: 'top', label: 'Inicio' },
-  { target: 'quienes-somos', label: 'Quienes somos' },
+  { target: 'quienes-somos', label: 'Quiénes somos' },
   { target: 'etapas', label: 'Etapas' },
   { target: 'conocenos', label: 'Ubicación' },
   { target: 'eventos', label: 'Eventos' },
@@ -65,18 +65,18 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <img
               src={BRAND_LOGO}
-              alt="Batallon 11"
+              alt="Batallón 11"
               className="h-14 w-14 object-contain"
             />
             <div>
-              <div className="font-display text-lg font-extrabold">Batallon 11</div>
+              <div className="font-display text-lg font-extrabold">Batallón 11</div>
               <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                Gral. Jose Maria Paz
+                Gral. José María Paz
               </div>
             </div>
           </div>
           <p className="mt-4 max-w-md text-sm leading-6 text-slate-600">
-            Exploradores Argentinos de Don Bosco. Comunidad, formacion,
+            Exploradores Argentinos de Don Bosco. Comunidad, formación,
             aventura y servicio.
           </p>
           <img
@@ -89,7 +89,7 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-display font-extrabold">Informacion</h4>
+          <h4 className="font-display font-extrabold">Información</h4>
           <ul className="mt-4 space-y-2 text-sm">
             {INFO_LINKS.map((l) => (
               <li key={l.target}>
@@ -128,17 +128,17 @@ export default function Footer() {
       <div className="border-t border-white/10 bg-slate-950 text-white md:hidden">
         <div className="container-app flex flex-col items-center gap-8 py-10 text-center">
           <div>
-            <div className="font-display text-lg font-bold">Batallon 11</div>
-            <div className="text-xs text-white/60">Gral. Jose Maria Paz</div>
+            <div className="font-display text-lg font-bold">Batallón 11</div>
+            <div className="text-xs text-white/60">Gral. José María Paz</div>
             <p className="mx-auto mt-3 max-w-xs text-sm text-white/60">
-              Exploradores Argentinos de Don Bosco. Formando jovenes con valores,
+              Exploradores Argentinos de Don Bosco. Formando jóvenes con valores,
               aventura y servicio.
             </p>
           </div>
 
           <div className="grid w-full max-w-sm grid-cols-2 gap-6 text-left">
             <div className="pl-4">
-              <h4 className="mb-3 text-sm font-semibold">Informacion</h4>
+              <h4 className="mb-3 text-sm font-semibold">Información</h4>
               <ul className="space-y-1 text-xs">
                 {INFO_LINKS.map((l) => (
                   <li key={l.target}>
@@ -177,7 +177,7 @@ export default function Footer() {
           <div className="flex items-center justify-center gap-6 pt-2">
             <img
               src={BRAND_LOGO}
-              alt="Batallon 11"
+              alt="Batallón 11"
               className="h-16 w-16 object-contain"
             />
             <img
@@ -192,7 +192,7 @@ export default function Footer() {
 
         <div className="border-t border-white/10">
           <div className="container-app py-4 text-center text-xs text-white/50">
-            {new Date().getFullYear()} Batallon 11 - Exploradores Argentinos de
+            {new Date().getFullYear()} Batallón 11 - Exploradores Argentinos de
             Don Bosco.
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function Footer() {
 
       <div className="hidden border-t border-slate-200 md:block">
         <div className="container-app py-4 text-center text-xs text-slate-500">
-          {new Date().getFullYear()} Batallon 11 - Exploradores Argentinos de
+          {new Date().getFullYear()} Batallón 11 - Exploradores Argentinos de
           Don Bosco.
         </div>
       </div>
