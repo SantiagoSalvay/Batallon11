@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { api } from '../services/api.js';
 import Hero from '../components/Hero.jsx';
 import AboutSection from '../components/AboutSection.jsx';
@@ -60,7 +60,15 @@ export default function Home() {
       <AboutSection />
       <StagesGrid stages={LOCAL_STAGES} />
       <EventsSection events={events} />
-      <Gallery title="Galería de Nuestro Batallón" images={stageGalleryImages} maxItems={8} layout="carousel" />
+      <Gallery
+        title="Galería de Nuestro Batallón"
+        images={stageGalleryImages}
+        maxItems={8}
+        layout="carousel"
+        viewAllLink="/galeria"
+        viewAllLabel="Ver todas las fotos"
+        viewAllThreshold={3}
+      />
       <VisitUsSection />
       <ContactSection />
     </>

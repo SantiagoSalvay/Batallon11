@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 import { safeText } from '../lib/safeText.js';
+import ZoomableImage from './ZoomableImage.jsx';
 
 function formatDate(d) {
   try {
@@ -47,6 +49,7 @@ export default function PostsList({
 }) {
   const [activePost, setActivePost] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [showPostDetails, setShowPostDetails] = useState(true);
   const [previewImageIndexes, setPreviewImageIndexes] = useState({});
   const visiblePosts = maxItems != null ? posts.slice(0, maxItems) : posts;
   const showMoreLink = viewAllLink && posts.length > viewAllThreshold;
@@ -56,11 +59,13 @@ export default function PostsList({
   const openPost = (post) => {
     setActivePost(post);
     setActiveImageIndex(previewImageIndexes[post.id] || 0);
+    setShowPostDetails(true);
   };
 
   const closePost = () => {
     setActivePost(null);
     setActiveImageIndex(0);
+    setShowPostDetails(true);
   };
 
   const moveImage = (direction) => {
@@ -164,18 +169,18 @@ export default function PostsList({
                             <button
                               type="button"
                               onClick={(e) => movePreviewImage(e, p.id, images.length, -1)}
-                              className="absolute left-0 top-1/2 grid h-10 w-8 -translate-y-1/2 place-items-center text-white/70 drop-shadow transition hover:text-white focus:outline-none"
+                              className="absolute left-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-md text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] transition hover:bg-black/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
                               aria-label="Foto anterior"
                             >
-                              <span className="h-0 w-0 border-y-[8px] border-r-[12px] border-y-transparent border-r-current" />
+                              <ChevronLeft className="h-6 w-6" strokeWidth={2.2} />
                             </button>
                             <button
                               type="button"
                               onClick={(e) => movePreviewImage(e, p.id, images.length, 1)}
-                              className="absolute right-0 top-1/2 grid h-10 w-8 -translate-y-1/2 place-items-center text-white/70 drop-shadow transition hover:text-white focus:outline-none"
+                              className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-md text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] transition hover:bg-black/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
                               aria-label="Foto siguiente"
                             >
-                              <span className="h-0 w-0 border-y-[8px] border-l-[12px] border-y-transparent border-l-current" />
+                              <ChevronRight className="h-6 w-6" strokeWidth={2.2} />
                             </button>
                           </>
                         )}
@@ -247,82 +252,94 @@ export default function PostsList({
               <motion.div
                 initial={{ scale: 0.98 }}
                 animate={{ scale: 1 }}
-                className="w-full overflow-hidden rounded-md border border-white/10 bg-slate-950 shadow-2xl"
+                className="w-full"
                 onClick={(e) => e.stopPropagation()}
               >
                 {activeImage && (
-                  <div className="relative bg-black">
-                    <img
+                  <div className="relative">
+                    <ZoomableImage
                       src={asset(activeImage.imageUrl)}
                       alt={safeText(activePost.title)}
-                      className="max-h-[70vh] w-full object-contain"
-                    />
-                    {activeImages.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => moveImage(-1)}
-                          className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-2xl font-bold text-white transition hover:bg-black"
-                          aria-label="Foto anterior"
-                        >
-                          {'<'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveImage(1)}
-                          className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-2xl font-bold text-white transition hover:bg-black"
-                          aria-label="Foto siguiente"
-                        >
-                          {'>'}
-                        </button>
-                      </>
-                    )}
+                      imageKey={activeImage.id || activeImage.imageUrl}
+                      className="h-[70vh] w-full"
+                      onClose={closePost}
+                    >
+                      {(imageBox) => (
+                        <>
+                          {activeImages.length > 1 && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => moveImage(-1)}
+                                className="absolute z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-md text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] transition hover:bg-black/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+                                style={{ left: imageBox.left + 8, top: imageBox.top + imageBox.height / 2 }}
+                                aria-label="Foto anterior"
+                                title="Foto anterior"
+                              >
+                                <ChevronLeft className="h-6 w-6" strokeWidth={2.2} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => moveImage(1)}
+                                className="absolute z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-md text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] transition hover:bg-black/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+                                style={{ left: imageBox.left + imageBox.width - 48, top: imageBox.top + imageBox.height / 2 }}
+                                aria-label="Foto siguiente"
+                                title="Foto siguiente"
+                              >
+                                <ChevronRight className="h-6 w-6" strokeWidth={2.2} />
+                              </button>
+                            </>
+                          )}
+
+                          <div
+                            className={`pointer-events-none absolute z-20 flex items-end px-6 pb-6 pt-20 ${
+                              showPostDetails ? 'bg-gradient-to-t from-black/70 via-black/25 to-transparent' : ''
+                            }`}
+                            style={{ left: imageBox.left, top: imageBox.top, width: imageBox.width, height: imageBox.height }}
+                          >
+                            <div className="flex w-full items-end justify-between gap-4">
+                              <AnimatePresence initial={false}>
+                                {showPostDetails && (
+                                  <motion.div
+                                    key="post-details"
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 8 }}
+                                    className="max-w-3xl"
+                                  >
+                                    <div className="text-xs font-bold uppercase tracking-[0.12em] text-sky-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                                      {formatDate(activePost.createdAt)}
+                                    </div>
+                                    <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                                      {safeText(activePost.title)}
+                                    </h3>
+                                    <p className="mt-3 max-h-28 overflow-hidden whitespace-pre-line text-sm leading-6 text-white/95 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] sm:max-h-36">
+                                      {safeText(activePost.content)}
+                                    </p>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+
+                              <button
+                                type="button"
+                                onClick={() => setShowPostDetails((current) => !current)}
+                                className="pointer-events-auto ml-auto grid h-10 w-10 shrink-0 place-items-center rounded-md text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] transition hover:bg-black/25 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+                                aria-label={showPostDetails ? 'Ocultar texto' : 'Mostrar texto'}
+                                title={showPostDetails ? 'Ocultar texto' : 'Mostrar texto'}
+                              >
+                                {showPostDetails ? (
+                                  <ChevronDown className="h-6 w-6" strokeWidth={2.2} />
+                                ) : (
+                                  <ChevronUp className="h-6 w-6" strokeWidth={2.2} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </ZoomableImage>
                   </div>
                 )}
-
-                <div className="p-5 sm:p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="text-xs font-bold uppercase tracking-[0.12em] text-sky-300">
-                        {formatDate(activePost.createdAt)}
-                      </div>
-                      <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight">
-                        {safeText(activePost.title)}
-                      </h3>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={closePost}
-                      className="rounded-md border border-white/15 px-3 py-2 text-sm font-bold text-white/80 transition hover:bg-white hover:text-slate-950"
-                    >
-                      Cerrar
-                    </button>
-                  </div>
-                  <p className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-200">
-                    {safeText(activePost.content)}
-                  </p>
-
-                  {activeImages.length > 1 && (
-                    <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
-                      {activeImages.map((img, index) => (
-                        <button
-                          key={img.id || `${activePost.id}-${index}`}
-                          type="button"
-                          onClick={() => setActiveImageIndex(index)}
-                          className={`h-16 w-20 shrink-0 overflow-hidden rounded-md border ${
-                            index === activeImageIndex ? 'border-sky-300' : 'border-white/15'
-                          }`}
-                        >
-                          <img
-                            src={asset(img.imageUrl)}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
               </motion.div>
             </div>
           </motion.div>
