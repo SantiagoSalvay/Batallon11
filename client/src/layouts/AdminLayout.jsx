@@ -1,4 +1,4 @@
-import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, Link, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext.jsx';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
 import Seo from '../components/Seo.jsx';
