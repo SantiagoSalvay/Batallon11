@@ -22,7 +22,7 @@ const { ensureCsrfCookie, generateCsrfValue } = require('../middleware/csrf');
 const { hashGateToken } = require('../utils/adminGate');
 const { decrypt } = require('../utils/cryptoAtRest');
 const { verifyTotpAntiReplay } = require('../utils/totpSecurity');
-const { audit } = require('../utils/auditLog');
+const { audit, maskEmail } = require('../utils/auditLog');
 
 async function verifyTurnstileIfConfigured(token, remoteip) {
   const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
@@ -117,7 +117,7 @@ async function login(req, res, next) {
     if (!turnstileOk) {
       await uniformLoginDelay(120);
       audit(req, 'auth.login.failed', { reason: 'turnstile' });
-      return res.status(400).json({ message: 'Verificaciùn anti-bot fallida.' });
+      return res.status(400).json({ message: 'VerificaciÔøΩn anti-bot fallida.' });
     }
 
     const { email, password, totpCode } = body;
@@ -128,8 +128,8 @@ async function login(req, res, next) {
 
     if (!userFull || !ok) {
       await uniformLoginDelay(140);
-      audit(req, 'auth.login.failed', { email: email?.slice(0, 100) });
-      return res.status(401).json({ message: 'Credenciales invùlidas' });
+      audit(req, 'auth.login.failed', { email: maskEmail(email) });
+      return res.status(401).json({ message: 'Credenciales invÔøΩlidas' });
     }
 
     if (userFull.totpEnabled) {
@@ -139,7 +139,7 @@ async function login(req, res, next) {
       if (!totpCode) {
         await uniformLoginDelay(120);
         return res.status(401).json({
-          message: 'Credenciales invùlidas',
+          message: 'Credenciales invÔøΩlidas',
           code: 'MFA_REQUIRED',
         });
       }
@@ -150,7 +150,7 @@ async function login(req, res, next) {
       } catch {
         await uniformLoginDelay(120);
         audit(req, 'auth.login.failed', { userId: userFull.id, reason: 'totp_decrypt' });
-        return res.status(401).json({ message: 'Credenciales invùlidas' });
+        return res.status(401).json({ message: 'Credenciales invÔøΩlidas' });
       }
 
       const totpResult = verifySync({
@@ -161,14 +161,14 @@ async function login(req, res, next) {
       if (!totpResult.valid) {
         await uniformLoginDelay(120);
         audit(req, 'auth.login.failed', { userId: userFull.id, reason: 'totp_invalid' });
-        return res.status(401).json({ message: 'Credenciales invùlidas' });
+        return res.status(401).json({ message: 'Credenciales invÔøΩlidas' });
       }
 
       const notReplay = await verifyTotpAntiReplay(userFull.id, totpCode);
       if (!notReplay) {
         await uniformLoginDelay(120);
         audit(req, 'auth.login.failed', { userId: userFull.id, reason: 'totp_replay' });
-        return res.status(401).json({ message: 'Credenciales invùlidas' });
+        return res.status(401).json({ message: 'Credenciales invÔøΩlidas' });
       }
     }
 
@@ -271,7 +271,7 @@ async function refresh(req, res, next) {
         clearAuthCookies(res);
         audit(req, 'auth.refresh.reuse_detected');
         return res.status(401).json({
-          message: 'Sesiùn invùlida. Iniciù sesiùn nuevamente.',
+          message: 'SesiÔøΩn invÔøΩlida. IniciÔøΩ sesiÔøΩn nuevamente.',
         });
       }
       throw err;

@@ -27,6 +27,8 @@ export function AuthProvider({ children }) {
   const login = async (email, password, totpCode, turnstileToken) => {
     const gateToken = getStoredGateToken();
     try {
+      // Garantiza que la cookie CSRF exista antes de un POST que ahora la exige.
+      await api.get('/auth/prepare').catch(() => {});
       const { data } = await api.post(
         '/auth/login',
         { email, password, totpCode, turnstileToken },

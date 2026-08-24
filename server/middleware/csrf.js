@@ -30,7 +30,6 @@ function requireCsrf(req, res, next) {
 
   const pathOnly = req.originalUrl.split('?')[0];
   if (
-    pathOnly.endsWith('/auth/login') ||
     pathOnly.endsWith('/auth/refresh') ||
     pathOnly.endsWith('/auth/prepare') ||
     pathOnly.endsWith('/auth/gate')
