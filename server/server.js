@@ -1,5 +1,6 @@
-require('dotenv').config();
-
+require('dotenv').config({
+  path: require('path').resolve(__dirname, '.env')
+});
 const { validateEnv } = require('./config/validateEnv');
 validateEnv();
 

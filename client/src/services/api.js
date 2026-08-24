@@ -12,7 +12,7 @@ const apiOrigin = isDev ? '' : configuredApi;
 const assetsOrigin = isDev ? '' : configuredApi;
 
 export const api = axios.create({
-  baseURL: apiOrigin ? `${apiOrigin}/api` : '/api',
+  baseURL: apiOrigin ? `${apiOrigin}/api` : '',
   withCredentials: true,
 });
 
