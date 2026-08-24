@@ -61,7 +61,7 @@ export default function Home() {
       <StagesGrid stages={LOCAL_STAGES} />
       <EventsSection events={events} />
       <Gallery
-        title="Galeria de Nuestro Batallon"
+        title="Galería de Nuestro Batallón"
         images={stageGalleryImages}
         maxItems={8}
         layout="carousel"
