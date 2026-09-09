@@ -178,6 +178,17 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/stage-gallery', stageGalleryRoutes);
 app.use('/api/events', eventRoutes);
 
+if (isProd) {
+  const clientDistPath = path.resolve(__dirname, 'public');
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
+      if (err) next(err);
+    });
+  });
+}
+
 app.use((req, res, _next) => {
   res.status(404).json({
     message: isProd ? 'Ruta no encontrada' : `Ruta no encontrada: ${req.originalUrl}`,
