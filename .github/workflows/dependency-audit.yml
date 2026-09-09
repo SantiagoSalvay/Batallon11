@@ -1,0 +1,458 @@
+name: Auditoría diaria de dependencias
+
+# GitHub interpreta los cron SIEMPRE en UTC. Argentina es UTC-3 todo el año
+# (no aplica horario de verano desde 2009), así que 03:00 ART == 06:00 UTC.
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Si una corrida anterior sigue abierta, no arrancamos otra en paralelo:
+# las dos escribirían sobre la misma rama.
+concurrency:
+  group: auditoria-dependencias
+  cancel-in-progress: false
+
+env:
+  RAMA_TRABAJO: Producción
+  RAMA_DESTINO: main
+  RAMA_FALLO: chore/actualizacion-dependencias
+  # Lo único que este job tiene permitido tocar. Se usa además para decidir si
+  # el PR hacia main es auto-mergeable (ver "Evaluar si el PR es auto-mergeable").
+  ARCHIVOS: package.json client/package.json server/package.json pnpm-lock.yaml pnpm-workspace.yaml
+
+jobs:
+  auditar:
+    name: Escanear y actualizar
+    runs-on: ubuntu-latest
+
+    steps:
+      # Los cron corren sobre la rama por defecto, así que pedimos Producción
+      # explícitamente. fetch-depth 0 para poder diffear contra main.
+      - uses: actions/checkout@v4
+        with:
+          ref: Producción
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar (lockfile congelado)
+        run: pnpm install --frozen-lockfile
+
+      # ---------------------------------------------------------------------
+      # 1. Escaneo inicial
+      # ---------------------------------------------------------------------
+      # Genera tres outputs: total, desglose ("6 high, 2 low") y tabla markdown.
+      # `pnpm audit` sale con código != 0 cuando encuentra algo, y eso no es un
+      # fallo del job: es justamente el caso que queremos manejar.
+      - name: Escanear vulnerabilidades
+        id: escaneo
+        env:
+          ARCHIVO: audit-antes.json
+        run: |
+          pnpm audit --json > audit-antes.json || true
+          node -e '
+            const fs = require("node:fs");
+            let data = {};
+            try { data = JSON.parse(fs.readFileSync(process.env.ARCHIVO, "utf8")); } catch {}
+            const orden = ["critical", "high", "moderate", "low", "info"];
+            const avisos = Object.values(data.advisories || {});
+            avisos.sort((a, b) => orden.indexOf(a.severity) - orden.indexOf(b.severity));
+
+            const filas = avisos.map((a) => {
+              const ambito = (a.findings || []).some((f) => !f.dev) ? "prod" : "dev";
+              return "| " + a.severity + " | `" + a.module_name + "` | " + ambito +
+                " | " + a.vulnerable_versions + " | " + (a.patched_versions || "-") +
+                " | [" + (a.github_advisory_id || "aviso") + "](" + a.url + ") |";
+            });
+            const tabla = filas.length
+              ? ["| Severidad | Paquete | Ámbito | Afectadas | Parche | Aviso |",
+                 "|---|---|---|---|---|---|"].concat(filas).join("\n")
+              : "_Sin vulnerabilidades._";
+
+            const conteo = {};
+            for (const a of avisos) conteo[a.severity] = (conteo[a.severity] || 0) + 1;
+            const desglose = orden.filter((s) => conteo[s])
+              .map((s) => conteo[s] + " " + s).join(", ") || "ninguna";
+
+            const out = process.env.GITHUB_OUTPUT;
+            fs.appendFileSync(out, "total=" + avisos.length + "\n");
+            fs.appendFileSync(out, "desglose=" + desglose + "\n");
+            fs.appendFileSync(out, "tabla<<FIN_TABLA\n" + tabla + "\nFIN_TABLA\n");
+          '
+
+      - name: Reportar estado limpio
+        if: steps.escaneo.outputs.total == '0'
+        run: echo "Sin vulnerabilidades conocidas. No hay nada que actualizar."
+
+      # ---------------------------------------------------------------------
+      # 2. Actualizar — solo si hay algo que arreglar
+      # ---------------------------------------------------------------------
+
+      # `pnpm update -r` respeta los rangos semver ya declarados, así que sube
+      # minor/patch pero NUNCA cruza un major. Los saltos de major (React 19,
+      # Tailwind 4, Express 5, Prisma 7...) son migraciones que hay que hacer
+      # a mano; este job no debe intentarlas solo.
+      - name: Actualizar dentro de los rangos semver
+        if: steps.escaneo.outputs.total != '0'
+        run: pnpm update --recursive
+
+      # Lo que quede después del update son vulnerabilidades en dependencias
+      # transitivas, que se corrigen fijando la versión con un override.
+      - name: Fijar overrides para lo transitivo que quede
+        if: steps.escaneo.outputs.total != '0'
+        run: |
+          pnpm audit --json > audit-intermedio.json || true
+          PENDIENTES=$(node -e '
+            const fs = require("node:fs");
+            let data = {};
+            try { data = JSON.parse(fs.readFileSync("audit-intermedio.json", "utf8")); } catch {}
+            process.stdout.write(String(Object.keys(data.advisories || {}).length));
+          ')
+          echo "Vulnerabilidades tras el update: $PENDIENTES"
+          if [ "$PENDIENTES" != "0" ]; then
+            pnpm audit --fix || true
+          fi
+
+      # `pnpm audit --fix` escribe los overrides como ">=X.Y.Z": un rango abierto
+      # que permite resolver a cualquier major futuro. Eso ya rompió este repo una
+      # vez — arrastró body-parser a 2.x sobre Express 4 y nanoid a 6.x sobre
+      # PostCSS 8 — así que los acotamos a "^X.Y.Z" para que no vuelva a pasar.
+      - name: Acotar overrides al major correcto
+        if: steps.escaneo.outputs.total != '0'
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            let cambios = 0;
+
+            // pnpm 10+ guarda los overrides en pnpm-workspace.yaml...
+            if (fs.existsSync("pnpm-workspace.yaml")) {
+              const antes = fs.readFileSync("pnpm-workspace.yaml", "utf8");
+              const despues = antes.replace(
+                /^(\s+.*?:\s*")>=(\d+\.\d+\.\d+)"/gm,
+                (_, prefijo, version) => prefijo + "^" + version + "\""
+              );
+              if (antes !== despues) {
+                fs.writeFileSync("pnpm-workspace.yaml", despues);
+                cambios++;
+                console.log("Overrides acotados en pnpm-workspace.yaml");
+              }
+            }
+
+            // ...pero versiones anteriores usaban package.json > pnpm.overrides.
+            const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            const overrides = pkg.pnpm && pkg.pnpm.overrides;
+            if (overrides) {
+              let tocado = false;
+              for (const [nombre, rango] of Object.entries(overrides)) {
+                if (typeof rango === "string" && /^>=\d+\.\d+\.\d+$/.test(rango)) {
+                  overrides[nombre] = "^" + rango.slice(2);
+                  tocado = true;
+                }
+              }
+              if (tocado) {
+                fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
+                cambios++;
+                console.log("Overrides acotados en package.json");
+              }
+            }
+
+            if (cambios === 0) console.log("No hubo overrides con rango abierto.");
+          '
+          # Re-resolvemos el lockfile con los rangos ya acotados.
+          pnpm install --no-frozen-lockfile
+
+      # ---------------------------------------------------------------------
+      # 3. Verificar que la actualización no rompió nada
+      # ---------------------------------------------------------------------
+      - name: Re-escanear
+        id: reescaneo
+        if: steps.escaneo.outputs.total != '0'
+        env:
+          ARCHIVO: audit-despues.json
+        run: |
+          pnpm audit --json > audit-despues.json || true
+          node -e '
+            const fs = require("node:fs");
+            let data = {};
+            try { data = JSON.parse(fs.readFileSync(process.env.ARCHIVO, "utf8")); } catch {}
+            const orden = ["critical", "high", "moderate", "low", "info"];
+            const avisos = Object.values(data.advisories || {});
+            avisos.sort((a, b) => orden.indexOf(a.severity) - orden.indexOf(b.severity));
+
+            const filas = avisos.map((a) => {
+              const ambito = (a.findings || []).some((f) => !f.dev) ? "prod" : "dev";
+              return "| " + a.severity + " | `" + a.module_name + "` | " + ambito +
+                " | " + a.vulnerable_versions + " | " + (a.patched_versions || "-") +
+                " | [" + (a.github_advisory_id || "aviso") + "](" + a.url + ") |";
+            });
+            const tabla = filas.length
+              ? ["| Severidad | Paquete | Ámbito | Afectadas | Parche | Aviso |",
+                 "|---|---|---|---|---|---|"].concat(filas).join("\n")
+              : "_Sin vulnerabilidades._";
+
+            const conteo = {};
+            for (const a of avisos) conteo[a.severity] = (conteo[a.severity] || 0) + 1;
+            const desglose = orden.filter((s) => conteo[s])
+              .map((s) => conteo[s] + " " + s).join(", ") || "ninguna";
+
+            const out = process.env.GITHUB_OUTPUT;
+            fs.appendFileSync(out, "total=" + avisos.length + "\n");
+            fs.appendFileSync(out, "desglose=" + desglose + "\n");
+            fs.appendFileSync(out, "tabla<<FIN_TABLA\n" + tabla + "\nFIN_TABLA\n");
+          '
+
+      # continue-on-error para poder reportar QUÉ falló en vez de cortar a ciegas.
+      - name: Tests del server
+        id: test_server
+        if: steps.escaneo.outputs.total != '0'
+        continue-on-error: true
+        run: pnpm --filter batallon11-server test
+
+      - name: Tests del client
+        id: test_client
+        if: steps.escaneo.outputs.total != '0'
+        continue-on-error: true
+        run: pnpm --filter batallon11-client test
+
+      - name: Build de producción
+        id: build
+        if: steps.escaneo.outputs.total != '0'
+        continue-on-error: true
+        run: pnpm build
+
+      - name: Consolidar verificación
+        id: verificacion
+        if: steps.escaneo.outputs.total != '0'
+        env:
+          SERVER: ${{ steps.test_server.outcome }}
+          CLIENT: ${{ steps.test_client.outcome }}
+          BUILD: ${{ steps.build.outcome }}
+        run: |
+          icono() { if [ "$1" = "success" ]; then echo "OK"; else echo "FALLO"; fi; }
+          {
+            echo "verificacion<<FIN_VERIF"
+            echo "| Chequeo | Resultado |"
+            echo "|---|---|"
+            echo "| Tests server | $(icono "$SERVER") |"
+            echo "| Tests client | $(icono "$CLIENT") |"
+            echo "| Build | $(icono "$BUILD") |"
+            echo "FIN_VERIF"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ "$SERVER" = "success" ] && [ "$CLIENT" = "success" ] && [ "$BUILD" = "success" ]; then
+            echo "todo_verde=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "todo_verde=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Detectar cambios
+        id: diff
+        if: steps.escaneo.outputs.total != '0'
+        run: |
+          if [ -n "$(git status --porcelain -- $ARCHIVOS)" ]; then
+            echo "hay_cambios=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "hay_cambios=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # "Se solucionó la vulnerabilidad" = hay cambios, el re-escaneo da cero,
+      # y tests + build siguen verdes. Solo con las tres cosas tocamos Producción.
+      - name: Evaluar resultado
+        id: resultado
+        if: steps.escaneo.outputs.total != '0'
+        env:
+          HAY_CAMBIOS: ${{ steps.diff.outputs.hay_cambios }}
+          PENDIENTES: ${{ steps.reescaneo.outputs.total }}
+          TODO_VERDE: ${{ steps.verificacion.outputs.todo_verde }}
+        run: |
+          if [ "$HAY_CAMBIOS" = "true" ] && [ "$PENDIENTES" = "0" ] && [ "$TODO_VERDE" = "true" ]; then
+            echo "exito=true" >> "$GITHUB_OUTPUT"
+            echo "Vulnerabilidades resueltas y verificación en verde."
+          else
+            echo "exito=false" >> "$GITHUB_OUTPUT"
+            echo "La actualización no quedó limpia: hay_cambios=$HAY_CAMBIOS pendientes=$PENDIENTES verde=$TODO_VERDE"
+          fi
+
+      - name: Commitear la actualización
+        if: steps.escaneo.outputs.total != '0' && steps.diff.outputs.hay_cambios == 'true'
+        env:
+          ANTES: ${{ steps.escaneo.outputs.desglose }}
+          DESPUES: ${{ steps.reescaneo.outputs.desglose }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- $ARCHIVOS
+          git commit \
+            -m "chore(deps): actualizar dependencias con vulnerabilidades" \
+            -m "Actualización automática del escaneo diario." \
+            -m "Antes: $ANTES" \
+            -m "Después: $DESPUES"
+
+      # Las etiquetas tienen que existir antes de usarlas en el PR.
+      # --force las crea si faltan y las deja igual si ya están.
+      - name: Asegurar etiquetas
+        if: steps.escaneo.outputs.total != '0' && steps.diff.outputs.hay_cambios == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create dependencias --color 0366d6 \
+            --description "Actualizaciones de dependencias" --force
+          gh label create seguridad --color d73a4a \
+            --description "Correcciones de seguridad" --force
+
+      # Cuerpo compartido por los dos caminos (éxito y revisión manual).
+      - name: Armar cuerpo del PR
+        if: steps.escaneo.outputs.total != '0' && steps.diff.outputs.hay_cambios == 'true'
+        env:
+          ANTES: ${{ steps.escaneo.outputs.desglose }}
+          TABLA_ANTES: ${{ steps.escaneo.outputs.tabla }}
+          DESPUES: ${{ steps.reescaneo.outputs.desglose }}
+          TABLA_DESPUES: ${{ steps.reescaneo.outputs.tabla }}
+          VERIF: ${{ steps.verificacion.outputs.verificacion }}
+          CORRIDA: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          NUMERO: ${{ github.run_number }}
+        run: |
+          {
+            echo "Actualización automática generada por el escaneo diario de dependencias."
+            echo
+            echo "Solo se subieron versiones **dentro de los rangos semver ya declarados**"
+            echo "(\`pnpm update -r\`), más overrides acotados para lo transitivo. No se"
+            echo "cruzó ningún major: esas migraciones siguen siendo manuales."
+            echo
+            echo "## Antes — $ANTES"
+            echo
+            echo "$TABLA_ANTES"
+            echo
+            echo "## Después — $DESPUES"
+            echo
+            echo "$TABLA_DESPUES"
+            echo
+            echo "## Verificación"
+            echo
+            echo "$VERIF"
+            echo
+            echo "---"
+            echo "Corrida [#$NUMERO]($CORRIDA)"
+          } > cuerpo-pr.md
+
+      # ---------------------------------------------------------------------
+      # 4a. Todo limpio: actualizar Producción y proponer el merge a main
+      # ---------------------------------------------------------------------
+      - name: Actualizar la rama Producción
+        if: steps.resultado.outputs.exito == 'true'
+        run: git push origin "HEAD:refs/heads/$RAMA_TRABAJO"
+
+      # Un PR Producción -> main arrastra TODO lo que Producción tenga sin
+      # mergear, no solo el commit de dependencias. Auto-mergear eso publicaría
+      # trabajo ajeno a esta corrida, así que solo mergeamos solos cuando el
+      # diff contra main se limita a los archivos de dependencias.
+      - name: Evaluar si el PR es auto-mergeable
+        id: automerge
+        if: steps.resultado.outputs.exito == 'true'
+        run: |
+          git fetch origin "$RAMA_DESTINO"
+          OTROS=""
+          for f in $(git diff --name-only "origin/$RAMA_DESTINO...HEAD"); do
+            case " $ARCHIVOS " in
+              *" $f "*) ;;
+              *) OTROS="$OTROS $f" ;;
+            esac
+          done
+          if [ -z "$OTROS" ]; then
+            echo "seguro=true" >> "$GITHUB_OUTPUT"
+            echo "El diff contra $RAMA_DESTINO solo toca archivos de dependencias."
+          else
+            echo "seguro=false" >> "$GITHUB_OUTPUT"
+            echo "otros=$OTROS" >> "$GITHUB_OUTPUT"
+            echo "El diff contra $RAMA_DESTINO además toca:$OTROS"
+          fi
+
+      - name: Abrir PR hacia main y mergear
+        if: steps.resultado.outputs.exito == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEGURO: ${{ steps.automerge.outputs.seguro }}
+          OTROS: ${{ steps.automerge.outputs.otros }}
+          ANTES: ${{ steps.escaneo.outputs.desglose }}
+        run: |
+          NUM=$(gh pr list --head "$RAMA_TRABAJO" --base "$RAMA_DESTINO" \
+                  --state open --json number --jq '.[0].number // empty')
+          if [ -z "$NUM" ]; then
+            gh pr create --base "$RAMA_DESTINO" --head "$RAMA_TRABAJO" \
+              --title "chore(deps): actualizar dependencias vulnerables ($ANTES)" \
+              --body-file cuerpo-pr.md \
+              --label dependencias --label seguridad
+            NUM=$(gh pr list --head "$RAMA_TRABAJO" --base "$RAMA_DESTINO" \
+                    --state open --json number --jq '.[0].number')
+          else
+            echo "Ya había un PR abierto (#$NUM); le agrego el reporte de esta corrida."
+            gh pr comment "$NUM" --body-file cuerpo-pr.md
+          fi
+
+          # Sin --delete-branch: Producción es una rama de larga vida.
+          if [ "$SEGURO" = "true" ]; then
+            gh pr merge "$NUM" --merge
+            echo "PR #$NUM mergeado en $RAMA_DESTINO."
+          else
+            echo "::warning::PR #$NUM abierto pero NO mergeado: el diff contra $RAMA_DESTINO incluye cambios ajenos a las dependencias ($OTROS). Revisalo a mano."
+          fi
+
+      # ---------------------------------------------------------------------
+      # 4b. Quedó algo mal: no tocamos Producción, abrimos PR de revisión
+      # ---------------------------------------------------------------------
+      # La rama de revisión es efímera y de uso exclusivo de este job, por eso
+      # se reescribe entera en cada corrida.
+      - name: Abrir PR de revisión
+        if: steps.escaneo.outputs.total != '0' && steps.diff.outputs.hay_cambios == 'true' && steps.resultado.outputs.exito != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ANTES: ${{ steps.escaneo.outputs.desglose }}
+        run: |
+          git push --force origin "HEAD:refs/heads/$RAMA_FALLO"
+          NUM=$(gh pr list --head "$RAMA_FALLO" --base "$RAMA_TRABAJO" \
+                  --state open --json number --jq '.[0].number // empty')
+          if [ -z "$NUM" ]; then
+            gh pr create --draft --base "$RAMA_TRABAJO" --head "$RAMA_FALLO" \
+              --title "chore(deps): actualización que necesita revisión ($ANTES)" \
+              --body-file cuerpo-pr.md \
+              --label dependencias --label seguridad
+          else
+            echo "Ya había un PR de revisión abierto (#$NUM)."
+            gh pr comment "$NUM" --body-file cuerpo-pr.md
+          fi
+
+      # ---------------------------------------------------------------------
+      # 5. Dejar el job en rojo si quedó algo sin resolver
+      # ---------------------------------------------------------------------
+      - name: Estado final
+        if: steps.escaneo.outputs.total != '0'
+        env:
+          PENDIENTES: ${{ steps.reescaneo.outputs.total }}
+          TODO_VERDE: ${{ steps.verificacion.outputs.todo_verde }}
+          HAY_CAMBIOS: ${{ steps.diff.outputs.hay_cambios }}
+        run: |
+          if [ "$HAY_CAMBIOS" != "true" ]; then
+            echo "::error::Se detectaron vulnerabilidades pero no hay actualización disponible dentro de los rangos actuales. Requiere migración manual."
+            exit 1
+          fi
+          if [ "$PENDIENTES" != "0" ]; then
+            echo "::error::Quedan $PENDIENTES vulnerabilidades sin parche dentro del major actual. Requieren migración manual."
+            exit 1
+          fi
+          if [ "$TODO_VERDE" != "true" ]; then
+            echo "::error::La actualización cierra las vulnerabilidades pero rompe tests o build. Quedó en un PR draft, sin tocar Producción."
+            exit 1
+          fi
+          echo "Vulnerabilidades resueltas, verificación en verde y Producción actualizada."

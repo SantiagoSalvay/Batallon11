@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_server_prisma_migrations_20260611220000_drop_stage_media_migration_sql", "label": "migration.sql", "file_type": "code", "source_file": "server/prisma/migrations/20260611220000_drop_stage_media/migration.sql", "source_location": null}], "edges": []}
