@@ -23,17 +23,37 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: npm install, build, and test
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies (monorepo)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build client
+        run: pnpm --filter batallon11-client build
+
+      - name: Assemble deployment package
         run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+          mkdir -p deploy
+          # Copy server source (sin node_modules, .env ni uploads locales)
+          rsync -a server/ deploy/ \
+            --exclude node_modules \
+            --exclude .env \
+            --exclude uploads
+          # Copiar el build del cliente adentro de deploy/public
+          mkdir -p deploy/public
+          cp -r client/dist/* deploy/public/
+          # Instalar dependencias de producción dentro de deploy (esto corre "prisma generate" solo por el postinstall)
+          cd deploy
+          npm install --omit=dev
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: deploy
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,7 +67,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -62,4 +82,3 @@ jobs:
           app-name: 'Batallon11'
           slot-name: 'Production'
           package: .
-          
