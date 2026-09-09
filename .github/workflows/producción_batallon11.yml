@@ -35,16 +35,14 @@ jobs:
       - name: Assemble deployment package
         run: |
           mkdir -p deploy
-          # Copy server source (sin node_modules, .env ni uploads locales)
           rsync -a server/ deploy/ \
             --exclude node_modules \
             --exclude .env \
             --exclude uploads
-          # Copiar el build del cliente adentro de deploy/public
           mkdir -p deploy/public
           cp -r client/dist/* deploy/public/
-          # Instalar dependencias de producción dentro de deploy (esto corre "prisma generate" solo por el postinstall)
           cd deploy
+          npm install -g npm@latest
           npm install --omit=dev
 
       - name: Upload artifact for deployment job
