@@ -46,7 +46,7 @@ jobs:
           npm install -g npm@latest
           npm install --omit=dev
           cd ../..
-          tar -czf deploy.tar.gz -C deploy 
+          tar -czf deploy.tar.gz -C deploy .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
