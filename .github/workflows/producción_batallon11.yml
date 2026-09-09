@@ -44,13 +44,14 @@ jobs:
           cd deploy
           npm install -g npm@latest
           npm install --omit=dev
+          cd ..
+          tar -czf deploy.tar.gz -C deploy .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: deploy
-          include-hidden-files: true
+          path: deploy.tar.gz
 
   deploy:
     runs-on: ubuntu-latest
@@ -65,6 +66,11 @@ jobs:
         with:
           name: node-app
 
+      - name: Extract deployment package
+        run: |
+          mkdir -p deploy
+          tar -xzf deploy.tar.gz -C deploy
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -78,4 +84,4 @@ jobs:
         with:
           app-name: 'Batallon11'
           slot-name: 'Production'
-          package: .
+          package: deploy
