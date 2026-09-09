@@ -34,18 +34,19 @@ jobs:
 
       - name: Assemble deployment package
         run: |
-          mkdir -p deploy
-          rsync -a server/ deploy/ \
+          mkdir -p deploy/server
+          rsync -a server/ deploy/server/ \
             --exclude node_modules \
             --exclude .env \
             --exclude uploads
-          mkdir -p deploy/public
-          cp -r client/dist/* deploy/public/
-          cd deploy
+          rsync -a shared/ deploy/shared/
+          mkdir -p deploy/server/public
+          cp -r client/dist/* deploy/server/public/
+          cd deploy/server
           npm install -g npm@latest
           npm install --omit=dev
-          cd ..
-          tar -czf deploy.tar.gz -C deploy .
+          cd ../..
+          tar -czf deploy.tar.gz -C deploy 
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
