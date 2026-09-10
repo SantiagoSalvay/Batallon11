@@ -32,6 +32,8 @@ jobs:
       - name: Build client
         env:
           VITE_API_URL: https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net
+          VITE_MAPS_EMBED_URL: https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d523.8332374402514!2d-64.26843433039825!3d-31.393524440983576!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94329f1ee5ef67b7%3A0xd59e5978f38ad3!2sBatall%C3%B3n%2011%20Gral.%20Jos%C3%A9%20Mar%C3%ADa%20Paz.!5e1!3m2!1ses!2sar!4v1781791401204!5m2!1ses!2sar
+          VITE_MAPS_OPEN_URL: https://www.google.com/maps/place/Batall%C3%B3n+11+Gral.+Jos%C3%A9+Mar%C3%ADa+Paz./@-31.3935244,-64.2684343,17z
         run: pnpm --filter batallon11-client build
 
       - name: Assemble deployment package

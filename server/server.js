@@ -60,18 +60,20 @@ if (process.env.NODE_ENV !== 'test') {
 
 const cspDirectives = isProd
   ? {
-      defaultSrc: ["'self'"],
-      baseUri: ["'none'"],
-      formAction: ["'self'"],
-      frameAncestors: ["'none'"],
-      frameSrc: ["'self'", 'https://www.google.com', 'https://maps.google.com'],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-      imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-      connectSrc: ["'self'", 'https://challenges.cloudflare.com'],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
+      directives: {
+        defaultSrc: ["'self'"],
+        baseUri: ["'none'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
+        frameSrc: ["'self'", 'https://www.google.com', 'https://maps.google.com'],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+        connectSrc: ["'self'", 'https://challenges.cloudflare.com'],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
     }
   : false;
 
