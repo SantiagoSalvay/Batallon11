@@ -30,6 +30,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build client
+        env:
+          VITE_API_URL: https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net
         run: pnpm --filter batallon11-client build
 
       - name: Assemble deployment package
