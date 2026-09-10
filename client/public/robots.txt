@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /p/
 
-Sitemap: https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/m/sitemap.xml
+Sitemap: https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/sitemap.xml
