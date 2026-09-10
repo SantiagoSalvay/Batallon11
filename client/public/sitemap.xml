@@ -1,108 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://batallon11.com/</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net//</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/publicaciones</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/publicaciones</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://batallon11.com/etapas/horneros-pichones</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/horneros-pichones</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/horneros-pichones/publicaciones</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/horneros-pichones/publicaciones</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/horneros-pichones/galeria</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/horneros-pichones/galeria</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://batallon11.com/etapas/caminantes-chispistas</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/caminantes-chispistas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/caminantes-chispistas/publicaciones</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/caminantes-chispistas/publicaciones</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/caminantes-chispistas/galeria</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/caminantes-chispistas/galeria</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://batallon11.com/etapas/pioneros-fuegos</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/pioneros-fuegos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/pioneros-fuegos/publicaciones</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/pioneros-fuegos/publicaciones</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/pioneros-fuegos/galeria</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/pioneros-fuegos/galeria</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://batallon11.com/etapas/rastreadores</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/rastreadores</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/rastreadores/publicaciones</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/rastreadores/publicaciones</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/rastreadores/galeria</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/rastreadores/galeria</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://batallon11.com/etapas/baqueanos</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/baqueanos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/baqueanos/publicaciones</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/baqueanos/publicaciones</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/baqueanos/galeria</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/baqueanos/galeria</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://batallon11.com/etapas/soles</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/soles</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/soles/publicaciones</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/soles/publicaciones</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://batallon11.com/etapas/soles/galeria</loc>
+    <loc>https://batallon11-fzc8apdfaegnhdg9.eastus-01.azurewebsites.net/etapas/soles/galeria</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
