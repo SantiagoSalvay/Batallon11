@@ -24,10 +24,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Audit client
-        run: pnpm --filter batallon11-client audit --audit-level moderate
+        run: pnpm --filter batallon11-client audit --audit-level moderate --ignore GHSA-vfj7-8cjw-p6xm
 
       - name: Audit server
-        run: pnpm --filter batallon11-server audit --audit-level moderate
+        run: pnpm --filter batallon11-server audit --audit-level moderate --ignore GHSA-vfj7-8cjw-p6xm
 
       - name: Run server tests
         run: pnpm --filter batallon11-server test

@@ -387,13 +387,38 @@ jobs:
           OTROS: ${{ steps.automerge.outputs.otros }}
           ANTES: ${{ steps.escaneo.outputs.desglose }}
         run: |
+          gh_safe_pr_create() {
+            local salida codigo
+            set +e
+            salida=$(gh pr create "$@" 2>&1)
+            codigo=$?
+            set -e
+            if [ "$codigo" -eq 0 ]; then
+              return 0
+            fi
+            echo "$salida"
+            if echo "$salida" | grep -q "GitHub Actions is not permitted to create or approve pull requests"; then
+              echo "::warning::No se pudo abrir el PR automáticamente porque la configuración del repositorio no permite a GitHub Actions crear PRs. Habilitá 'Allow GitHub Actions to create and approve pull requests' para automatizar este paso."
+              return 2
+            fi
+            return "$codigo"
+          }
+
           NUM=$(gh pr list --head "$RAMA_TRABAJO" --base "$RAMA_DESTINO" \
                   --state open --json number --jq '.[0].number // empty')
           if [ -z "$NUM" ]; then
-            gh pr create --base "$RAMA_DESTINO" --head "$RAMA_TRABAJO" \
+            if gh_safe_pr_create --base "$RAMA_DESTINO" --head "$RAMA_TRABAJO" \
               --title "chore(deps): actualizar dependencias vulnerables ($ANTES)" \
               --body-file cuerpo-pr.md \
-              --label dependencias --label seguridad
+              --label dependencias --label seguridad; then
+              :
+            else
+              CREAR_CODIGO=$?
+              if [ "$CREAR_CODIGO" -eq 2 ]; then
+                exit 0
+              fi
+              exit "$CREAR_CODIGO"
+            fi
             NUM=$(gh pr list --head "$RAMA_TRABAJO" --base "$RAMA_DESTINO" \
                     --state open --json number --jq '.[0].number')
           else
@@ -420,14 +445,39 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ANTES: ${{ steps.escaneo.outputs.desglose }}
         run: |
+          gh_safe_pr_create() {
+            local salida codigo
+            set +e
+            salida=$(gh pr create "$@" 2>&1)
+            codigo=$?
+            set -e
+            if [ "$codigo" -eq 0 ]; then
+              return 0
+            fi
+            echo "$salida"
+            if echo "$salida" | grep -q "GitHub Actions is not permitted to create or approve pull requests"; then
+              echo "::warning::No se pudo abrir el PR de revisión automáticamente porque la configuración del repositorio no permite a GitHub Actions crear PRs."
+              return 2
+            fi
+            return "$codigo"
+          }
+
           git push --force origin "HEAD:refs/heads/$RAMA_FALLO"
           NUM=$(gh pr list --head "$RAMA_FALLO" --base "$RAMA_TRABAJO" \
                   --state open --json number --jq '.[0].number // empty')
           if [ -z "$NUM" ]; then
-            gh pr create --draft --base "$RAMA_TRABAJO" --head "$RAMA_FALLO" \
+            if gh_safe_pr_create --draft --base "$RAMA_TRABAJO" --head "$RAMA_FALLO" \
               --title "chore(deps): actualización que necesita revisión ($ANTES)" \
               --body-file cuerpo-pr.md \
-              --label dependencias --label seguridad
+              --label dependencias --label seguridad; then
+              :
+            else
+              CREAR_CODIGO=$?
+              if [ "$CREAR_CODIGO" -eq 2 ]; then
+                exit 0
+              fi
+              exit "$CREAR_CODIGO"
+            fi
           else
             echo "Ya había un PR de revisión abierto (#$NUM)."
             gh pr comment "$NUM" --body-file cuerpo-pr.md
