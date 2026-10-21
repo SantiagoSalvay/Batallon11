@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
 import AdminFileInput from '../../components/admin/AdminFileInput.jsx';
+import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 
 const EMPTY = { id: null, title: '', content: '', published: true };
 
@@ -46,7 +47,10 @@ export default function PostsAdmin() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold">Publicaciones generales</h1>
+      <AdminPageHeader
+        title="Publicaciones generales"
+        description="Las publicaciones que se ven en la página principal y en la sección Publicaciones."
+      />
 
       {status && (
         <div className={`mt-4 rounded-lg px-3 py-2 text-sm ${status.type === 'ok' ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30' : 'bg-red-500/10 text-red-200 border border-red-500/30'}`}>

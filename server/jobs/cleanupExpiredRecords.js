@@ -2,9 +2,8 @@ const prisma = require('../config/prisma');
 
 async function cleanupExpiredRecords() {
   const now = new Date();
-  const [jtiResult, gateResult, totpResult] = await Promise.all([
+  const [jtiResult, totpResult] = await Promise.all([
     prisma.jtiAccesoRevocado.deleteMany({ where: { expiresAt: { lt: now } } }),
-    prisma.desafioAccesoAdmin.deleteMany({ where: { expiresAt: { lt: now } } }),
     prisma.codigoTotpUsado.deleteMany({ where: { expiresAt: { lt: now } } }),
   ]);
   // eslint-disable-next-line no-console
@@ -13,7 +12,6 @@ async function cleanupExpiredRecords() {
       ts: now.toISOString(),
       action: 'cleanup.expired_records',
       revokedJti: jtiResult.count,
-      gateTokens: gateResult.count,
       totpCodes: totpResult.count,
     })
   );

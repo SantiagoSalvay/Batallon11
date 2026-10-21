@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { asset } from '../services/api.js';
 import { safeText } from '../lib/safeText.js';
+import SectionHeader from './SectionHeader.jsx';
+import { fadeUp, inView, stagger } from '../lib/motion.js';
 
 function formatDate(d) {
   try {
@@ -19,33 +21,31 @@ export default function EventsSection({ events = [] }) {
   return (
     <section id="eventos" className="public-band py-16 sm:py-24">
       <div className="container-app">
-        <div className="grid gap-6 border-b border-slate-200 pb-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-          <div>
-            <span className="public-eyebrow">Agenda</span>
-            <h2 className="public-title mt-3">Próximas actividades</h2>
-          </div>
-          <p className="public-copy max-w-2xl lg:ml-auto">
-            Campamentos, encuentros, salidas y momentos importantes de la vida
-            del batallón.
-          </p>
-        </div>
+        <SectionHeader
+          eyebrow="Agenda"
+          title="Próximas actividades"
+          lead="Campamentos, encuentros, salidas y momentos importantes de la vida del batallón."
+        />
 
         {events.length === 0 ? (
           <div className="mt-8 rounded-md border border-dashed border-slate-300 bg-stone-50 px-5 py-8 text-sm text-slate-500">
             No hay eventos programados por el momento.
           </div>
         ) : (
-          <ul className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
-            {events.map((e, idx) => (
+          <motion.ul
+            variants={stagger(0.07)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={inView}
+            className="mt-8 divide-y divide-slate-200 border-y border-slate-200"
+          >
+            {events.map((e) => (
               <motion.li
                 key={e.id}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.04 }}
-                className="grid gap-5 py-5 sm:grid-cols-[96px_1fr] sm:items-center lg:grid-cols-[96px_140px_1fr]"
+                variants={fadeUp}
+                className="group grid gap-5 py-5 transition-colors duration-300 hover:bg-stone-50/70 sm:grid-cols-[96px_1fr] sm:items-center lg:grid-cols-[96px_140px_1fr]"
               >
-                <div className="w-24 rounded-md border border-blue-950/20 bg-blue-950 px-3 py-3 text-center text-white">
+                <div className="w-24 rounded-md border border-blue-950/20 bg-blue-950 px-3 py-3 text-center text-white transition-transform duration-300 group-hover:-translate-y-0.5">
                   <div className="text-xs font-bold uppercase tracking-[0.16em] text-white/75">
                     {new Date(e.date).toLocaleDateString('es-AR', { month: 'short' })}
                   </div>
@@ -76,7 +76,7 @@ export default function EventsSection({ events = [] }) {
                 </div>
               </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         )}
       </div>
     </section>

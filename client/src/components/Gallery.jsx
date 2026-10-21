@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 import { safeText } from '../lib/safeText.js';
 import ZoomableImage from './ZoomableImage.jsx';
+import SectionHeader from './SectionHeader.jsx';
 
 function GalleryGrid({ images, animate, onSelect }) {
   return (
@@ -229,23 +230,22 @@ export default function Gallery({
   return (
     <section id="galeria" className="public-band py-16 sm:py-24">
       <div className="container-app">
-        <div className="flex flex-col gap-5 border-b border-slate-200 pb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <span className="public-eyebrow">Galería</span>
-            <h2 className="public-title mt-3">{title}</h2>
-          </div>
-
-          {showMoreLink && (
-          <Link
-            to={viewAllLink}
-            className={`public-button-outline ${
-              carousel && !showSlider ? 'hidden lg:inline-flex' : 'inline-flex'
-            }`}
-          >
-            {viewAllLabel}
-          </Link>
-          )}
-        </div>
+        <SectionHeader
+          eyebrow="Galería"
+          title={title}
+          action={
+            showMoreLink ? (
+              <Link
+                to={viewAllLink}
+                className={`public-button-outline ${
+                  carousel && !showSlider ? 'hidden lg:inline-flex' : 'inline-flex'
+                }`}
+              >
+                {viewAllLabel}
+              </Link>
+            ) : null
+          }
+        />
 
         {visibleImages.length === 0 ? (
           <div className="mt-8 rounded-md border border-dashed border-slate-300 bg-stone-50 px-5 py-8 text-sm text-slate-500">

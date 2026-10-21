@@ -1,14 +1,12 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate, useParams, Navigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext.jsx';
 import { BRAND_LOGO } from '../lib/stageAssets.js';
-import { isValidAdminRouteToken } from '../lib/adminAccess.js';
 import { safeInternalPath } from '../lib/safeRedirect.js';
 import Seo from '../components/Seo.jsx';
 
 export default function Login() {
-  const { token } = useParams();
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,12 +29,7 @@ const submit = async (e) => {
   try {
     const code = needTotp ? totpCode.trim() : undefined;
 
-    const user = await login(
-      email,
-      password,
-      code || undefined,
-      undefined
-    );
+    const user = await login(email, password, code || undefined, undefined);
 
     const role = user.role?.toUpperCase();
 

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { asset } from '../services/api.js';
 import { safeText } from '../lib/safeText.js';
 import ZoomableImage from './ZoomableImage.jsx';
+import SectionHeader from './SectionHeader.jsx';
 
 function formatDate(d) {
   try {
@@ -91,23 +92,22 @@ export default function PostsList({
   return (
     <section id="publicaciones" className="public-section py-16 sm:py-24">
       <div className="container-app">
-        <div className="flex flex-col gap-5 border-b border-slate-200 pb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <span className="public-eyebrow">Cartelera</span>
-            <h2 className="public-title mt-3">{title || 'Últimas novedades'}</h2>
-          </div>
-
-          {(showViewAll && posts.length >= 3) || showMoreLink ? (
-            <Link
-              to={viewAllLink || '/publicaciones'}
-              className={`inline-flex w-fit rounded-md border border-slate-300 px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-950 hover:text-blue-950 ${
-                compact && showMoreLink ? 'hidden lg:inline-flex' : ''
-              }`}
-            >
-              {showMoreLink ? viewAllLabel : 'Ver todas'}
-            </Link>
-          ) : null}
-        </div>
+        <SectionHeader
+          eyebrow="Cartelera"
+          title={title || 'Últimas novedades'}
+          action={
+            (showViewAll && posts.length >= 3) || showMoreLink ? (
+              <Link
+                to={viewAllLink || '/publicaciones'}
+                className={`inline-flex w-fit rounded-md border border-slate-300 px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-950 hover:text-blue-950 ${
+                  compact && showMoreLink ? 'hidden lg:inline-flex' : ''
+                }`}
+              >
+                {showMoreLink ? viewAllLabel : 'Ver todas'}
+              </Link>
+            ) : null
+          }
+        />
 
         {visiblePosts.length === 0 ? (
           <div className="mt-8 rounded-md border border-dashed border-slate-300 bg-white px-5 py-8 text-sm text-slate-500">

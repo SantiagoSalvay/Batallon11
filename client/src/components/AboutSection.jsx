@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { fadeUp, inView, stagger } from '../lib/motion.js';
 
 const VALUES = [
   {
@@ -21,10 +22,10 @@ export default function AboutSection() {
       <div className="container-app">
         <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55 }}
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={inView}
           >
             <span className="public-eyebrow">Quiénes somos</span>
             <h2 className="public-title mt-3">
@@ -33,37 +34,40 @@ export default function AboutSection() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55, delay: 0.08 }}
+            variants={stagger(0.12)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={inView}
             className="space-y-5"
           >
-            <p className="public-copy">
+            <motion.p variants={fadeUp} className="public-copy">
               El Batallón 11 General José María Paz forma parte de los
               Exploradores Argentinos de Don Bosco. Es un espacio donde niños,
               adolescentes y jóvenes encuentran pertenencia, amistad, aventura y
               una propuesta de crecimiento con valores.
-            </p>
-            <p className="public-copy">
+            </motion.p>
+            <motion.p variants={fadeUp} className="public-copy">
               La vida del batallón se construye semana a semana: encuentros,
               juegos, celebraciones, caminatas, campamentos, proyectos y pequeños
               gestos de servicio que ayudan a crecer en grupo.
-            </p>
+            </motion.p>
           </motion.div>
         </div>
 
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
-          {VALUES.map((item, index) => (
+        <motion.div
+          variants={stagger(0.1)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={inView}
+          className="mt-12 grid gap-4 md:grid-cols-3"
+        >
+          {VALUES.map((item) => (
             <motion.article
               key={item.title}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: index * 0.06 }}
-              className="public-card rounded-md p-6"
+              variants={fadeUp}
+              className="group public-card rounded-md p-6 transition duration-300 hover:-translate-y-1 hover:border-blue-950/25 hover:shadow-md"
             >
-              <div className="mb-4 h-1 w-12 rounded-full bg-blue-950" />
+              <div className="mb-4 h-1 w-12 rounded-full bg-blue-950 transition-all duration-300 group-hover:w-20" />
               <h3 className="font-display text-xl font-extrabold text-slate-950">
                 {item.title}
               </h3>
@@ -72,7 +76,7 @@ export default function AboutSection() {
               </p>
             </motion.article>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

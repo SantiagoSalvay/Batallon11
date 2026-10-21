@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import { api, asset } from '../services/api.js';
 import PostsList from '../components/PostsList.jsx';
 import Gallery from '../components/Gallery.jsx';
 import StageInfoSection from '../components/StageInfoSection.jsx';
 import StageContactSection from '../components/StageContactSection.jsx';
 import Seo from '../components/Seo.jsx';
+import StageStepIndicator from '../components/StageStepIndicator.jsx';
 import { logoForStage } from '../lib/stageAssets.js';
 import { localStageBySlug } from '../lib/stages.js';
 import { breadcrumbLd, absoluteUrl } from '../lib/seo.js';
@@ -100,14 +102,19 @@ export default function StagePage() {
           <Link
             to="/"
             onClick={goHome}
-            className="text-sm font-semibold text-slate-500 transition hover:text-blue-950"
+            className="group inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-950"
           >
-            {'<-'} Volver al inicio
+            <ArrowLeft
+              className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1"
+              aria-hidden="true"
+            />
+            Volver al inicio
           </Link>
 
           <motion.div
             initial={{ y: 24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="mt-6 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm sm:mt-10"
           >
             {stage.coverImage && (
@@ -132,7 +139,7 @@ export default function StagePage() {
                   className="mb-2 inline-block h-1 w-10 rounded-full sm:mb-4 sm:h-1.5 sm:w-14"
                   style={{ backgroundColor: color }}
                 />
-                <p className="public-eyebrow text-[0.65rem] sm:text-xs">Etapa</p>
+                <StageStepIndicator slug={slug} />
                 <h1 className="mt-1 font-display text-2xl font-extrabold leading-tight text-slate-950 sm:mt-2 sm:text-5xl">
                   {stage.name}
                 </h1>

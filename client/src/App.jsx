@@ -34,7 +34,7 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
       </Route>
 
-      <Route path="/p/:token" element={<Login />} />
+      <Route path="/p" element={<Login />} />
 
       <Route
         path="/admin"

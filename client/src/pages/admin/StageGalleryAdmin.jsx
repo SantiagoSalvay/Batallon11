@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import AdminFileInput from '../../components/admin/AdminFileInput.jsx';
+import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 
 export default function StageGalleryAdmin() {
   const { user } = useAuth();
@@ -60,7 +61,10 @@ export default function StageGalleryAdmin() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold">Galerías por etapa</h1>
+      <AdminPageHeader
+        title="Galerías por etapa"
+        description="Las fotos que se muestran en la página de cada etapa."
+      />
 
       <div className="mt-6">
         <label className="label">Etapa</label>

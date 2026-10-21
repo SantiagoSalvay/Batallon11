@@ -12,7 +12,7 @@ const apiOrigin = isDev ? '' : configuredApi;
 const assetsOrigin = isDev ? '' : configuredApi;
 
 export const api = axios.create({
-  baseURL: apiOrigin ? `${apiOrigin}/api` : '',
+  baseURL: apiOrigin ? `${apiOrigin}/api` : '/api',
   withCredentials: true,
 });
 
@@ -41,7 +41,18 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (r) => r,
+  (r) => {
+    // El dev server devuelve index.html (200) para rutas que no matchean el proxy,
+    // así que una respuesta HTML donde esperamos JSON es un error de configuración,
+    // no datos válidos. Rechazarla evita que el componente reciba un string.
+    const contentType = r.headers?.['content-type'] || '';
+    if (typeof r.data === 'string' && contentType.includes('text/html')) {
+      return Promise.reject(
+        new Error(`Respuesta inválida de la API en ${r.config?.url}: se recibió HTML en lugar de JSON.`)
+      );
+    }
+    return r;
+  },
   async (error) => {
     const originalConfig = error.config;
     if (!originalConfig || originalConfig._retry) {

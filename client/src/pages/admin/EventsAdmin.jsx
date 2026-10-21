@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
 import AdminFileInput from '../../components/admin/AdminFileInput.jsx';
 import AdminDateTimeField from '../../components/admin/AdminDateTimeField.jsx';
+import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 
 const EMPTY = { id: null, title: '', description: '', date: '', location: '' };
 
@@ -59,7 +60,10 @@ export default function EventsAdmin() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold">Eventos</h1>
+      <AdminPageHeader
+        title="Eventos"
+        description="La agenda de actividades que aparece en la página principal."
+      />
 
       {status && (
         <div className={`mt-4 rounded-lg px-3 py-2 text-sm ${status.type === 'ok' ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30' : 'bg-red-500/10 text-red-200 border border-red-500/30'}`}>

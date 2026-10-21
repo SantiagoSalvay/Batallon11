@@ -19,7 +19,6 @@ const {
   clearCookieOptions,
 } = require('../config/cookies');
 const { ensureCsrfCookie, generateCsrfValue } = require('../middleware/csrf');
-const { hashGateToken } = require('../utils/adminGate');
 const { decrypt } = require('../utils/cryptoAtRest');
 const { verifyTotpAntiReplay } = require('../utils/totpSecurity');
 const { audit, maskEmail } = require('../utils/auditLog');
@@ -78,40 +77,12 @@ async function persistRefreshSession(userId, rawRefresh, req) {
   return jti;
 }
 
-async function resolveAdminGate(req, res) {
-  const gateRaw = req.get('x-admin-gate') || '';
-  if (!gateRaw) {
-    await uniformLoginDelay(140);
-    res.status(403).json({ message: 'Acceso no autorizado.' });
-    return null;
-  }
-
-  const gate = await prisma.desafioAccesoAdmin.findUnique({
-    where: { tokenHash: hashGateToken(gateRaw) },
-  });
-
-  const gateValid = gate && !gate.usedAt && gate.expiresAt > new Date();
-  if (!gateValid) {
-    await uniformLoginDelay(140);
-    res.status(403).json({ message: 'Acceso no autorizado.' });
-    return null;
-  }
-
-  return gate;
-}
-
-async function consumeAdminGate(gateId) {
-  await prisma.desafioAccesoAdmin.update({
-    where: { id: gateId },
-    data: { usedAt: new Date() },
-  });
-}
-
+// El "gate token" se eliminó: se emitía por un endpoint público, así que
+// cualquiera podía obtener uno y no agregaba ninguna barrera real. El acceso
+// se apoya en la contraseña (bcrypt), el TOTP opcional, el rate limit y el
+// slow-down de /api/auth/login.
 async function login(req, res, next) {
   try {
-    const gate = await resolveAdminGate(req, res);
-    if (!gate) return;
-
     const body = req.validatedBody || req.body;
     const turnstileOk = await verifyTurnstileIfConfigured(body.turnstileToken, req.ip);
     if (!turnstileOk) {
@@ -175,7 +146,6 @@ async function login(req, res, next) {
     const accessJti = newJti();
     const accessToken = signAccessToken(userFull, accessJti);
     const rawRefresh = randomRefreshRaw();
-    await consumeAdminGate(gate.id);
     await persistRefreshSession(userFull.id, rawRefresh, req);
 
     ensureCsrfCookie(req, res);

@@ -79,13 +79,13 @@ const cspDirectives = isProd
 
 app.use(
   helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginResourcePolicy: { policy: 'same-origin' },
     contentSecurityPolicy: cspDirectives,
     hsts: isProd
       ? { maxAge: 31536000, includeSubDomains: true, preload: true }
       : false,
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-    permittedCrossDomainPolicies: false,
+    permittedCrossDomainPolicies: { permittedPolicies: 'none' },
     frameguard: { action: 'deny' },
     crossOriginOpenerPolicy: { policy: 'same-origin' },
     crossOriginEmbedderPolicy: false,
@@ -139,6 +139,9 @@ app.use(
     etag: true,
     setHeaders(res) {
       res.setHeader('X-Content-Type-Options', 'nosniff');
+      // Única excepción al CORP same-origin global: el cliente puede estar
+      // desplegado en otro origen y necesita cargar estas imágenes.
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     },
   })
 );
@@ -157,7 +160,7 @@ app.use('/api', (req, res, next) => {
     return next();
   }
   const pathOnly = req.originalUrl.split('?')[0];
-  if (/\/api\/auth\/(refresh|prepare|gate)$/.test(pathOnly)) {
+  if (/\/api\/auth\/(refresh|prepare)$/.test(pathOnly)) {
     return next();
   }
   return requireCsrf(req, res, next);
@@ -166,9 +169,11 @@ app.use('/api', (req, res, next) => {
 app.get('/api/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ status: 'ok', db: 'connected' });
+    res.json(isProd ? { status: 'ok' } : { status: 'ok', db: 'connected' });
   } catch {
-    res.status(500).json({ status: 'error', db: 'disconnected' });
+    res
+      .status(503)
+      .json(isProd ? { status: 'error' } : { status: 'error', db: 'disconnected' });
   }
 });
 

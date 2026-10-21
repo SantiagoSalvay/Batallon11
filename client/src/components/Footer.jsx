@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { BRAND_LOGO, EMBLEMA } from '../lib/stageAssets.js';
-import { requestAdminAccess } from '../lib/adminAccess.js';
 
+// Puerta de entrada al panel: no hay enlace visible al login en el sitio.
+const ADMIN_LOGIN_PATH = '/p';
 const MOBILE_BREAKPOINT = 768;
 
 const INFO_LINKS = [
@@ -33,20 +34,22 @@ export default function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Ctrl+Shift+L abre el acceso al panel desde cualquier parte del sitio.
   useEffect(() => {
     const onKey = (e) => {
       if (e.ctrlKey && e.shiftKey && (e.key === 'L' || e.key === 'l')) {
         e.preventDefault();
-        requestAdminAccess(navigate);
+        navigate(ADMIN_LOGIN_PATH);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [navigate]);
 
+  // En celular no hay atajo de teclado: el emblema del pie hace de botón.
   const handleEmblemaClick = () => {
     if (window.innerWidth < MOBILE_BREAKPOINT) {
-      requestAdminAccess(navigate);
+      navigate(ADMIN_LOGIN_PATH);
     }
   };
 

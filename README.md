@@ -71,6 +71,8 @@ flowchart TB
 - 🖼️ Subir y ordenar **fotos** en las galerías.
 - 📆 Gestionar **eventos** del calendario.
 - 🔑 Acceso con usuario y contraseña; algunos roles solo editan su propia etapa.
+- 🚪 No hay ningún enlace al panel en el sitio: el acceso se abre con **Ctrl+Shift+L** desde
+  cualquier pantalla, o tocando el emblema del pie de página en el celular.
 
 ☁️ Las imágenes pueden guardarse en el servidor o en **Supabase Storage** (nube), según la configuración.
 

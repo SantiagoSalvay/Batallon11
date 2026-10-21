@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, asset } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import AdminFileInput from '../../components/admin/AdminFileInput.jsx';
+import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 
 const EMPTY = { id: null, title: '', content: '', stageSlug: '', published: true };
 
@@ -66,7 +67,10 @@ export default function StagePostsAdmin() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold">Publicaciones por etapa</h1>
+      <AdminPageHeader
+        title="Publicaciones por etapa"
+        description="Cada etapa tiene sus propias publicaciones. Elegí una etapa para ver y editar su contenido."
+      />
 
       
       <div className="mt-6">

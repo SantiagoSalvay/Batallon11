@@ -3,6 +3,10 @@ const { COOKIE_CSRF, csrfCookieOptions } = require('../config/cookies');
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
+// Anclado al prefijo real: endsWith() eximía también rutas como
+// /api/cualquier-cosa/auth/refresh.
+const CSRF_EXEMPT_PATHS = /^\/api\/auth\/(refresh|prepare)\/?$/;
+
 function generateCsrfValue() {
   return crypto.randomBytes(32).toString('hex');
 }
@@ -29,11 +33,7 @@ function requireCsrf(req, res, next) {
   }
 
   const pathOnly = req.originalUrl.split('?')[0];
-  if (
-    pathOnly.endsWith('/auth/refresh') ||
-    pathOnly.endsWith('/auth/prepare') ||
-    pathOnly.endsWith('/auth/gate')
-  ) {
+  if (CSRF_EXEMPT_PATHS.test(pathOnly)) {
     return next();
   }
 

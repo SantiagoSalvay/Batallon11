@@ -40,8 +40,8 @@ export default function Home() {
     ]).then((results) => {
       if (cancelled) return;
       const [e, g] = results;
-      if (e.status === 'fulfilled') setEvents(e.value.data);
-      if (g.status === 'fulfilled') setStageGalleryImages(g.value.data);
+      if (e.status === 'fulfilled' && Array.isArray(e.value.data)) setEvents(e.value.data);
+      if (g.status === 'fulfilled' && Array.isArray(g.value.data)) setStageGalleryImages(g.value.data);
     });
     return () => {
       cancelled = true;

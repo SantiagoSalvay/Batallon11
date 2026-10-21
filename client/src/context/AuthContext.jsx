@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { api } from '../services/api.js';
-import { getStoredGateToken, clearGateToken } from '../lib/adminAccess.js';
 
 const AuthContext = createContext(null);
 
@@ -25,20 +24,16 @@ export function AuthProvider({ children }) {
   }, [loadMe]);
 
   const login = async (email, password, totpCode, turnstileToken) => {
-    const gateToken = getStoredGateToken();
-    try {
-      // Garantiza que la cookie CSRF exista antes de un POST que ahora la exige.
-      await api.get('/auth/prepare').catch(() => {});
-      const { data } = await api.post(
-        '/auth/login',
-        { email, password, totpCode, turnstileToken },
-        { headers: { 'X-Admin-Gate': gateToken } }
-      );
-      setUser(data.user);
-      return data.user;
-    } finally {
-      clearGateToken();
-    }
+    // Garantiza que la cookie CSRF exista antes de un POST que la exige.
+    await api.get('/auth/prepare').catch(() => {});
+    const { data } = await api.post('/auth/login', {
+      email,
+      password,
+      totpCode,
+      turnstileToken,
+    });
+    setUser(data.user);
+    return data.user;
   };
 
   const logout = async () => {
